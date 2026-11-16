@@ -1,0 +1,12 @@
+# Images remain local and are not tracked in this repository.
+*.png
+*.jpg
+*.jpeg
+
+# Local/generated packages and backups
+*.zip
+*.sha256
+*.SHA256
+*.md
+.DS_Store
+Thumbs.db
