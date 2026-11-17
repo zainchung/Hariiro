@@ -39,7 +39,6 @@ function refreshPlayingArtist() {
     window.Repaint();
 }
 
-
 function clamp(n, low, high) { return Math.min(high, Math.max(low, n)); }
 function loadArtists() {
     try {
