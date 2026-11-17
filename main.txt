@@ -1,4 +1,4 @@
-// Anna Glass V2 - Stage 3I.1: aligned 10px outer margins and unified navigator/Glass highlight palette.
+// Anna Glass V2 - Stage 3I.2: optional 60fps spectrum off + lower-cost lyric and slider updates.
 // Build includes runtime assets only; Stage 3G layout and transport preserved.
 // 16:9 preset only; free drag resizing is not locked (later plugin enhancement).
 // Stage 3E wallpaper retained; Stage 3F panel proportions and core functions preserved.
@@ -51,6 +51,10 @@ $drawrect($eval(%_width% * 72 / 100 - 148),45,120,19,brushcolor-15-24-49 pencolo
 $font(Segoe UI,9,bold,247-210-218)
 $textbutton($eval(%_width% * 72 / 100 - 146),45,116,19,$if($strcmp($getpvar(anna.playlist.experimental),1),MODE: GLASS,MODE: NATIVE),,PVAR:TOGGLE:anna.playlist.experimental,TOOLTIP,'标签显示当前模式；点击切换 GLASS / NATIVE（原生模式可随时恢复）')
 $drawstring(NOW PLAYING,$eval(%_width% * 72 / 100 - 10),45,$eval(%_width% * 28 / 100 - 13),21,225-199-164)
+// VIS is an actual user toggle: OFF skips creating the 60fps native Spectrum panel.
+$drawrect($eval(%_width% - 127),45,109,19,brushcolor-15-24-49 pencolor-199-141-151 alpha-154)
+$font(Segoe UI,9,bold,247-210-218)
+$textbutton($eval(%_width% - 125),45,105,19,$if($strcmp($getpvar(anna.spectrum.low_power),1),VIS: OFF,VIS: ON),,PVAR:TOGGLE:anna.spectrum.low_power,TOOLTIP,'关闭频谱以降低 CPU 占用，点击可恢复频谱')
 
 // Native functional panels: transparent JS navigation, grouped playlist, art and lyrics.
 // Stage 2C intentionally keeps the native playlist renderer so selection, playback,
@@ -76,7 +80,8 @@ $drawstring($if(%isplaying%,[$meta(date)],),$eval(%_width% * 72 / 100 + 152),190
 $drawstring($if(%isplaying%,[%codec%][ · %bitrate%k],),$eval(%_width% * 72 / 100 + 152),$if($meta(date),210,190),$eval(%_width% * 28 / 100 - 185),19,184-192-211)
 // Spectrum is still functional, framed by a faint rose-gold rule.
 $drawrect($eval(%_width% * 72 / 100 - 3),247,$eval(%_width% * 28 / 100 - 20),1,brushcolor-211-162-146 pencolor-null alpha-145)
-$panel(Spectrum,Spectrum,$eval(%_width% * 72 / 100 - 3),252,$eval(%_width% * 28 / 100 - 20),39)
+// The native spectrum is explicitly removed in low-power mode rather than merely hidden by opaque paint.
+$if($strcmp($getpvar(anna.spectrum.low_power),1),$drawstring(Visualizer off  ·  Low power,$eval(%_width% * 72 / 100 + 1),255,$eval(%_width% * 28 / 100 - 30),29,151-164-183),$panel(Spectrum,Spectrum,$eval(%_width% * 72 / 100 - 3),252,$eval(%_width% * 28 / 100 - 20),39))
 // Lyrics starts 16px earlier; its bottom edge stays where it was in Stage 3F.
 $drawrect($eval(%_width% * 72 / 100 - 12),299,$eval(%_width% * 28 / 100 - 1),24,brushcolor-12-24-45 pencolor-216-159-118 alpha-102)
 $font(Segoe UI,10,bold)
