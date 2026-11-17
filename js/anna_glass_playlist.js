@@ -1,4 +1,4 @@
-// Anna Glass V2 Stage 3I: resilient grouped playlist mouse/keyboard interactions.
+// Anna Glass V2 Stage 3J: long-title hover preview and distinct playing/selected states.
 // Source interaction model: official foo_js_panel Playlist sample, adapted to grouped rows.
 // This file NEVER changes/overwrites user's native playlist or saved playlists.
 // MODE: GLASS is the current-mode label; click to toggle back to MODE: NATIVE.
@@ -24,6 +24,23 @@ const TF_ARTIST=fb.TitleFormat('$if2(%artist%,Unknown Artist)');
 const TF_DURATION=fb.TitleFormat('%length%');
 let data=[], nodes=[], trackNodes=[], totalHeight=0, scroll=0, anchor=-1, downAt=null, hover=-1;
 let covers=new Map(), groupCollapsed=new Set(), playlistId=-1, error='';
+// Show a delayed in-panel tooltip only for titles that are actually truncated.
+// There is no unsupported window tooltip API in this JS Panel build.
+let tipIndex=-1, tipTimer=0;
+function cancelTip() {
+    if (tipTimer) { window.ClearTimeout(tipTimer); tipTimer=0; }
+    if (tipIndex!==-1) { tipIndex=-1; window.Repaint(); }
+}
+function queueTip(index) {
+    if (tipTimer) { window.ClearTimeout(tipTimer); tipTimer=0; }
+    tipIndex=-1;
+    if (index<0) return;
+    tipTimer=window.SetTimeout(function() {
+        tipTimer=0;
+        if (hover===index && !downAt) { tipIndex=index; window.Repaint(); }
+    },650);
+}
+
 function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 function oneLine(v){return String(v===null||v===undefined?'':v).replace(/[\r\n\t]+/g,' ').replace(/\s{2,}/g,' ').trim();}
 function current(){return plman.ActivePlaylist;}
@@ -31,7 +48,7 @@ function maxScroll(){return Math.max(0,totalHeight-Math.max(0,window.Height));}
 function clampScroll(){scroll=clamp(scroll,0,maxScroll());}
 function releaseCover(key){const a=covers.get(key);if(a&&typeof a.Dispose==='function')try{a.Dispose();}catch(_){} covers.delete(key);}
 function clearCovers(){ for(const key of covers.keys()) releaseCover(key); }
-function refreshAfterEdit(){ groupCollapsed.clear(); clearCovers(); anchor=-1; downAt=null; build(); }
+function refreshAfterEdit(){ cancelTip(); groupCollapsed.clear(); clearCovers(); anchor=-1; downAt=null; build(); }
 function getCover(g){
     if(covers.has(g.key))return covers.get(g.key);
     let im=null;
@@ -137,10 +154,30 @@ function on_paint(gr){
         if(isPlaying)gr.FillRoundRect(x0+3,y0+7,3,Math.max(8,rh-14),1,1,0xffedbb86);
         else if(focus===n.index)gr.FillRoundRect(x0+3,y0+7,3,Math.max(8,rh-14),1,1,0xffe4b3cd);
         const f=(isPlaying||selected)?BOLD:FONT;
-        gr.GdiDrawText(n.title,f,(isPlaying||selected)?0xfffff1e9:TXT,17,y0+2,Math.max(20,w-120),rh-4,DT);
+        // A gold play glyph remains visible even when the row also has pink selection.
+        if (isPlaying) gr.GdiDrawText('▶',SMALL,GOLD,15,y0+2,16,rh-4,DT);
+        gr.GdiDrawText(n.title,f,(isPlaying||selected)?0xfffff1e9:TXT,isPlaying?31:17,y0+2,
+            Math.max(20,w-(isPlaying?134:120)),rh-4,DT);
         gr.GdiDrawText(n.duration,SMALL,selected?PINK:(isPlaying?GOLD:SOFT),Math.max(20,w-89),y0+2,70,rh-4,0x2|0x4|0x20);
     }
     if(totalHeight>h){const s=Math.max(35,Math.floor(h*h/totalHeight)); const yy=Math.floor((h-s)*scroll/Math.max(1,maxScroll()));gr.FillRoundRect(w-5,yy,3,s,2,2,0x9bf4c1c8);}
+    // Hover preview is painted last so later rows cannot occlude it.
+    if (tipIndex>=0 && hover===tipIndex && !downAt) {
+        const n=data[tipIndex];
+        const available=Math.max(20,w-124);
+        if (n && gr.CalcTextWidth(n.title,FONT)>available) {
+            const boxW=Math.max(80,w-28), textW=Math.max(50,boxW-24);
+            const metrics=gr.MeasureString(n.title,FONT,0,0,textW,150);
+            const lines=Math.min(4,Math.max(1,metrics.lines||1));
+            const boxH=Math.max(34,Math.min(102,12+lines*22));
+            const source=trackNodes[tipIndex];
+            const rowY=source?source.y-scroll:0;
+            const ty=clamp(rowY+ROW_H+4,5,Math.max(5,h-boxH-5));
+            gr.FillRoundRect(14,ty,boxW,boxH,7,7,0xf219243d);
+            gr.DrawRoundRect(14,ty,boxW,boxH,7,7,1,0xffe5b792);
+            gr.GdiDrawText(n.title,FONT,TXT,26,ty+5,textW,boxH-10,0x10|0x8000);
+        }
+    }
 }
 function selectTrack(i,mask){
     const p=current();if(p<0||i<0)return;
@@ -150,8 +187,9 @@ function selectTrack(i,mask){
     plman.SetPlaylistFocusItem(p,i);window.Repaint();
 }
 function reveal(i){let n=trackNodes[i];if(!n){build();n=trackNodes[i];}if(!n)return;if(n.y<scroll)scroll=n.y; else if(n.y+n.h>scroll+window.Height)scroll=n.y+n.h-window.Height;clampScroll();}
-function toggleGroup(k){if(groupCollapsed.has(k))groupCollapsed.delete(k);else groupCollapsed.add(k);hover=-1;build();}
+function toggleGroup(k){cancelTip();if(groupCollapsed.has(k))groupCollapsed.delete(k);else groupCollapsed.add(k);hover=-1;build();}
 function on_mouse_lbtn_down(x,y,mask){
+    cancelTip();
     const n=nodeAt(y),p=current();
     downAt=null;
     if(n&&n.kind==='group'){toggleGroup(n.key);return;}
@@ -176,12 +214,16 @@ function on_mouse_lbtn_up(x,y,mask){
 function on_mouse_lbtn_dblclk(x,y){const n=nodeAt(y);if(n&&n.kind==='song')plman.ExecutePlaylistDefaultAction(current(),n.index);}
 function on_mouse_move(x,y,mask){
     const n=nodeAt(y),h=n&&n.kind==='song'?n.index:-1;
-    if(h!==hover){hover=h;window.Repaint();}
-    // Windowless JS Panel does not implement file drag/drop: use native VIEW for that.
-    if(downAt&&(mask&1)&&Math.abs(x-downAt.x)+Math.abs(y-downAt.y)>8)downAt=null;
+    if(h!==hover){
+        hover=h;
+        queueTip(h);
+        window.Repaint();
+    }
+    // A pending drag cancels tooltip activation; actual file drag/drop uses NATIVE mode.
+    if(downAt&&(mask&1)&&Math.abs(x-downAt.x)+Math.abs(y-downAt.y)>8){downAt=null;cancelTip();}
 }
-function on_mouse_leave(){hover=-1;window.Repaint();}
-function on_mouse_wheel(step){scroll=clamp(scroll-step*ROW_H*3,0,maxScroll());window.Repaint();}
+function on_mouse_leave(){cancelTip();hover=-1;window.Repaint();}
+function on_mouse_wheel(step){cancelTip();scroll=clamp(scroll-step*ROW_H*3,0,maxScroll());window.Repaint();}
 function on_mouse_rbtn_up(x,y){
     const n=nodeAt(y),p=current();
     if(p<0)return false;
@@ -226,8 +268,8 @@ function on_key_down(key){
     }
     return false;
 }
-function on_size(){clampScroll();window.Repaint();}
-function on_playlist_switch(){scroll=0;hover=-1;refreshAfterEdit();}
+function on_size(){cancelTip();clampScroll();window.Repaint();}
+function on_playlist_switch(){cancelTip();scroll=0;hover=-1;refreshAfterEdit();}
 function on_playlists_changed(){refreshAfterEdit();}
 function on_playlist_items_added(p){if(p===current())refreshAfterEdit();}
 function on_playlist_items_removed(p){if(p===current())refreshAfterEdit();}
