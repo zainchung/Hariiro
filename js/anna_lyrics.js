@@ -1,4 +1,4 @@
-// Anna Glass V2 / Stage 3I.2 - repaint synced lyrics only when active line changes.
+// Anna Glass V2 / Stage 3J - two-line layout for long LRC, repaint only on active cue.
 // For Panels UI (reborn) + JS Panel 1.7.0.
 // It intentionally does not draw an opaque cover or fetch lyrics from the internet.
 'use strict';
@@ -143,6 +143,36 @@ function currentIndex() {
     }
     return found;
 }
+// Split only the lyrics that exceed the available width, not every line.
+// CalcTextWidth uses the exact GDI font and avoids the previous single-line clipping.
+function lyricTextLines(gr, text, font, maxW) {
+    const str=String(text||'');
+    if (!str || gr.CalcTextWidth(str,font) <= maxW) return [str];
+    const glyphs=Array.from(str);
+    let lo=1,hi=glyphs.length;
+    while(lo<hi){const mid=Math.ceil((lo+hi)/2);if(gr.CalcTextWidth(glyphs.slice(0,mid).join(''),font)<=maxW)lo=mid;else hi=mid-1;}
+    let end=Math.max(1,lo);
+    // Prefer a natural line boundary when present, without breaking Japanese text mid-byte.
+    for(let i=end-1;i>=Math.max(0,end-8);i--){
+        if(/[\s、。，。！？!?]/.test(glyphs[i])){end=i+1;break;}
+    }
+    const first=glyphs.slice(0,end).join('').trim();
+    let second=glyphs.slice(end).join('').trim();
+    if(gr.CalcTextWidth(second,font)>maxW){
+        const tail=Array.from(second);let low=0,high=tail.length;
+        while(low<high){const mid=Math.ceil((low+high)/2);if(gr.CalcTextWidth(tail.slice(0,mid).join('')+'…',font)<=maxW)low=mid;else high=mid-1;}
+        second=tail.slice(0,low).join('')+'…';
+    }
+    return [first,second];
+}
+function paintLyricLine(gr,text,font,color,x,y,w,h) {
+    if(h<39){gr.GdiDrawText(text,font,color,x,y,w,h,DT_CENTER_SINGLE);return;}
+    const lines=lyricTextLines(gr,text,font,w);
+    if(lines.length===1){gr.GdiDrawText(lines[0],font,color,x,y,w,h,DT_CENTER_SINGLE);return;}
+    const half=Math.floor(h/2);
+    gr.GdiDrawText(lines[0],font,color,x,y,w,half,DT_CENTER_SINGLE);
+    gr.GdiDrawText(lines[1],font,color,x,y+half,w,h-half,DT_CENTER_SINGLE);
+}
 function on_paint(gr) {
     const W = window.Width, H = window.Height;
     if (W < 4 || H < 4) return;
@@ -184,8 +214,8 @@ function on_paint(gr) {
             : highlighted ? ACTIVE
             : distance <= 1 ? LIGHT
             : distance <= 2 ? 0xffc7cadb : MUTED;
-        gr.GdiDrawText(state.lines[index].text, highlighted ? F_ACTIVE : F_MAIN,
-            color, 12, y + 2, Math.max(1, W - 24), lineH - 5, DT_CENTER_SINGLE);
+        paintLyricLine(gr,state.lines[index].text,highlighted ? F_ACTIVE : F_MAIN,
+            color, 14, y + 2, Math.max(1, W - 28), lineH - 5);
     }
     gr.FillSolidRect(10, H - 18, Math.max(1, W - 20), 1, 0x5edab890);
     const sub = state.source + (state.kind === 'synced'
