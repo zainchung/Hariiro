@@ -1,4 +1,4 @@
-// Anna Glass V2, Stage 2B - transparent library / playlist navigator.
+// Anna Glass V2, Stage 3I.1 - synchronized selection/playing palette in transparent navigator.
 // This panel intentionally paints NO opaque background.
 // It requires Panels UI (reborn) + JS Panel 1.7.0 (windowless and transparent).
 'use strict';
@@ -10,9 +10,15 @@ const SMALL = gdi.Font('Segoe UI', 10, 0);
 const BOLD = gdi.Font('Segoe UI', 11, 1);
 const TXT = 0xFFE9F0FB;
 const MUTED = 0xFFC0CEE3;
-const BORDER = 0x6686A7C9;
-const HOT = 0x66567BA7;
-const SELECTED = 0x70B25765;
+// Match Stage 3I GlassPlaylist's exact alpha/RGB values.
+const BORDER = 0x58A4AFCB;
+const NORMAL_BG = 0x41121D38;
+const HOT = 0x48324667;
+const SELECTED = 0x86864B75;
+const PLAYING = 0x656B405D;
+const SELECTED_BORDER = 0xFFFFB7D8;
+const PLAYING_BORDER = 0xF6DFB07E;
+const GLOW = 0x48FF9FD0;
 const DT = 0x8024; // single line | vertical center | end ellipsis
 
 let mode = 'artists';
@@ -22,6 +28,17 @@ let picked = -1;
 let artists = [];
 let artistHandles = [];
 let error = '';
+let playingArtistKey = '';
+const TF_PLAYING_ARTIST = fb.TitleFormat('$if2(%album artist%,$if2(%artist%,Unknown Artist))');
+function nameKey(s) { return String(s || '').trim().toLocaleLowerCase(); }
+function refreshPlayingArtist() {
+    try {
+        const h = fb.GetNowPlaying();
+        playingArtistKey = h ? nameKey(TF_PLAYING_ARTIST.EvalWithMetadb(h)) : '';
+    } catch (e) { playingArtistKey = ''; }
+    window.Repaint();
+}
+
 
 function clamp(n, low, high) { return Math.min(high, Math.max(low, n)); }
 function loadArtists() {
@@ -40,6 +57,7 @@ function loadArtists() {
         error = '';
     } catch (e) { artists = []; error = 'Library: ' + String(e); }
     scroll=0;
+    picked=-1; // artist index is no longer stable after a library rebuild
     window.Repaint();
 }
 function entries() {
@@ -50,7 +68,13 @@ function entries() {
     }
     return out;
 }
-function activeRow(item) { return mode==='playlists' && item.index===plman.ActivePlaylist; }
+function selectedRow(item, i) {
+    return mode === 'playlists' ? item.index === plman.ActivePlaylist : i === picked;
+}
+function playingRow(item) {
+    if (mode === 'playlists') return plman.PlayingPlaylist >= 0 && item.index === plman.PlayingPlaylist;
+    return !!playingArtistKey && nameKey(item.name) === playingArtistKey;
+}
 function on_paint(gr) {
     const w=window.Width, h=window.Height;
     // A translucent control strip: background artwork remains visible.
@@ -67,11 +91,17 @@ function on_paint(gr) {
         const y=TABS+i*ROW-scroll;
         if (y+ROW<TABS || y>=h)continue;
         const item=rows[i];
-        if (activeRow(item)) gr.FillSolidRect(2,y+1,w-7,ROW-2,SELECTED);
-        else if (i===hover) gr.FillSolidRect(2,y+1,w-7,ROW-2,HOT);
-        gr.DrawRect(2,y+1,Math.max(1,w-7),ROW-2,1,activeRow(item)?0xFFE4BE87:BORDER);
+        const selected = selectedRow(item, i), playing = playingRow(item);
+        const x=2, y0=y+1, width=Math.max(1,w-7), height=ROW-2;
+        const fill = selected ? SELECTED : playing ? PLAYING : i===hover ? HOT : NORMAL_BG;
+        const frame = selected ? SELECTED_BORDER : playing ? PLAYING_BORDER : BORDER;
+        if (selected && width>10) gr.DrawRoundRect(x-1,y0-1,width+2,height+2,5,5,1,GLOW);
+        gr.FillRoundRect(x,y0,width,height,4,4,fill);
+        gr.DrawRoundRect(x,y0,width,height,4,4,1,frame);
+        if (playing) gr.FillSolidRect(4,y+6,3,ROW-12,PLAYING_BORDER);
+        else if (selected) gr.FillSolidRect(4,y+6,3,ROW-12,SELECTED_BORDER);
         const label = (mode==='artists' ? '♪ ' : '▸ ') + item.name;
-        gr.GdiDrawText(label,NORMAL,TXT,8,y+2,Math.max(30,w-48),ROW-5,DT);
+        gr.GdiDrawText(label,selected||playing?BOLD:NORMAL,TXT,8,y+2,Math.max(30,w-48),ROW-5,DT);
         const n=mode==='artists'?item.indices.length:item.count;
         gr.GdiDrawText(String(n),SMALL,MUTED,Math.max(0,w-40),y+2,27,ROW-5,DT);
     }
@@ -116,11 +146,15 @@ function on_playlist_switch(){window.Repaint();}
 function on_playlists_changed(){window.Repaint();}
 function on_playlist_items_added(){window.Repaint();}
 function on_playlist_items_removed(){window.Repaint();}
+function on_playback_new_track(){refreshPlayingArtist();}
+function on_playback_stop(){playingArtistKey='';window.Repaint();}
+function on_playback_edited(){refreshPlayingArtist();}
 function on_library_items_added(){loadArtists();}
 function on_library_items_removed(){loadArtists();}
 function on_library_items_changed(){loadArtists();}
 function on_size(){window.Repaint();}
 loadArtists();
+refreshPlayingArtist();
 
 // Stage 2G: skin header messages. Keep local tab and list behaviour unchanged.
 function on_notify_data(name, info) {
