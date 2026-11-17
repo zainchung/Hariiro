@@ -1,4 +1,4 @@
-// Stage 3I.2 — same interactive footer sliders; skip redundant pointer paints.
+// Stage 3I.3 — seek slider previews position during drag and seeks only on release.
 // The parent skin hosts this SAME script in two different windowless JS Panels.
 'use strict';
 const SEEK = panelsui.PanelName === 'FooterSeek';
@@ -10,12 +10,17 @@ const HOVER = 0xffe2bf8c;
 let dragging = false;
 let over = false;
 let lastDragAt = 0;
+let seekPreviewFraction = null;
 function clamp(x) { return Math.max(0, Math.min(1, Number(x) || 0)); }
 // Follow the volume curve used in the JS Panel project's own Seekbar/Volume example.
 function volumeFraction(db) { return clamp((Math.pow(10, db/50) - 0.01) / 0.99); }
 function fractionToVolume(f) { return 50*Math.log(0.99*clamp(f)+0.01)/Math.LN10; }
 function frac() {
-    if (SEEK) { const len=fb.PlaybackLength; return len > 0 ? clamp(fb.PlaybackTime/len) : 0; }
+    if (SEEK) {
+        if (dragging && seekPreviewFraction !== null) return seekPreviewFraction;
+        const len=fb.PlaybackLength;
+        return len > 0 ? clamp(fb.PlaybackTime/len) : 0;
+    }
     return volumeFraction(fb.Volume);
 }
 function on_paint(gr) {
@@ -30,23 +35,63 @@ function on_paint(gr) {
     gr.FillEllipse(Math.max(1,Math.min(trackWidth+1,px-5)),y-4,11,13,over||dragging?HOVER:KNOB);
     if(!SEEK) gr.GdiDrawText(String(Math.round(f*100))+'%',PERCENT_FONT,0xffeddde2,w-38,0,37,h,0x4 | 0x20);
 }
-function apply(x) {
+function fractionAt(x) {
     const trackWidth=Math.max(20,SEEK?window.Width-12:window.Width-49);
-    const f=clamp((x-6)/trackWidth);
-    if (SEEK) {
-        const len=fb.PlaybackLength;
-        if (len>0) fb.PlaybackTime=f*len;
-    } else fb.Volume=fractionToVolume(f);
+    return clamp((x-6)/trackWidth);
+}
+// The seek thumb is a visual preview; no audio seek occurs here.
+function previewSeek(x) {
+    const next=fractionAt(x);
+    if (seekPreviewFraction === null || next !== seekPreviewFraction) {
+        seekPreviewFraction=next;
+        window.Repaint();
+    }
+}
+function applyVolume(x) {
+    fb.Volume=fractionToVolume(fractionAt(x));
     window.Repaint();
 }
-function on_mouse_lbtn_down(x,y) { if(!SEEK && x>window.Width-39) return; dragging=true; lastDragAt=Date.now(); apply(x); }
+function cancelSeekPreview() {
+    if (!SEEK) return;
+    const hadPreview=dragging || seekPreviewFraction !== null;
+    dragging=false;
+    seekPreviewFraction=null;
+    if (hadPreview) window.Repaint();
+}
+function on_mouse_lbtn_down(x,y) {
+    if (!SEEK && x>window.Width-39) return;
+    // Duration-less streams have no seekable position.
+    if (SEEK && !(fb.PlaybackLength>0)) return;
+    dragging=true;
+    over=true;
+    lastDragAt=Date.now();
+    if (SEEK) previewSeek(x);
+    else applyVolume(x);
+}
 function on_mouse_move(x,y) {
     if (dragging) {
         const now=Date.now();
-        if (now-lastDragAt>=50) { lastDragAt=now; apply(x); } // <=20 updates/s while dragging
+        if (now-lastDragAt>=50) {
+            lastDragAt=now;
+            if (SEEK) previewSeek(x); else applyVolume(x);
+        }
     } else if (!over) { over=true; window.Repaint(); }
 }
-function on_mouse_lbtn_up(x,y) { if(dragging) apply(x); dragging=false; }
+function on_mouse_lbtn_up(x,y) {
+    if (!dragging) return;
+    if (SEEK) {
+        // Compute the final position from mouse-up itself, even if preview was throttled.
+        const fraction=fractionAt(x);
+        const length=fb.PlaybackLength;
+        dragging=false;
+        seekPreviewFraction=null;
+        if (length>0) fb.PlaybackTime=fraction*length; // exactly ONE seek
+        window.Repaint();
+    } else {
+        dragging=false;
+        applyVolume(x);
+    }
+}
 function on_mouse_leave() { over=false; if(!dragging) window.Repaint(); }
 function on_mouse_wheel(step) {
     if (SEEK) { if(fb.PlaybackLength>0) fb.PlaybackTime=Math.max(0,Math.min(fb.PlaybackLength,fb.PlaybackTime+step*5)); }
@@ -55,6 +100,6 @@ function on_mouse_wheel(step) {
 }
 function on_playback_time(){ if(SEEK) window.Repaint(); }
 function on_playback_seek(){ if(SEEK) window.Repaint(); }
-function on_playback_new_track(){ window.Repaint(); }
-function on_playback_stop(){ window.Repaint(); }
+function on_playback_new_track(){ cancelSeekPreview(); window.Repaint(); }
+function on_playback_stop(){ cancelSeekPreview(); window.Repaint(); }
 function on_volume_change(){ if(!SEEK) window.Repaint(); }
