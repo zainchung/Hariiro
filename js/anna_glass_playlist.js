@@ -1,9 +1,10 @@
-// Anna Glass V2 Stage 3H: prevent unknown dates and metadata line breaks in grouped headers.
+// Anna Glass V2 Stage 3I: resilient grouped playlist mouse/keyboard interactions.
 // Source interaction model: official foo_js_panel Playlist sample, adapted to grouped rows.
 // This file NEVER changes/overwrites user's native playlist or saved playlists.
 // MODE: GLASS is the current-mode label; click to toggle back to MODE: NATIVE.
 'use strict';
 const VK_UP=0x26, VK_DOWN=0x28, VK_RETURN=0x0D, VK_DELETE=0x2e, VK_HOME=0x24, VK_END=0x23;
+const VK_PRIOR=0x21, VK_NEXT=0x22, VK_A=0x41, VK_ESCAPE=0x1b;
 const MK_CONTROL=8, MK_SHIFT=4;
 const HEADER_H=72, ROW_H=36, GROUP_GAP=4, BORDER_X=6;
 const DT=0x8024; // single-line + vertical centre + ellipsis
@@ -29,6 +30,8 @@ function current(){return plman.ActivePlaylist;}
 function maxScroll(){return Math.max(0,totalHeight-Math.max(0,window.Height));}
 function clampScroll(){scroll=clamp(scroll,0,maxScroll());}
 function releaseCover(key){const a=covers.get(key);if(a&&typeof a.Dispose==='function')try{a.Dispose();}catch(_){} covers.delete(key);}
+function clearCovers(){ for(const key of covers.keys()) releaseCover(key); }
+function refreshAfterEdit(){ groupCollapsed.clear(); clearCovers(); anchor=-1; downAt=null; build(); }
 function getCover(g){
     if(covers.has(g.key))return covers.get(g.key);
     let im=null;
@@ -45,18 +48,20 @@ function build(){
         const dates=TF_DATE.EvalWithMetadbs(list), titles=TF_TITLE.EvalWithMetadbs(list);
         const ta=TF_ARTIST.EvalWithMetadbs(list), durations=TF_DURATION.EvalWithMetadbs(list);
         data=[]; nodes=[]; trackNodes=[];
-        let y=0, previousKey='', group=null;
+        let y=0, previousKey='', group=null, groupSequence=0;
         for(let i=0;i<handles.length;i++){
             const artist=oneLine(artists[i])||'Unknown Artist', album=oneLine(albums[i])||'Unknown Album';
             const date=oneLine(dates[i]), key=artist+'\u0001'+album+'\u0001'+date;
             if(key!==previousKey){
-                group={kind:'group',key,artist,album,date,count:0,handle:handles[i],index:i, y, h:HEADER_H+GROUP_GAP};
+                // Each visible run gets a separate identity even when album metadata repeats later.
+                const runKey=String(p)+'\u0001'+String(groupSequence++)+'\u0001'+key;
+                group={kind:'group',key:runKey,artist,album,date,count:0,handle:handles[i],index:i, y, h:HEADER_H+GROUP_GAP};
                 nodes.push(group); y+=group.h; previousKey=key;
             }
             group.count++;
-            const node={kind:'song',index:i,y,h:ROW_H,title:oneLine(titles[i]),artist:oneLine(ta[i]),duration:oneLine(durations[i]),group:key};
+            const node={kind:'song',index:i,y,h:ROW_H,title:oneLine(titles[i]),artist:oneLine(ta[i]),duration:oneLine(durations[i]),group:group.key};
             data.push(node);
-            if(!groupCollapsed.has(key)){nodes.push(node);trackNodes[i]=node;y+=ROW_H;}
+            if(!groupCollapsed.has(group.key)){nodes.push(node);trackNodes[i]=node;y+=ROW_H;}
         }
         totalHeight=y;
         clampScroll();error='';
@@ -145,13 +150,29 @@ function selectTrack(i,mask){
     plman.SetPlaylistFocusItem(p,i);window.Repaint();
 }
 function reveal(i){let n=trackNodes[i];if(!n){build();n=trackNodes[i];}if(!n)return;if(n.y<scroll)scroll=n.y; else if(n.y+n.h>scroll+window.Height)scroll=n.y+n.h-window.Height;clampScroll();}
-function toggleGroup(k){if(groupCollapsed.has(k))groupCollapsed.delete(k);else groupCollapsed.add(k);build();}
+function toggleGroup(k){if(groupCollapsed.has(k))groupCollapsed.delete(k);else groupCollapsed.add(k);hover=-1;build();}
 function on_mouse_lbtn_down(x,y,mask){
-    const n=nodeAt(y);downAt=n&&n.kind==='song'?{x,y,i:n.index}:null;
+    const n=nodeAt(y),p=current();
+    downAt=null;
     if(n&&n.kind==='group'){toggleGroup(n.key);return;}
-    if(n&&n.kind==='song')selectTrack(n.index,mask||0);
+    if(n&&n.kind==='song'){
+        // A click on an already selected row keeps multiselection until mouse-up,
+        // so a later drag or context menu does not silently discard the range.
+        const plain=!(mask&(MK_SHIFT|MK_CONTROL));
+        const deferred=plain&&plman.IsPlaylistItemSelected(p,n.index);
+        downAt={x,y,i:n.index,deferred};
+        if(deferred){plman.SetPlaylistFocusItem(p,n.index);window.Repaint();}
+        else selectTrack(n.index,mask||0);
+    }else if(p>=0 && !(mask&(MK_SHIFT|MK_CONTROL))){
+        plman.ClearPlaylistSelection(p);anchor=-1;window.Repaint();
+    }
 }
-function on_mouse_lbtn_up(x,y,mask){downAt=null;}
+function on_mouse_lbtn_up(x,y,mask){
+    const down=downAt;downAt=null;
+    const n=nodeAt(y);
+    if(down&&down.deferred&&n&&n.kind==='song'&&n.index===down.i)
+        selectTrack(n.index,0);
+}
 function on_mouse_lbtn_dblclk(x,y){const n=nodeAt(y);if(n&&n.kind==='song')plman.ExecutePlaylistDefaultAction(current(),n.index);}
 function on_mouse_move(x,y,mask){
     const n=nodeAt(y),h=n&&n.kind==='song'?n.index:-1;
@@ -179,25 +200,41 @@ function on_key_down(key){
     const p=current();if(p<0)return false;
     const focus=plman.GetPlaylistFocusItemIndex(p);
     if(key===VK_RETURN&&focus>=0){plman.ExecutePlaylistDefaultAction(p,focus);return true;}
+    if(key===VK_A&&utils.IsKeyPressed(0x11)){
+        const count=plman.PlaylistItemCount(p);
+        if(count>0){
+            const ids=Array.from({length:count},(_,i)=>i);
+            plman.ClearPlaylistSelection(p);
+            plman.SetPlaylistSelection(p,ids,true);
+            if(anchor<0)anchor=Math.max(0,focus);
+        }
+        window.Repaint();return true;
+    }
+    if(key===VK_ESCAPE){plman.ClearPlaylistSelection(p);anchor=-1;window.Repaint();return true;}
     if(key===VK_DELETE){plman.UndoBackup(p);plman.RemovePlaylistSelection(p,false);return true;}
-    if(key===VK_UP||key===VK_DOWN||key===VK_HOME||key===VK_END){
+    if(key===VK_UP||key===VK_DOWN||key===VK_HOME||key===VK_END||key===VK_PRIOR||key===VK_NEXT){
         const count=data.length;if(!count)return false;
-        const next=key===VK_HOME?0:key===VK_END?count-1:clamp(focus+(key===VK_UP?-1:1),0,count-1);
+        const page=Math.max(1,Math.floor(window.Height/ROW_H)-2);
+        const delta=key===VK_UP?-1:key===VK_DOWN?1:key===VK_PRIOR?-page:page;
+        const next=key===VK_HOME?0:key===VK_END?count-1:clamp((focus<0?0:focus)+delta,0,count-1);
         // An arrow key into a folded group unfolds it before selecting the target.
-        const g=data[next]?.group;if(g&&groupCollapsed.has(g))groupCollapsed.delete(g),build();
-        selectTrack(next,utils.IsKeyPressed(0x10)?MK_SHIFT:0);reveal(next);window.Repaint();return true;
+        const g=data[next]?.group;
+        if(g&&groupCollapsed.has(g)){groupCollapsed.delete(g);build();}
+        const shift=utils.IsKeyPressed(0x10);
+        if(shift&&anchor<0)anchor=focus>=0?focus:next;
+        selectTrack(next,shift?MK_SHIFT:0);reveal(next);window.Repaint();return true;
     }
     return false;
 }
 function on_size(){clampScroll();window.Repaint();}
-function on_playlist_switch(){scroll=0;anchor=-1;build();}
-function on_playlists_changed(){build();}
-function on_playlist_items_added(p){if(p===current())build();}
-function on_playlist_items_removed(p){if(p===current())build();}
-function on_playlist_items_reordered(p){if(p===current())build();}
+function on_playlist_switch(){scroll=0;hover=-1;refreshAfterEdit();}
+function on_playlists_changed(){refreshAfterEdit();}
+function on_playlist_items_added(p){if(p===current())refreshAfterEdit();}
+function on_playlist_items_removed(p){if(p===current())refreshAfterEdit();}
+function on_playlist_items_reordered(p){if(p===current())refreshAfterEdit();}
 function on_playlist_items_selection_change(){window.Repaint();}
 function on_item_focus_change(){window.Repaint();}
-function on_metadb_changed(){build();}
+function on_metadb_changed(){refreshAfterEdit();}
 function on_playback_new_track(){window.Repaint();}
 function on_playback_stop(){window.Repaint();}
 function on_playback_time(){ /* no repeated repaint needed for static row state */ }
