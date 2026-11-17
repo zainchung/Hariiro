@@ -1,4 +1,4 @@
-// Anna Glass V2 - Stage 3H: compact, missing-value-safe metadata + refined lyric reading.
+// Anna Glass V2 - Stage 3I.1: aligned 10px outer margins and unified navigator/Glass highlight palette.
 // Build includes runtime assets only; Stage 3G layout and transport preserved.
 // 16:9 preset only; free drag resizing is not locked (later plugin enhancement).
 // Stage 3E wallpaper retained; Stage 3F panel proportions and core functions preserved.
@@ -35,15 +35,15 @@ $textbutton($eval(%_width% - 47),6,37,27,☰,,MENU,TOOLTIP,'メニュー')
 
 // Stage 3D: three subtle header glass bands, leaving the wallpaper continuous.
 // Tiny warm gold dividers and a soft pink top-light make the sections feel related.
-$drawrect(5,42,214,24,brushcolor-17-29-53 pencolor-null alpha-79)
+$drawrect(10,42,209,24,brushcolor-17-29-53 pencolor-null alpha-79)
 $drawrect(221,42,$eval(%_width% * 72 / 100 - 238),24,brushcolor-17-29-53 pencolor-null alpha-79)
-$drawrect($eval(%_width% * 72 / 100 - 15),42,$eval(%_width% * 28 / 100),24,brushcolor-17-29-53 pencolor-null alpha-79)
-$drawrect(6,66,212,1,brushcolor-236-177-123 pencolor-null alpha-157)
+$drawrect($eval(%_width% * 72 / 100 - 15),42,$eval(%_width% * 28 / 100 + 5),24,brushcolor-17-29-53 pencolor-null alpha-79)
+$drawrect(11,66,207,1,brushcolor-236-177-123 pencolor-null alpha-157)
 $drawrect(222,66,$eval(%_width% * 72 / 100 - 240),1,brushcolor-236-177-123 pencolor-null alpha-157)
-$drawrect($eval(%_width% * 72 / 100 - 14),66,$eval(%_width% * 28 / 100 - 2),1,brushcolor-236-177-123 pencolor-null alpha-157)
+$drawrect($eval(%_width% * 72 / 100 - 14),66,$eval(%_width% * 28 / 100 + 3),1,brushcolor-236-177-123 pencolor-null alpha-157)
 // Headers - keep exact geometry and original title content.
 $font(Segoe UI,11,bold)
-$drawstring(LIBRARY / PLAYLISTS,10,45,210,21,225-199-164)
+$drawstring(LIBRARY / PLAYLISTS,15,45,205,21,225-199-164)
 $drawstring(TRACKS,231,45,$eval(%_width% * 72 / 100 - 255),21,225-199-164)
 // MODE shows the current central playlist renderer; clicking toggles it.
 // The native renderer remains the recovery route.
@@ -55,14 +55,14 @@ $drawstring(NOW PLAYING,$eval(%_width% * 72 / 100 - 10),45,$eval(%_width% * 28 /
 // Native functional panels: transparent JS navigation, grouped playlist, art and lyrics.
 // Stage 2C intentionally keeps the native playlist renderer so selection, playback,
 // sorting, keyboard control, drag/drop and scrolling remain unchanged.
-$panel(Playlists,JS Panel,8,70,208,$eval(%_height% - 180))
+$panel(Playlists,JS Panel,13,70,203,$eval(%_height% - 180))
 // Stage 3B: GLASS LIST REFINEMENT; opt-in, native unchanged.
 // MODE text displays what is currently active, and clicking switches the view.
 $if($strcmp($getpvar(anna.playlist.experimental),1),$panel(GlassPlaylist,JS Panel,224,70,$eval(%_width% * 72 / 100 - 243),$eval(%_height% - 180)),$panel(Playlist,Single Column Playlist,224,70,$eval(%_width% * 72 / 100 - 243),$eval(%_height% - 180)))
 // Stage 3H: hide missing tags, sanitize embedded CR/LF, and avoid phantom metadata rows.
 // Keep the 140px art. Title may wrap to two lines; artist/album are single line with clipping.
 // Missing date => the codec line rises 20px; no literal "?" placeholder or empty date row.
-$drawrect($eval(%_width% * 72 / 100 - 12),76,$eval(%_width% * 28 / 100 - 6),220,brushcolor-10-20-39 pencolor-216-159-118 alpha-92)
+$drawrect($eval(%_width% * 72 / 100 - 12),76,$eval(%_width% * 28 / 100 - 1),220,brushcolor-10-20-39 pencolor-216-159-118 alpha-92)
 $panel(Cover,Album Art,$eval(%_width% * 72 / 100 - 2),84,140,140)
 $drawrect($eval(%_width% * 72 / 100 - 2),84,140,140,brushcolor-null pencolor-207-164-133)
 $font(Yu Gothic UI,12,bold)
@@ -75,44 +75,44 @@ $drawstring($if(%isplaying%,$replace($meta(album),$char(10), ,$char(13), ),),$ev
 $drawstring($if(%isplaying%,[$meta(date)],),$eval(%_width% * 72 / 100 + 152),190,$eval(%_width% * 28 / 100 - 185),18,183-196-217)
 $drawstring($if(%isplaying%,[%codec%][ · %bitrate%k],),$eval(%_width% * 72 / 100 + 152),$if($meta(date),210,190),$eval(%_width% * 28 / 100 - 185),19,184-192-211)
 // Spectrum is still functional, framed by a faint rose-gold rule.
-$drawrect($eval(%_width% * 72 / 100 - 3),247,$eval(%_width% * 28 / 100 - 25),1,brushcolor-211-162-146 pencolor-null alpha-145)
-$panel(Spectrum,Spectrum,$eval(%_width% * 72 / 100 - 3),252,$eval(%_width% * 28 / 100 - 25),39)
+$drawrect($eval(%_width% * 72 / 100 - 3),247,$eval(%_width% * 28 / 100 - 20),1,brushcolor-211-162-146 pencolor-null alpha-145)
+$panel(Spectrum,Spectrum,$eval(%_width% * 72 / 100 - 3),252,$eval(%_width% * 28 / 100 - 20),39)
 // Lyrics starts 16px earlier; its bottom edge stays where it was in Stage 3F.
-$drawrect($eval(%_width% * 72 / 100 - 12),299,$eval(%_width% * 28 / 100 - 6),24,brushcolor-12-24-45 pencolor-216-159-118 alpha-102)
+$drawrect($eval(%_width% * 72 / 100 - 12),299,$eval(%_width% * 28 / 100 - 1),24,brushcolor-12-24-45 pencolor-216-159-118 alpha-102)
 $font(Segoe UI,10,bold)
 $drawstring(LYRICS,$eval(%_width% * 72 / 100 + 1),301,90,20,226-192-160)
 $textbutton($eval(%_width% - 102),300,78,21,MODE,,PVAR:TOGGLE:anna.lyrics.native)
-$if($strcmp($getpvar(anna.lyrics.native),1),$panel(Lyrics,Lyric Show,$eval(%_width% * 72 / 100 - 12),325,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 435)),$panel(AnnaLyrics,JS Panel,$eval(%_width% * 72 / 100 - 12),325,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 435)))
+$if($strcmp($getpvar(anna.lyrics.native),1),$panel(Lyrics,Lyric Show,$eval(%_width% * 72 / 100 - 12),325,$eval(%_width% * 28 / 100 - 1),$eval(%_height% - 435)),$panel(AnnaLyrics,JS Panel,$eval(%_width% * 72 / 100 - 12),325,$eval(%_width% * 28 / 100 - 1),$eval(%_height% - 435)))
 
 // Shared ornamental borders; row geometry unchanged.
-$drawrect(5,67,214,$eval(%_height% - 159),brushcolor-null pencolor-231-179-117)
+$drawrect(10,67,209,$eval(%_height% - 159),brushcolor-null pencolor-231-179-117)
 $drawrect(221,67,$eval(%_width% * 72 / 100 - 238),$eval(%_height% - 159),brushcolor-null pencolor-231-179-117)
-$drawrect($eval(%_width% * 72 / 100 - 15),67,$eval(%_width% * 28 / 100),$eval(%_height% - 159),brushcolor-null pencolor-231-179-117)
+$drawrect($eval(%_width% * 72 / 100 - 15),67,$eval(%_width% * 28 / 100 + 5),$eval(%_height% - 159),brushcolor-null pencolor-231-179-117)
 // Small rose-gold corner images stay inside frame gutters, away from content.
-$imageabs(5,67,14,14,images/ornaments/frame_tl.png)
+$imageabs(10,67,14,14,images/ornaments/frame_tl.png)
 $imageabs(205,67,14,14,images/ornaments/frame_tr.png)
-$imageabs(5,$eval(%_height% - 110),18,18,images/ornaments/frame_bl.png)
+$imageabs(10,$eval(%_height% - 110),18,18,images/ornaments/frame_bl.png)
 $imageabs(201,$eval(%_height% - 110),18,18,images/ornaments/frame_br.png)
 $imageabs(221,67,18,18,images/ornaments/frame_tl.png)
 $imageabs($eval(%_width% * 72 / 100 - 35),67,18,18,images/ornaments/frame_tr.png)
 $imageabs(221,$eval(%_height% - 110),18,18,images/ornaments/frame_bl.png)
 $imageabs($eval(%_width% * 72 / 100 - 35),$eval(%_height% - 110),18,18,images/ornaments/frame_br.png)
 $imageabs($eval(%_width% * 72 / 100 - 15),67,18,18,images/ornaments/frame_tl.png)
-$imageabs($eval(%_width% - 33),67,18,18,images/ornaments/frame_tr.png)
+$imageabs($eval(%_width% - 28),67,18,18,images/ornaments/frame_tr.png)
 $imageabs($eval(%_width% * 72 / 100 - 15),$eval(%_height% - 110),18,18,images/ornaments/frame_bl.png)
-$imageabs($eval(%_width% - 33),$eval(%_height% - 110),18,18,images/ornaments/frame_br.png)
+$imageabs($eval(%_width% - 28),$eval(%_height% - 110),18,18,images/ornaments/frame_br.png)
 $drawrect($eval(%_width% * 72 / 100 - 11),324,$eval(%_width% * 28 / 100 - 8),1,brushcolor-228-178-171 pencolor-null alpha-105)
 
 // ---- Stage 3F: two-tier reference-like footer, keeping the same functional controls ----
 // Header/timeline upper row; transport/volume lower row. Full frame matches three panels.
-$drawrect(5,$eval(%_height% - 88),$eval(%_width% - 20),82,brushcolor-13-19-37 pencolor-230-167-120 alpha-177)
-$drawrect(6,$eval(%_height% - 87),$eval(%_width% - 22),1,brushcolor-242-170-159 pencolor-null alpha-175)
+$drawrect(10,$eval(%_height% - 88),$eval(%_width% - 20),82,brushcolor-13-19-37 pencolor-230-167-120 alpha-177)
+$drawrect(11,$eval(%_height% - 87),$eval(%_width% - 22),1,brushcolor-242-170-159 pencolor-null alpha-175)
 $drawrect(34,$eval(%_height% - 85),$eval(%_width% * 14 / 100),1,brushcolor-249-184-176 pencolor-null alpha-88)
 $drawrect($eval(%_width% - 205),$eval(%_height% - 85),144,1,brushcolor-249-184-176 pencolor-null alpha-88)
-$imageabs(5,$eval(%_height% - 88),24,24,images/ornaments/frame_tl.png)
-$imageabs($eval(%_width% - 39),$eval(%_height% - 88),24,24,images/ornaments/frame_tr.png)
-$imageabs(5,$eval(%_height% - 30),24,24,images/ornaments/frame_bl.png)
-$imageabs($eval(%_width% - 39),$eval(%_height% - 30),24,24,images/ornaments/frame_br.png)
+$imageabs(10,$eval(%_height% - 88),24,24,images/ornaments/frame_tl.png)
+$imageabs($eval(%_width% - 34),$eval(%_height% - 88),24,24,images/ornaments/frame_tr.png)
+$imageabs(10,$eval(%_height% - 30),24,24,images/ornaments/frame_bl.png)
+$imageabs($eval(%_width% - 34),$eval(%_height% - 30),24,24,images/ornaments/frame_br.png)
 
 // Stage 3G: modest tonal separation between timeline and transport, without obscuring the wallpaper.
 $drawrect($eval(%_width% * 26 / 100),$eval(%_height% - 86),$eval(%_width% * 49 / 100),25,brushcolor-11-22-44 pencolor-null alpha-88)
