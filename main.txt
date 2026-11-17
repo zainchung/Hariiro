@@ -1,8 +1,13 @@
-// Anna Glass V2 - Stage 3I.2: optional 60fps spectrum off + lower-cost lyric and slider updates.
+// Anna Glass V2 - Stage 3I.4: reversible immersive system chrome.
+// In this skin's header, SYS restores Windows title buttons; MB toggles native menu.
+// The existing top-right menu icon always opens the full foobar2000 menu.
 // Build includes runtime assets only; Stage 3G layout and transport preserved.
 // 16:9 preset only; free drag resizing is not locked (later plugin enhancement).
 // Stage 3E wallpaper retained; Stage 3F panel proportions and core functions preserved.
 // Safe incremental build based on the Windows-verified Stage 2B installation.
+// Hide only the system title bar; the skin header and menus remain functional.
+// Use the SYS button to restore native minimize/maximize/close controls before switching skins.
+$if($strcmp($getpvar(anna.chrome.hidden),1),$windowstyle(hidetitlebar),$windowstyle(showtitlebar))
 $drawrect(0,0,%_width%,%_height%,brushcolor-24-25-30 pencolor-null)
 // Stage 2B base: transparent JS left browser; wallpaper retained from 2A — draw the shared wallpaper beneath the existing panels.
 // The registered wallpaper lets supported native panels re-use the same canvas snapshot.
@@ -27,6 +32,11 @@ $textbutton(407,6,119,27,♫ 再生中,,JSPANEL:Playlists:nowplaying,TOOLTIP,'�
 // Subtle rose line matching the concept's active playlist navigation.
 $drawrect(292,35,82,2,brushcolor-240-157-192 pencolor-null alpha-175)
 // Real searchable edit control. Typing a media-library query opens Search Results.
+// System-chrome recovery controls: always visible even with the native bars hidden.
+$drawrect($eval(%_width% - 419),6,67,27,brushcolor-38-38-69 pencolor-162-116-139 alpha-100)
+$font(Segoe UI,9,bold,244-226-234)
+$textbutton($eval(%_width% - 417),6,32,27,SYS,,PVAR:TOGGLE:anna.chrome.hidden,TOOLTIP,'显示或隐藏 Windows 标题栏（含最小化、关闭按钮）')
+$textbutton($eval(%_width% - 384),6,29,27,MB,,MENUBAR:toggle,TOOLTIP,'显示或隐藏 foobar2000 原生菜单栏')
 $font(Segoe UI Symbol,14,,234-210-217)
 $textbutton($eval(%_width% - 349),6,29,27,⚙,,PREFERENCES,TOOLTIP,'Panels UI 設定')
 $drawrect($eval(%_width% - 313),6,257,27,brushcolor-13-24-46 pencolor-154-125-150 alpha-190)
