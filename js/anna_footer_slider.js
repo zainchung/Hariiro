@@ -1,4 +1,4 @@
-// Stage 3G — same functional footer sliders, softer track glow and improved contrast.
+// Stage 3I.2 — same interactive footer sliders; skip redundant pointer paints.
 // The parent skin hosts this SAME script in two different windowless JS Panels.
 'use strict';
 const SEEK = panelsui.PanelName === 'FooterSeek';
@@ -9,6 +9,7 @@ const PERCENT_FONT = gdi.Font('Segoe UI', 10, 0);
 const HOVER = 0xffe2bf8c;
 let dragging = false;
 let over = false;
+let lastDragAt = 0;
 function clamp(x) { return Math.max(0, Math.min(1, Number(x) || 0)); }
 // Follow the volume curve used in the JS Panel project's own Seekbar/Volume example.
 function volumeFraction(db) { return clamp((Math.pow(10, db/50) - 0.01) / 0.99); }
@@ -38,8 +39,13 @@ function apply(x) {
     } else fb.Volume=fractionToVolume(f);
     window.Repaint();
 }
-function on_mouse_lbtn_down(x,y) { if(!SEEK && x>window.Width-39) return; dragging=true; apply(x); }
-function on_mouse_move(x,y) { over=true; if(dragging) apply(x); else window.Repaint(); }
+function on_mouse_lbtn_down(x,y) { if(!SEEK && x>window.Width-39) return; dragging=true; lastDragAt=Date.now(); apply(x); }
+function on_mouse_move(x,y) {
+    if (dragging) {
+        const now=Date.now();
+        if (now-lastDragAt>=50) { lastDragAt=now; apply(x); } // <=20 updates/s while dragging
+    } else if (!over) { over=true; window.Repaint(); }
+}
 function on_mouse_lbtn_up(x,y) { if(dragging) apply(x); dragging=false; }
 function on_mouse_leave() { over=false; if(!dragging) window.Repaint(); }
 function on_mouse_wheel(step) {
