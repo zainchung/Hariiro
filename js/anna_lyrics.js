@@ -1,4 +1,4 @@
-// Anna Glass V2 / Stage 3H - duplicate-aware LRC, restrained focus contrast.
+// Anna Glass V2 / Stage 3I.2 - repaint synced lyrics only when active line changes.
 // For Panels UI (reborn) + JS Panel 1.7.0.
 // It intentionally does not draw an opaque cover or fetch lyrics from the internet.
 'use strict';
@@ -20,6 +20,7 @@ const GOLD = 0xffe4bb82;
 let state = { kind: 'empty', lines: [], source: '', message: '歌詞がありません' };
 let plainScroll = 0;
 let lastTrack = '';
+let lastDrawnCue = -2; // sentinel: initial paint not yet synchronized
 
 function norm(s) { return String(s === null || s === undefined ? '' : s); }
 function parseLrc(src) {
@@ -123,6 +124,7 @@ function reloadLyrics() {
         lastTrack = h ? norm(h.Path) : '';
         state = readLyrics(h);
         plainScroll = 0;
+        lastDrawnCue = -2;
     } catch (e) {
         state = { kind: 'empty', lines: [], source: '', message: '歌詞の読み込みに失敗しました' };
         console.log('Anna lyrics load failed: ' + String(e));
@@ -150,6 +152,7 @@ function on_paint(gr) {
     gr.DrawRect(1, 1, Math.max(1, W - 3), Math.max(1, H - 3), 1, 0x56e2ba8c);
 
     if (state.kind === 'empty') {
+        lastDrawnCue = -1;
         gr.GdiDrawText(state.message, F_HINT, LIGHT, 12, Math.max(20, H / 2 - 34), W - 24, 36, DT_CENTER_SINGLE);
         gr.GdiDrawText('同名 .lrc または歌詞タグを使用', F_SMALL, MUTED,
             10, Math.max(52, H / 2 + 5), W - 20, 25, DT_CENTER_SINGLE);
@@ -162,6 +165,7 @@ function on_paint(gr) {
     const top = 9, bottom = Math.max(top + lineH, H - 21);
     const visible = Math.max(1, Math.floor((bottom - top) / lineH));
     const cueIndex = state.kind === 'synced' ? currentIndex() : -1;
+    lastDrawnCue = cueIndex;
     const focus = state.kind === 'synced' ? Math.max(0, cueIndex) : 0;
     const start = state.kind === 'synced'
         ? Math.min(Math.max(0, state.lines.length - visible), Math.max(0, focus - Math.floor(visible / 2)))
@@ -201,8 +205,15 @@ function on_playback_new_track() { reloadLyrics(); }
 function on_playback_stop() { reloadLyrics(); }
 function on_playback_edited() { reloadLyrics(); }
 function on_metadb_changed() { reloadLyrics(); }
-function on_playback_seek() { window.Repaint(); }
-function on_playback_time() { window.Repaint(); }
-function on_playback_pause() { window.Repaint(); }
+// The JS panel receives time updates roughly once per second; most updates do not
+// change the highlighted LRC line. Skip the unnecessary full glass redraw.
+function repaintIfCueChanged() {
+    if (state.kind !== 'synced') return;
+    const cue = currentIndex();
+    if (cue !== lastDrawnCue) { lastDrawnCue = cue; window.Repaint(); }
+}
+function on_playback_seek() { repaintIfCueChanged(); }
+function on_playback_time() { repaintIfCueChanged(); }
+function on_playback_pause() { /* lyric content does not depend on pause state */ }
 function on_size() { window.Repaint(); }
 reloadLyrics();
