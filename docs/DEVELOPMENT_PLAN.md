@@ -39,10 +39,24 @@ Failures become Round 15 bug fixes; nothing new is built on unverified behaviour
 - Triage by severity (data loss > wrong drop result > cosmetic). One bug = one failing offline test first, then the fix.
 - Expect the likely weak spots: OLE drop targets over windowless panels, stale origin markers, NATIVE-mode drops, HiDPI geometry.
 
-### Phase D — Structure and maintainability (after acceptance)
-- D1. Split `playlist_browser.js` into modules (`sidebar_playlists`, `sidebar_drag`, `import_dedup`, `folders`); split `anna_glass_playlist.js` drag-decision code (`evaluateDrop`, origin markers) into its own file. Keep `include()` order explicit and covered by a test.
-- D2. Move shared constants (origin marker format, pvar names, colours) into one module to stop string drift between files.
-- D3. Add a minimal fake foobar2000 host (`tests/helpers/fake_host.mjs`) reused by all tests instead of per-test mocks.
+### Phase D — Structure and maintainability (in progress)
+Done 2026-11-20 (no behaviour change, all tests green):
+- `js/anna_shared.js` (`AnnaShared`): panel-variable keys, reserved playlist names,
+  origin-marker build/parse/clear. `anna_glass_playlist.js` and `playlist_browser.js`
+  use it instead of their own copies.
+- `tests/helpers/js_panel.mjs`: generic `include()` shim (Round 7/8 tests no longer list files).
+- `tests/test_shared.mjs`: marker format, reserved names, drift guard (no hard-coded
+  copies back in those two panels), and a load test of every `js/*.js` in a fake host.
+- PR #1 closed; `main` is the only trunk.
+
+Remaining:
+- D1. Split `playlist_browser.js` (sidebar drag/drop, import + dedup bookkeeping, scratch views) and
+  move `evaluateDrop`/`activeDropTarget` out of `anna_glass_playlist.js`. Larger move: do it one
+  module per round, each followed by a Windows smoke test.
+- D2 (rest). Move the remaining pvar keys (`anna.theme.hue`, `anna.language`, `anna.queue.*`,
+  `anna.search.*`) used by the other panels and colour constants into `AnnaShared`/`anna_theme.js`.
+- D3 (rest). Grow `tests/helpers/` into a reusable fake host (plman/fb/window) and migrate the
+  per-test mocks to it gradually.
 
 ### Phase E — Feature backlog (only after B/C are green)
 - E1. Lyrics: more ESLyric file-name patterns, per-track offset, better plain-LRC progress.

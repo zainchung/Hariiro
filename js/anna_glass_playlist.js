@@ -5,6 +5,7 @@
 'use strict';
 include('anna_i18n.js');
 include('anna_theme.js');
+include('anna_shared.js');
 const VK_UP=0x26, VK_DOWN=0x28, VK_RETURN=0x0D, VK_DELETE=0x2e, VK_HOME=0x24, VK_END=0x23;
 const VK_PRIOR=0x21, VK_NEXT=0x22, VK_A=0x41, VK_ESCAPE=0x1b;
 const MK_CONTROL=8, MK_SHIFT=4;
@@ -57,43 +58,34 @@ function leavingGlassForTarget(x,down){
  return Math.sqrt(dx*dx+dy*dy)>=OLE_START_DIST;
 }
 let hoverMouseY=0;
-function dragOrigin(){try{return String(panelsui.GetVariable('anna.drag.origin','')||'');}catch(e){return '';}}
-function clearGlassOrigin(){clearGlassOriginTimer=0;if(dragOrigin().startsWith('glass:'))try{panelsui.SetVariable('anna.drag.origin','');}catch(e){}}
-// Who started the current OLE session?  Origin markers:
-//   glass:<playlist>                this panel's own selection
-//   sidebar:<kind>:<index>          kind = artist | library | fixedFavorites | fixedSearch | playlist
-//   (no marker)                     external files / another application
+function clearGlassOrigin(){clearGlassOriginTimer=0;AnnaShared.clearOriginIf('glass:');}
+// Who started the current OLE session? Marker format: see AnnaShared.parseOrigin.
 function dragSource(){
  // localGlassTrackOLE is set synchronously around our own DoDragDrop, so it is
  // the one definitive signal; markers can be stale for a few hundred ms.
  if(localGlassTrackOLE)return {kind:'glass'};
- const o=dragOrigin();
- if(o.startsWith('sidebar:')){
-  const m=/^sidebar:(?:([A-Za-z]+):)?(-?\d+)$/.exec(o);
-  return {kind:'sidebar',type:m&&m[1]?m[1]:'unknown',index:m?parseInt(m[2],10):-1};
- }
- if(o.startsWith('glass:'))return {kind:'glass'};
+ const src=AnnaShared.parseOrigin(AnnaShared.getOrigin());
+ if(src.kind==='sidebar')return src;
+ if(src.kind==='glass')return {kind:'glass'};
  if(Date.now()<localGlassGuardUntil)return {kind:'glass'}; // stray callback right after our own drag
  return {kind:'external'};
 }
 function clearImportMessage(){if(importMessageTimer){window.ClearTimeout(importMessageTimer);importMessageTimer=0;}importStatus='';}
-function isViewName(n,base){return n===base||n.indexOf(base+' #')===0;}
+const isViewName=AnnaShared.isViewName;
 // The middle list accepts drops ONLY while it shows an ordinary, unlocked playlist.
 // Derived from the playlist actually on screen, never from sidebar bookkeeping:
 // that state is empty after start-up, tab switches and "now playing" jumps, which
 // made valid drops get rejected.
 function activeDropTarget(){
  try{
-  if(String(panelsui.GetVariable('anna.nav.mode','library'))!=='library')return -1;
+  if(String(panelsui.GetVariable(AnnaShared.PVAR.navMode,'library'))!=='library')return -1;
   const p=plman.ActivePlaylist;
   if(p<0||p>=plman.PlaylistCount||plman.IsPlaylistLocked(p))return -1;
   const name=String(plman.GetPlaylistName(p));
-  if(name==='Anna - Favorites'||name==='Music Library'||name==='Anna - Queue Buffer'||
-     isViewName(name,'Anna - Sorted Library View')||isViewName(name,'Anna - Artist View')||
-     name.indexOf('Anna - Import Staging')===0)return -1;
-  const buffer=String(panelsui.GetVariable('anna.queue.buffer.name','')||'');
+  if(AnnaShared.isReservedName(name))return -1;
+  const buffer=String(panelsui.GetVariable(AnnaShared.PVAR.queueBuffer,'')||'');
   if(buffer&&name===buffer)return -1;
-  const owned=JSON.parse(String(panelsui.GetVariable('anna.search.results.owned','[]')||'[]'));
+  const owned=JSON.parse(String(panelsui.GetVariable(AnnaShared.PVAR.searchOwned,'[]')||'[]'));
   if(Array.isArray(owned)&&owned.indexOf(name)>=0)return -1;
   return p;
  }catch(e){return -1;}
@@ -102,9 +94,9 @@ function dropAllowed(){return activeDropTarget()>=0;}
 function denyMessage(){
  let artistView=false;
  try{
-  artistView=String(panelsui.GetVariable('anna.nav.mode','library'))==='artists';
+  artistView=String(panelsui.GetVariable(AnnaShared.PVAR.navMode,'library'))==='artists';
   const p=plman.ActivePlaylist;
-  if(p>=0&&isViewName(String(plman.GetPlaylistName(p)),'Anna - Artist View'))artistView=true;
+  if(p>=0&&isViewName(String(plman.GetPlaylistName(p)),AnnaShared.LIST.artistView))artistView=true;
  }catch(e){}
  return artistView?AnnaI18n.t('artistHint'):AnnaI18n.t('chooseRegularPlaylist');
 }
@@ -154,7 +146,7 @@ function on_drag_drop(action,x,y){
  window.Repaint();
 }
 
-const FAVORITES='Anna - Favorites';
+const FAVORITES=AnnaShared.LIST.favorites;
 let favoriteKeys=new Set();
 function songKey(h){return h?String(h.Path)+'#'+String(h.SubSong||0):'';}
 function refreshFavoriteKeys(){
@@ -509,7 +501,7 @@ function on_mouse_move(x,y,mask){
             if(selected.Count){
                 localGlassTrackOLE=true;
                 if(clearGlassOriginTimer){window.ClearTimeout(clearGlassOriginTimer);clearGlassOriginTimer=0;}
-                try{panelsui.SetVariable('anna.drag.origin','glass:'+current());}catch(e){}
+                AnnaShared.setOrigin(AnnaShared.glassMarker(current()));
                 try{fb.DoDragDrop(window.ID,selected,1,{});}
                 finally{
                   localGlassTrackOLE=false;localGlassGuardUntil=Date.now()+350;

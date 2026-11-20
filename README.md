@@ -25,16 +25,16 @@ Rollback: restore the backed-up skin folder (and profile if you tested playlist 
 | Path | Content |
 |---|---|
 | `main.txt`, `foo_ui_panels.ini` | Panels UI skin layout and panel registration |
-| `js/` | One JS Panel per file (`anna_*.js`) plus `playlist_browser.js` (sidebar) |
+| `js/` | One JS Panel per file (`anna_*.js`) plus `playlist_browser.js` (sidebar). Shared modules: `anna_i18n.js`, `anna_theme.js`, `anna_shared.js` (pvar keys, reserved playlist names, drag-origin markers), `anna_playlist_dedup.js` |
 | `images/` | Wallpaper, ornaments, and control PNGs per palette (`images/controls/README.md`) |
-| `tests/` | Offline regression tests, one file per round (`test_roundNN*.mjs`) |
+| `tests/` | Offline regression tests, one file per round (`test_roundNN*.mjs`), `test_shared.mjs`, helpers in `tests/helpers/` |
 | `tools/` | `run_tests.mjs`, `package_skin.py`, `generate_controls.py`, `audit_playlist_databases.py` |
 | `docs/` | Review per round (`ROUNDnn_REVIEW.md`), acceptance matrix, `DEVELOPMENT_PLAN.md`, `release_notes/` |
 
 ## Development
 
 ```
-npm test                       # all 14 offline test files (Node >= 20)
+npm test                       # all offline test files (Node >= 20)
 node tools/run_tests.mjs 14    # only tests whose filename contains "14"
 npm run package                # build and verify dist/Anna-Glass-V2.zip
 ```

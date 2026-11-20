@@ -5,6 +5,7 @@
 include('anna_i18n.js');
 include('anna_theme.js');
 include('anna_playlist_dedup.js');
+include('anna_shared.js');
 
 const ROW = 30;
 const TABS = 8; // main navigation moved to the shared header
@@ -45,9 +46,8 @@ let scrollingThumb=false,scrollThumbGrab=0;
 let trackDropTarget=-1,trackDropNotice='',trackDropInProgress=false;
 let sidebarOLEInProgress=false; // prevent internal OLE loops
 let sidebarOLEClearTimer=0;
-function origin(){try{return String(panelsui.GetVariable('anna.drag.origin','')||'');}catch(e){return '';}}
-function setOrigin(v){try{panelsui.SetVariable('anna.drag.origin',v);}catch(e){}}
-function clearSidebarDragMarker(){sidebarOLEClearTimer=0;if(origin().startsWith('sidebar:'))setOrigin('');}
+const origin=AnnaShared.getOrigin;
+function clearSidebarDragMarker(){sidebarOLEClearTimer=0;AnnaShared.clearOriginIf('sidebar:');}
 function dropRowIsEditable(row){return !!row&&editablePlaylistRow(row)&&!plman.IsPlaylistLocked(row.index);}
 
 function playlistRowAt(y){
@@ -66,7 +66,7 @@ let importStageTimer=0;
 function stagingPlaylist(){
  if(importStageName){const p=plman.FindPlaylist(importStageName);if(p>=0)return p;}
  for(let i=0;i<10000;i++){
-  const name='Anna - Import Staging'+(i?' #'+(i+1):'');
+  const name=AnnaShared.LIST.importStaging+(i?' #'+(i+1):'');
   if(plman.FindPlaylist(name)>=0)continue;
   const p=plman.CreatePlaylist(plman.PlaylistCount,name);
   if(p>=0){importStageName=name;window.SetProperty(IMPORT_STAGING_PROPERTY,name);return p;}
@@ -78,7 +78,7 @@ function blankDropAllowed(y){
   (y<TABS||!playlistRowAt(y).row);
 }
 function on_drag_enter(action,x,y){on_drag_over(action,x,y);}
-function glassOriginIndex(){const m=/^glass:(-?\d+)$/.exec(origin());return m?parseInt(m[1],10):-2;}
+function glassOriginIndex(){const src=AnnaShared.parseOrigin(origin());return src.kind==='glass'?src.index:-2;}
 // Tracks dragged out of the middle list may be copied into any ORDINARY playlist
 // except the one they came from. Artist and pinned rows are read-only (warning).
 function on_drag_over(action,x,y){
@@ -178,8 +178,8 @@ function dragSidebarScrollbar(y){
 }
 
 // Both browse modes open a sorted working view, never reorder saved playlists.
-const SORTED_VIEW = 'Anna - Sorted Library View';
-const ARTIST_VIEW = 'Anna - Artist View';
+const SORTED_VIEW = AnnaShared.LIST.sortedView;
+const ARTIST_VIEW = AnnaShared.LIST.artistView;
 // Only lists created and registered by this panel can be used as scratch space.
 // A user playlist with an identical name must never be cleared accidentally.
 const SCRATCH_REGISTRY_PROPERTY='Anna.OwnedScratchPlaylists.v1';
@@ -222,7 +222,7 @@ function pruneScratchViews(){
  }finally{pruningScratch=false;}
 }
 
-const FAVORITES = 'Anna - Favorites';
+const FAVORITES = AnnaShared.LIST.favorites;
 // Ordinary playlists are real foobar2000 lists; obsolete virtual-folder UI code is removed.
 let loadingView = false;
 let artists = [];
@@ -327,8 +327,8 @@ function entries() {
  if(mode==='artists')return artists;
  const fav=plman.FindPlaylist(FAVORITES),search=currentSearchPlaylist();
  const out=[
-   {kind:'library',name:'Music Library',index:-1,count:libraryCount},
-   {kind:'fixedFavorites',name:'Anna - Favorites',index:fav,count:fav>=0?plman.PlaylistItemCount(fav):0},
+   {kind:'library',name:AnnaShared.LIST.library,index:-1,count:libraryCount},
+   {kind:'fixedFavorites',name:FAVORITES,index:fav,count:fav>=0?plman.PlaylistItemCount(fav):0},
    {kind:'fixedSearch',name:'Anna - Search Result',index:search,count:search>=0?plman.PlaylistItemCount(search):0}
  ];
  const buffer=typeof panelsui!=='undefined'?String(panelsui.GetVariable('anna.queue.buffer.name','')||''):'';
@@ -683,7 +683,7 @@ function openDragAsHandles(source){
   // This OLE session can target Queue or other panels, but not our own sidebar.
   sidebarOLEInProgress=true;
   if(sidebarOLEClearTimer){window.ClearTimeout(sidebarOLEClearTimer);sidebarOLEClearTimer=0;}
-  setOrigin('sidebar:'+source.kind+':'+String(source.index===undefined?-1:source.index));
+  AnnaShared.setOrigin(AnnaShared.sidebarMarker(source.kind,source.index));
   try{fb.DoDragDrop(window.ID,handles,1,{});} // COPY only: never move source entries.
   finally{
    sidebarOLEInProgress=false;clearTrackDrop();

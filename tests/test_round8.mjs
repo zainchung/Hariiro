@@ -3,25 +3,11 @@ import {readFileSync,existsSync,readdirSync} from 'node:fs';
 import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
+import {installIncludeShim} from './helpers/js_panel.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 
 // JS Panel's include() loads shared files into the same script context.
-const originalVmRun=vm.runInContext.bind(vm);
-vm.runInContext=(source,context,options)=>{
- if(typeof source==='string'&&source.includes("include('anna_i18n.js');")){
-  originalVmRun(readFileSync(root+'/js/anna_i18n.js','utf8'),context);
-  source=source.replace("include('anna_i18n.js');",'');
- }
- if(typeof source==='string'&&source.includes("include('anna_theme.js');")){
-  originalVmRun(readFileSync(root+'/js/anna_theme.js','utf8'),context);
-  source=source.replace("include('anna_theme.js');",'');
- }
- if(typeof source==='string'&&source.includes("include('anna_playlist_dedup.js');")){
-  originalVmRun(readFileSync(root+'/js/anna_playlist_dedup.js','utf8'),context);
-  source=source.replace("include('anna_playlist_dedup.js');",'');
- }
- return originalVmRun(source,context,options);
-};
+installIncludeShim(vm);
 const read=(f)=>readFileSync(root+'/'+f,'utf8');
 const transport=read('js/anna_transport.js'),slider=read('js/anna_footer_slider.js');
 const nav=read('js/playlist_browser.js'),glass=read('js/anna_glass_playlist.js');
