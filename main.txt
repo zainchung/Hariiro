@@ -1,169 +1,126 @@
 // Anna Glass V2 - Stage 3I.4: reversible immersive system chrome.
-// In this skin's header, SYS restores Windows title buttons; MB toggles native menu.
-// The existing top-right menu icon always opens the full foobar2000 menu.
+// The Anna Glass settings button controls Windows title bar and menu bar visibility.
+// The top-right three-line button opens Anna Glass settings and foobar2000 commands.
 // Build includes runtime assets only; Stage 3G layout and transport preserved.
-// 16:9 preset only; free drag resizing is not locked (later plugin enhancement).
+// Freely resizable; no 16:9 aspect lock or special plugin DLL required.
 // Stage 3E wallpaper retained; Stage 3F panel proportions and core functions preserved.
 // Safe incremental build based on the Windows-verified Stage 2B installation.
 // Hide only the system title bar; the skin header and menus remain functional.
-// Use the SYS button to restore native minimize/maximize/close controls before switching skins.
+// Open Anna Glass settings to restore the title bar before switching skins.
 $if($strcmp($getpvar(anna.chrome.hidden),1),$windowstyle(hidetitlebar),$windowstyle(showtitlebar))
 $drawrect(0,0,%_width%,%_height%,brushcolor-24-25-30 pencolor-null)
 // Stage 2B base: transparent JS left browser; wallpaper retained from 2A — draw the shared wallpaper beneath the existing panels.
 // The registered wallpaper lets supported native panels re-use the same canvas snapshot.
 $imageabs(0,0,%_width%,%_height%,images/wallpaper.jpg)
-// A subdued dark overlay retains playlist readability; change alpha-105 only after testing.
-$drawrect(0,0,%_width%,%_height%,brushcolor-9-14-28 pencolor-null alpha-105)
+// Light-touch navy tint keeps the wallpaper luminous; each transparent row adds its own contrast.
+$drawrect(0,0,%_width%,%_height%,brushcolor-9-14-28 pencolor-null alpha-56)
 
-// ---- Stage 2G: functional glass navigation & real search ----
-// This replaces the duplicated top transport; the tested bottom controls remain available.
-// Quick Search creates/updates the player's Search Results playlist after typing a valid query.
-$drawrect(0,0,%_width%,40,brushcolor-15-24-49 pencolor-null alpha-174)
-$drawrect(0,39,%_width%,1,brushcolor-212-151-163 pencolor-null alpha-170)
-$drawrect(12,5,116,29,brushcolor-38-38-69 pencolor-162-116-139 alpha-100)
-$drawrect(139,5,118,29,brushcolor-38-38-69 pencolor-162-116-139 alpha-100)
-$drawrect(268,5,126,29,brushcolor-96-48-84 pencolor-226-161-180 alpha-128)
-$drawrect(405,5,123,29,brushcolor-38-38-69 pencolor-162-116-139 alpha-100)
-$font(Yu Gothic UI,11,bold,244-226-234)
-$textbutton(14,6,112,27,♫ ライブラリ,,JSPANEL:Playlists:artists,TOOLTIP,'アーティスト一覧')
-$textbutton(141,6,114,27,☆ お気に入り,,JSPANEL:Playlists:favorites,TOOLTIP,'お気に入りプレイリスト')
-$textbutton(270,6,122,27,☷ プレイリスト,,JSPANEL:Playlists:playlists,TOOLTIP,'プレイリスト一覧')
-$textbutton(407,6,119,27,♫ 再生中,,JSPANEL:Playlists:nowplaying,TOOLTIP,'再生中のプレイリスト')
-// Subtle rose line matching the concept's active playlist navigation.
-$drawrect(292,35,82,2,brushcolor-240-157-192 pencolor-null alpha-175)
-// Real searchable edit control. Typing a media-library query opens Search Results.
-// System-chrome recovery controls: always visible even with the native bars hidden.
-$drawrect($eval(%_width% - 419),6,67,27,brushcolor-38-38-69 pencolor-162-116-139 alpha-100)
-$font(Segoe UI,9,bold,244-226-234)
-$textbutton($eval(%_width% - 417),6,32,27,SYS,,PVAR:TOGGLE:anna.chrome.hidden,TOOLTIP,'显示或隐藏 Windows 标题栏（含最小化、关闭按钮）')
-$textbutton($eval(%_width% - 384),6,29,27,MB,,MENUBAR:toggle,TOOLTIP,'显示或隐藏 foobar2000 原生菜单栏')
-$font(Segoe UI Symbol,14,,234-210-217)
-$textbutton($eval(%_width% - 349),6,29,27,⚙,,PREFERENCES,TOOLTIP,'Panels UI 設定')
-$drawrect($eval(%_width% - 313),6,257,27,brushcolor-13-24-46 pencolor-154-125-150 alpha-190)
-$panel(TopSearch,Quick Search,$eval(%_width% - 310),7,251,25)
-$textbutton($eval(%_width% - 47),6,37,27,☰,,MENU,TOOLTIP,'メニュー')
+// Frameless vector tabs reproduce the original concept's navigation hierarchy.
+// Content semantics: ライブラリ browses artists; プレイリスト browses saved playlists.
+$drawrect(0,0,%_width%,44,brushcolor-15-24-49 pencolor-null alpha-120)
+$drawrect(0,43,%_width%,1,brushcolor-239-170-200 pencolor-null alpha-150)
+$panel(NavTabs,JS Panel,16,3,350,38)
+// Only the otherwise empty titlebar span catches double-click to maximize/restore.
+// Search fields, tabs and system buttons retain their own click areas.
+$panel(CaptionStrip,JS Panel,367,4,$eval(%_width% - 889),37)
+// Search is left of the system cluster, which shares the right-card 16px margin.
+$panel(GlassSearch,JS Panel,$eval(%_width% - 522),6,304,31)
+// The three-line button opens Anna Glass settings; no separate gear/SYS/MB button exists.
+$panel(TopChrome,JS Panel,$eval(%_width% - 199),6,183,31)
 
-// Stage 3D: three subtle header glass bands, leaving the wallpaper continuous.
-// Tiny warm gold dividers and a soft pink top-light make the sections feel related.
-$drawrect(10,42,209,24,brushcolor-17-29-53 pencolor-null alpha-79)
-$drawrect(221,42,$eval(%_width% * 72 / 100 - 238),24,brushcolor-17-29-53 pencolor-null alpha-79)
-$drawrect($eval(%_width% * 72 / 100 - 15),42,$eval(%_width% * 28 / 100 + 5),24,brushcolor-17-29-53 pencolor-null alpha-79)
-$drawrect(11,66,207,1,brushcolor-236-177-123 pencolor-null alpha-157)
-$drawrect(222,66,$eval(%_width% * 72 / 100 - 240),1,brushcolor-236-177-123 pencolor-null alpha-157)
-$drawrect($eval(%_width% * 72 / 100 - 14),66,$eval(%_width% * 28 / 100 + 3),1,brushcolor-236-177-123 pencolor-null alpha-157)
-// Headers - keep exact geometry and original title content.
-$font(Segoe UI,11,bold)
-$drawstring(LIBRARY / PLAYLISTS,15,45,205,21,225-199-164)
-$drawstring(TRACKS,231,45,$eval(%_width% * 72 / 100 - 255),21,225-199-164)
-// MODE shows the current central playlist renderer; clicking toggles it.
-// The native renderer remains the recovery route.
-$drawrect($eval(%_width% * 72 / 100 - 148),45,120,19,brushcolor-15-24-49 pencolor-199-141-151 alpha-154)
-$font(Segoe UI,9,bold,247-210-218)
-$textbutton($eval(%_width% * 72 / 100 - 146),45,116,19,$if($strcmp($getpvar(anna.playlist.experimental),1),MODE: GLASS,MODE: NATIVE),,PVAR:TOGGLE:anna.playlist.experimental,TOOLTIP,'标签显示当前模式；点击切换 GLASS / NATIVE（原生模式可随时恢复）')
-$drawstring(NOW PLAYING,$eval(%_width% * 72 / 100 - 10),45,$eval(%_width% * 28 / 100 - 13),21,225-199-164)
-// VIS is an actual user toggle: OFF skips creating the 60fps native Spectrum panel.
-$drawrect($eval(%_width% - 127),45,109,19,brushcolor-15-24-49 pencolor-199-141-151 alpha-154)
-$font(Segoe UI,9,bold,247-210-218)
-$textbutton($eval(%_width% - 125),45,105,19,$if($strcmp($getpvar(anna.spectrum.low_power),1),VIS: OFF,VIS: ON),,PVAR:TOGGLE:anna.spectrum.low_power,TOOLTIP,'关闭频谱以降低 CPU 占用，点击可恢复频谱')
-
-// Native functional panels: transparent JS navigation, grouped playlist, art and lyrics.
-// Stage 2C intentionally keeps the native playlist renderer so selection, playback,
-// sorting, keyboard control, drag/drop and scrolling remain unchanged.
-$panel(Playlists,JS Panel,13,70,203,$eval(%_height% - 180))
-// Stage 3B: GLASS LIST REFINEMENT; opt-in, native unchanged.
-// MODE text displays what is currently active, and clicking switches the view.
-$if($strcmp($getpvar(anna.playlist.experimental),1),$panel(GlassPlaylist,JS Panel,224,70,$eval(%_width% * 72 / 100 - 243),$eval(%_height% - 180)),$panel(Playlist,Single Column Playlist,224,70,$eval(%_width% * 72 / 100 - 243),$eval(%_height% - 180)))
-// Stage 3H: hide missing tags, sanitize embedded CR/LF, and avoid phantom metadata rows.
-// Keep the 140px art. Title may wrap to two lines; artist/album are single line with clipping.
-// Missing date => the codec line rises 20px; no literal "?" placeholder or empty date row.
-$drawrect($eval(%_width% * 72 / 100 - 12),76,$eval(%_width% * 28 / 100 - 1),220,brushcolor-10-20-39 pencolor-216-159-118 alpha-92)
-$panel(Cover,Album Art,$eval(%_width% * 72 / 100 - 2),84,140,140)
-$drawrect($eval(%_width% * 72 / 100 - 2),84,140,140,brushcolor-null pencolor-207-164-133)
-$font(Yu Gothic UI,12,bold)
-$drawstring($if(%isplaying%,$replace($if2($meta(title),%filename%),$char(10), ,$char(13), ),Not playing),$eval(%_width% * 72 / 100 + 152),87,$eval(%_width% * 28 / 100 - 185),47,245-240-243,wrap)
-$font(Yu Gothic UI,10,bold)
-$drawstring($if(%isplaying%,$replace($meta(artist),$char(10), ,$char(13), ),),$eval(%_width% * 72 / 100 + 152),140,$eval(%_width% * 28 / 100 - 185),21,232-197-181)
-$font(Yu Gothic UI,9)
-$drawstring($if(%isplaying%,$replace($meta(album),$char(10), ,$char(13), ),),$eval(%_width% * 72 / 100 + 152),165,$eval(%_width% * 28 / 100 - 185),20,198-211-231)
-// Date, when present, occupies the penultimate slot; otherwise codec takes that slot.
-$drawstring($if(%isplaying%,[$meta(date)],),$eval(%_width% * 72 / 100 + 152),190,$eval(%_width% * 28 / 100 - 185),18,183-196-217)
-$drawstring($if(%isplaying%,[%codec%][ · %bitrate%k],),$eval(%_width% * 72 / 100 + 152),$if($meta(date),210,190),$eval(%_width% * 28 / 100 - 185),19,184-192-211)
-// Spectrum is still functional, framed by a faint rose-gold rule.
-$drawrect($eval(%_width% * 72 / 100 - 3),247,$eval(%_width% * 28 / 100 - 20),1,brushcolor-211-162-146 pencolor-null alpha-145)
-// The native spectrum is explicitly removed in low-power mode rather than merely hidden by opaque paint.
-$if($strcmp($getpvar(anna.spectrum.low_power),1),$drawstring(Visualizer off  ·  Low power,$eval(%_width% * 72 / 100 + 1),255,$eval(%_width% * 28 / 100 - 30),29,151-164-183),$panel(Spectrum,Spectrum,$eval(%_width% * 72 / 100 - 3),252,$eval(%_width% * 28 / 100 - 20),39))
-// Lyrics starts 16px earlier; its bottom edge stays where it was in Stage 3F.
-$drawrect($eval(%_width% * 72 / 100 - 12),299,$eval(%_width% * 28 / 100 - 1),24,brushcolor-12-24-45 pencolor-216-159-118 alpha-102)
-$font(Segoe UI,10,bold)
-$drawstring(LYRICS,$eval(%_width% * 72 / 100 + 1),301,90,20,226-192-160)
-$textbutton($eval(%_width% - 102),300,78,21,MODE,,PVAR:TOGGLE:anna.lyrics.native)
-$if($strcmp($getpvar(anna.lyrics.native),1),$panel(Lyrics,Lyric Show,$eval(%_width% * 72 / 100 - 12),325,$eval(%_width% * 28 / 100 - 1),$eval(%_height% - 435)),$panel(AnnaLyrics,JS Panel,$eval(%_width% * 72 / 100 - 12),325,$eval(%_width% * 28 / 100 - 1),$eval(%_height% - 435)))
-
-// Shared ornamental borders; row geometry unchanged.
-$drawrect(10,67,209,$eval(%_height% - 159),brushcolor-null pencolor-231-179-117)
-$drawrect(221,67,$eval(%_width% * 72 / 100 - 238),$eval(%_height% - 159),brushcolor-null pencolor-231-179-117)
-$drawrect($eval(%_width% * 72 / 100 - 15),67,$eval(%_width% * 28 / 100 + 5),$eval(%_height% - 159),brushcolor-null pencolor-231-179-117)
-// Small rose-gold corner images stay inside frame gutters, away from content.
-$imageabs(10,67,14,14,images/ornaments/frame_tl.png)
-$imageabs(205,67,14,14,images/ornaments/frame_tr.png)
-$imageabs(10,$eval(%_height% - 110),18,18,images/ornaments/frame_bl.png)
-$imageabs(201,$eval(%_height% - 110),18,18,images/ornaments/frame_br.png)
-$imageabs(221,67,18,18,images/ornaments/frame_tl.png)
-$imageabs($eval(%_width% * 72 / 100 - 35),67,18,18,images/ornaments/frame_tr.png)
-$imageabs(221,$eval(%_height% - 110),18,18,images/ornaments/frame_bl.png)
-$imageabs($eval(%_width% * 72 / 100 - 35),$eval(%_height% - 110),18,18,images/ornaments/frame_br.png)
-$imageabs($eval(%_width% * 72 / 100 - 15),67,18,18,images/ornaments/frame_tl.png)
-$imageabs($eval(%_width% - 28),67,18,18,images/ornaments/frame_tr.png)
-$imageabs($eval(%_width% * 72 / 100 - 15),$eval(%_height% - 110),18,18,images/ornaments/frame_bl.png)
-$imageabs($eval(%_width% - 28),$eval(%_height% - 110),18,18,images/ornaments/frame_br.png)
-$drawrect($eval(%_width% * 72 / 100 - 11),324,$eval(%_width% * 28 / 100 - 8),1,brushcolor-228-178-171 pencolor-null alpha-105)
-
-// ---- Stage 3F: two-tier reference-like footer, keeping the same functional controls ----
-// Header/timeline upper row; transport/volume lower row. Full frame matches three panels.
-$drawrect(10,$eval(%_height% - 88),$eval(%_width% - 20),82,brushcolor-13-19-37 pencolor-230-167-120 alpha-177)
-$drawrect(11,$eval(%_height% - 87),$eval(%_width% - 22),1,brushcolor-242-170-159 pencolor-null alpha-175)
-$drawrect(34,$eval(%_height% - 85),$eval(%_width% * 14 / 100),1,brushcolor-249-184-176 pencolor-null alpha-88)
-$drawrect($eval(%_width% - 205),$eval(%_height% - 85),144,1,brushcolor-249-184-176 pencolor-null alpha-88)
-$imageabs(10,$eval(%_height% - 88),24,24,images/ornaments/frame_tl.png)
-$imageabs($eval(%_width% - 34),$eval(%_height% - 88),24,24,images/ornaments/frame_tr.png)
-$imageabs(10,$eval(%_height% - 30),24,24,images/ornaments/frame_bl.png)
-$imageabs($eval(%_width% - 34),$eval(%_height% - 30),24,24,images/ornaments/frame_br.png)
-
-// Stage 3G: modest tonal separation between timeline and transport, without obscuring the wallpaper.
-$drawrect($eval(%_width% * 26 / 100),$eval(%_height% - 86),$eval(%_width% * 49 / 100),25,brushcolor-11-22-44 pencolor-null alpha-88)
-$drawrect($eval(%_width% * 52 / 100 - 157),$eval(%_height% - 60),314,51,brushcolor-22-20-47 pencolor-null alpha-45)
-$drawrect($eval(%_width% * 26 / 100),$eval(%_height% - 61),$eval(%_width% * 49 / 100),1,brushcolor-231-162-178 pencolor-null alpha-64)
-
-// LEFT: cover + readable title, artist and quality. Gold border is non-interactive.
-$panel(FooterCover,Album Art,35,$eval(%_height% - 76),60,60)
-$drawrect(35,$eval(%_height% - 76),60,60,brushcolor-null pencolor-221-173-135)
+// Airier three-column panels, with 15px+ gaps and continuous backdrop.
+$drawrect(16,58,211,$eval(%_height% - 187),brushcolor-18-26-49 pencolor-236-184-177 alpha-53)
+$drawrect(241,58,$eval(%_width% * 72 / 100 - 265),$eval(%_height% - 187),brushcolor-18-26-49 pencolor-236-184-177 alpha-53)
+// Intentionally no full-height right-column frame: the now-playing card and
+// the lyrics/queue card retain their own outlines and their original spacing.
 $font(Yu Gothic UI,11,bold)
-$drawstring($if(%isplaying%,%title%,Anna Glass V2),108,$eval(%_height% - 72),$eval(%_width% * 17 / 100 - 20),23,248-234-237)
+// Left pane intentionally has a title only. Global top-bar Artist/Library
+// controls remain the working navigation, with no duplicate sidebar buttons.
+$font(Yu Gothic UI,12,bold,249-220-235)
+$drawstring($if($strcmp($getpvar(anna.language),zh-CN),艺术家/媒体库,$if($strcmp($getpvar(anna.language),zh-TW),藝人/媒體庫,$if($strcmp($getpvar(anna.language),en),Artists / Library,アーティスト/ライブラリ))),50,64,173,21,249-220-235)
+$font(Yu Gothic UI,11,bold)
+$drawstring($if($strcmp($getpvar(anna.language),zh-CN),专辑 / 曲目,$if($strcmp($getpvar(anna.language),zh-TW),專輯 / 曲目,$if($strcmp($getpvar(anna.language),en),ALBUMS / TRACKS,アルバム / 曲目))),275,64,$eval(%_width% * 72 / 100 - 324),20,249-220-217)
+// Native renderer remains available. Draw an iOS-style switch with PVAR-selected panels.
+$if($strcmp($getpvar(anna.playlist.experimental),1),$panel(SwitchGlass,JS Panel,$eval(%_width% * 72 / 100 - 115),61,74,24),$panel(SwitchNative,JS Panel,$eval(%_width% * 72 / 100 - 115),61,74,24))
+
+// Main: artist/library navigator and native or glass playlist share EXACTLY the same working order.
+$panel(Playlists,JS Panel,23,89,196,$eval(%_height% - 224))
+$if($strcmp($getpvar(anna.playlist.experimental),1),$panel(GlassPlaylist,JS Panel,248,89,$eval(%_width% * 72 / 100 - 277),$eval(%_height% - 224)),$panel(Playlist,Single Column Playlist,248,89,$eval(%_width% * 72 / 100 - 277),$eval(%_height% - 224)))
+$if($strcmp($getpvar(anna.playlist.experimental),1),,$panel(NativeScroll,JS Panel,$eval(%_width% * 72 / 100 - 44),90,15,$eval(%_height% - 226)))
+
+// Right artwork and metadata retain their coordinates, without a redundant header or VIS switch.
+// Artwork caps at 180px to preserve the fixed spectrum-row boundary.
+$drawrect($eval(%_width% * 72 / 100 - 10),58,$eval(%_width% * 28 / 100 - 6),265,brushcolor-10-20-42 pencolor-220-165-187 alpha-54)
+$panel(Cover,Album Art,$eval(%_width% * 72 / 100 + 4),72,$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)))
+$drawrect($eval(%_width% * 72 / 100 + 4),72,$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),brushcolor-null pencolor-245-190-213)
+$font(Segoe UI Symbol,18,,250-181-211)
+$textbutton($eval(%_width% - 57),68,36,33,$if($strcmp($getpvar(anna.favorite.current),1),♥,♡),,JSPANEL:Playlists:togglefavorite,TOOLTIP,'現在の曲を Anna - Favorites へ追加 / 解除')
+// One JS metadata panel computes line wrapping and a single vertical flow.
+// It keeps the original fonts and reserves the first-line heart target.
+$panel(NowDetails,JS Panel,$ifgreater(%_width%,1500,$eval(%_width% * 72 / 100 + 198),$eval(%_width% * 84 / 100 + 18)),72,$ifgreater(%_width%,1500,$eval(%_width% * 28 / 100 - 219),$eval(%_width% * 16 / 100 - 42)),190)
+// Native Panels UI spectrum kept as the simpler, tested visualizer.
+// Spectrum begins 14px beneath the embedded cover; its bottom remains y=309.
+// At the screenshot's ~1290px width this expands from 40 to roughly 69px.
+$drawrect($eval(%_width% * 72 / 100 + 4),$ifgreater(%_width%,1500,263,$eval(83 + %_width% * 12 / 100)),$eval(%_width% * 28 / 100 - 34),1,brushcolor-251-173-207 pencolor-null alpha-110)
+$panel(Spectrum,Spectrum,$eval(%_width% * 72 / 100 + 4),$ifgreater(%_width%,1500,266,$eval(86 + %_width% * 12 / 100)),$eval(%_width% * 28 / 100 - 34),$ifgreater(%_width%,1500,43,$eval(223 - %_width% * 12 / 100)))
+
+// Lyrics and queue share the same right-side footprint (x, y, w, h).
+// Both modes retain the card's OUTER border. AnnaLyrics itself draws no
+// second border or backing; Queue keeps its stronger coloured treatment.
+$if($strcmp($getpvar(anna.queue.open),1),$drawrect($eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466),brushcolor-58-20-59 pencolor-255-160-211 alpha-126),$drawrect($eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466),brushcolor-null pencolor-236-184-177 alpha-94))
+$if($strcmp($getpvar(anna.queue.open),1),$drawrect($eval(%_width% * 72 / 100 - 10),334,$eval(%_width% * 28 / 100 - 6),4,brushcolor-252-146-204 pencolor-null alpha-238),)
+$font(Yu Gothic UI,11,bold,253-216-227)
+$if($strcmp($getpvar(anna.queue.open),1),$drawstring($if($strcmp($getpvar(anna.language),zh-CN),♫ 队列 · 即将播放,$if($strcmp($getpvar(anna.language),zh-TW),♫ 佇列 · 即將播放,$if($strcmp($getpvar(anna.language),en),♫ QUEUE · NEXT UP,♫ QUEUE · 次に再生))),$eval(%_width% * 72 / 100 - 1),344,162,22,253-216-227),)
+$if($strcmp($getpvar(anna.queue.open),1),$panel(AnnaQueue,JS Panel,$eval(%_width% * 72 / 100 - 4),369,$eval(%_width% * 28 / 100 - 20),$eval(%_height% - 498)),$panel(AnnaLyrics,JS Panel,$eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466)))
+// Footer DESK and QUEUE share an 84px pill footprint and remain visible together.
+// Draw these controls AFTER footer backing to prevent the Desk ON tint washing out.
+
+// Four explicit petal/filigree corner orientations, aligned INSIDE each panel outline.
+$imageabs(16,58,28,28,images/ornaments/corner_tl.png)
+$imageabs($eval(227 - 28),58,28,28,images/ornaments/corner_tr.png)
+$imageabs(16,$eval(%_height% - 129 - 28),28,28,images/ornaments/corner_bl.png)
+$imageabs($eval(227 - 28),$eval(%_height% - 129 - 28),28,28,images/ornaments/corner_br.png)
+$imageabs(241,58,28,28,images/ornaments/corner_tl.png)
+$imageabs($eval(%_width% * 72 / 100 - 24 - 28),58,28,28,images/ornaments/corner_tr.png)
+$imageabs(241,$eval(%_height% - 129 - 28),28,28,images/ornaments/corner_bl.png)
+$imageabs($eval(%_width% * 72 / 100 - 24 - 28),$eval(%_height% - 129 - 28),28,28,images/ornaments/corner_br.png)
+$imageabs($eval(%_width% * 72 / 100 - 10),58,28,28,images/ornaments/corner_tl.png)
+$imageabs($eval(%_width% - 16 - 28),58,28,28,images/ornaments/corner_tr.png)
+$imageabs($eval(%_width% * 72 / 100 - 10),$eval(323 - 28),28,28,images/ornaments/corner_bl.png)
+$imageabs($eval(%_width% - 16 - 28),$eval(323 - 28),28,28,images/ornaments/corner_br.png)
+$imageabs($eval(%_width% * 72 / 100 - 10),337,28,28,images/ornaments/corner_tl.png)
+$imageabs($eval(%_width% - 16 - 28),337,28,28,images/ornaments/corner_tr.png)
+$imageabs($eval(%_width% * 72 / 100 - 10),$eval(%_height% - 129 - 28),28,28,images/ornaments/corner_bl.png)
+$imageabs($eval(%_width% - 16 - 28),$eval(%_height% - 129 - 28),28,28,images/ornaments/corner_br.png)
+
+// Reference-style footer: controls ABOVE a full-width butterfly seek bar.
+$drawrect(16,$eval(%_height% - 113),$eval(%_width% - 32),105,brushcolor-20-25-50 pencolor-234-172-197 alpha-76)
+$drawrect(17,$eval(%_height% - 112),$eval(%_width% - 34),1,brushcolor-249-183-211 pencolor-null alpha-152)
+$imageabs(16,$eval(%_height% - 113),28,28,images/ornaments/corner_tl.png)
+$imageabs($eval(%_width% - 44),$eval(%_height% - 113),28,28,images/ornaments/corner_tr.png)
+$imageabs(16,$eval(%_height% - 36),28,28,images/ornaments/corner_bl.png)
+$imageabs($eval(%_width% - 44),$eval(%_height% - 36),28,28,images/ornaments/corner_br.png)
+$panel(FooterCover,Album Art,34,$eval(%_height% - 99),67,67)
+$drawrect(34,$eval(%_height% - 99),67,67,brushcolor-null pencolor-226-173-197)
+$font(Yu Gothic UI,11,bold)
+$drawstring($if(%isplaying%,%title%,Anna Glass V2),112,$eval(%_height% - 96),$eval(%_width% * 16 / 100 - 25),23,253-228-240)
 $font(Yu Gothic UI,10)
-$drawstring($if(%isplaying%,%artist%,Stopped),108,$eval(%_height% - 48),$eval(%_width% * 17 / 100 - 20),21,228-197-194)
+$drawstring($if(%isplaying%,%artist%,$if($strcmp($getpvar(anna.language),zh-CN),已停止,$if($strcmp($getpvar(anna.language),zh-TW),已停止,$if($strcmp($getpvar(anna.language),en),Stopped,停止中)))),112,$eval(%_height% - 69),$eval(%_width% * 16 / 100 - 25),19,229-214-231)
 $font(Segoe UI,9)
-$drawstring($if(%isplaying%,%codec%[ · %bitrate% kbps],No music),108,$eval(%_height% - 26),$eval(%_width% * 17 / 100 - 20),16,188-197-216)
+$drawstring($if(%isplaying%,%codec%[ · %bitrate% kbps],),112,$eval(%_height% - 48),$eval(%_width% * 16 / 100 - 25),18,198-198-220)
 
-// UPPER ROW: timeline uses most of the central span. Both time labels stay visible.
-$font(Segoe UI,10)
-$drawstring($if(%isplaying%,%playback_time%,0:00),$eval(%_width% * 27 / 100 - 12),$eval(%_height% - 82),44,18,239-220-229)
-$panel(FooterSeek,JS Panel,$eval(%_width% * 30 / 100),$eval(%_height% - 82),$eval(%_width% * 40 / 100),17)
-$drawstring($if(%isplaying%,%length%,0:00),$eval(%_width% * 71 / 100 + 3),$eval(%_height% - 82),46,18,239-220-229)
+// Newly designed transport vectors: independent clean-line icons; no legacy raster/filled skip controls.
+$panel(FooterTransport,JS Panel,$eval(%_width% * 52 / 100 - 214),$eval(%_height% - 103),428,67)
+// Right footer lower row: speaker and volume rail, no percent; QUEUE retains its x/y.
+$if($strcmp($getpvar(anna.theme.hue),violet),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/violet/speaker.png),$if($strcmp($getpvar(anna.theme.hue),blue),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/blue/speaker.png),$if($strcmp($getpvar(anna.theme.hue),teal),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/teal/speaker.png),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/pink/speaker.png))))
+$panel(FooterVolume,JS Panel,$eval(%_width% - 209),$eval(%_height% - 43),168,22)
+$panel(DesktopLyrics,JS Panel,$eval(%_width% - 209),$eval(%_height% - 94),84,24)
+$panel(FooterQueueToggle,JS Panel,$eval(%_width% - 117),$eval(%_height% - 94),84,24)
 
-// LOWER ROW: symmetric controls centre around the large pink play ring.
-$font(Segoe UI Symbol,18,,242-223-228)
-$textbutton($eval(%_width% * 52 / 100 - 135),$eval(%_height% - 52),30,36,⤨,,Playback/Order/Shuffle (tracks),TOOLTIP,'随机播放')
-$textbutton($eval(%_width% * 52 / 100 - 89),$eval(%_height% - 52),36,36,⏮,,Previous,TOOLTIP,'上一首')
-$imageabs($eval(%_width% * 52 / 100 - 28),$eval(%_height% - 64),56,56,images/controls/play_ring.png)
-$font(Segoe UI Symbol,22,,255-238-241)
-$textbutton($eval(%_width% * 52 / 100 - 26),$eval(%_height% - 62),52,52,$if(%isplaying%,$if(%ispaused%,▶,⏸),▶),,Play,TOOLTIP,'播放 / 暂停')
-$font(Segoe UI Symbol,18,,242-223-228)
-$textbutton($eval(%_width% * 52 / 100 + 53),$eval(%_height% - 52),36,36,⏭,,Next,TOOLTIP,'下一首')
-$textbutton($eval(%_width% * 52 / 100 + 103),$eval(%_height% - 52),30,36,↻,,Playback/Order/Repeat (playlist),TOOLTIP,'列表循环')
+// Full-width seek line sits along the lower rim; its glowing butterfly thumb
+// is painted inside FooterSeek JS Panel and does one actual seek on mouse-up.
+$font(Segoe UI,12,bold,255-232-246)
+$drawstring($if(%isplaying%,%playback_time%,0:00),$eval(%_width% * 23 / 100 - 48),$eval(%_height% - 39),60,27,255-232-246)
+$panel(FooterSeek,JS Panel,$eval(%_width% * 23 / 100),$eval(%_height% - 38),$eval(%_width% * 77 / 100 - 350),27)
+$drawstring($if(%isplaying%,%length%,0:00),$eval(%_width% - 336),$eval(%_height% - 39),72,27,255-232-246)
 
-// RIGHT: accessible volume slider, speaker and playlist menu.
-$imageabs($eval(%_width% * 78 / 100 - 27),$eval(%_height% - 47),24,24,images/controls/speaker.png)
-$panel(FooterVolume,JS Panel,$eval(%_width% * 78 / 100),$eval(%_height% - 48),$eval(%_width% * 12 / 100),20)
-$drawrect($eval(%_width% - 86),$eval(%_height% - 62),43,42,brushcolor-29-32-57 pencolor-219-159-166 alpha-110)
-$font(Segoe UI Symbol,16,,247-221-232)
-$textbutton($eval(%_width% - 84),$eval(%_height% - 60),39,38,☷,,PLAYLISTS-MENU,TOOLTIP,'播放列表')

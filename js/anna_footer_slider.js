@@ -1,12 +1,26 @@
 // Stage 3I.3 — seek slider previews position during drag and seeks only on release.
 // The parent skin hosts this SAME script in two different windowless JS Panels.
 'use strict';
+include('anna_theme.js');
 const SEEK = panelsui.PanelName === 'FooterSeek';
 const TRACK = 0xa0443b59;
 const FILL = 0xffefa7c1;
 const KNOB = 0xffffe0e8;
-const PERCENT_FONT = gdi.Font('Segoe UI', 10, 0);
-const HOVER = 0xffe2bf8c;
+// Image-backed seek butterfly and volume grip. Glass rails are still painted dynamically.
+let BUTTERFLY=null,VOLUME_THUMB=null,loadedTheme='';
+function loadAssets(){
+ const id=AnnaTheme.selected();if(id===loadedTheme)return;
+ loadedTheme=id;
+ const folder='../images/controls/'+(id==='rose'?'pink/':id+'/');
+ try{BUTTERFLY=gdi.Image(folder+'butterfly.png');}catch(e){BUTTERFLY=null;}
+ try{VOLUME_THUMB=gdi.Image(folder+'volume_thumb.png');}catch(e){VOLUME_THUMB=null;}
+}
+let breathPhase=0,breathTimer=0;
+function drawAsset(gr,img,x,y,size,alpha=255){
+ if(!img)return;
+ gr.DrawImage(img,Math.round(x-size/2),Math.round(y-size/2),size,size,
+              0,0,img.Width,img.Height,0,alpha);
+}
 let dragging = false;
 let over = false;
 let lastDragAt = 0;
@@ -24,19 +38,45 @@ function frac() {
     return volumeFraction(fb.Volume);
 }
 function on_paint(gr) {
+ gr=AnnaTheme.graphics(gr);
+    loadAssets();
     const w=Math.max(1,window.Width),h=Math.max(1,window.Height);
     const y=Math.floor((h-5)/2);
-    const trackWidth=Math.max(20, SEEK ? w-12 : w-49);
+    const trackWidth=Math.max(20,w-12);
     const f=frac(), px=Math.round(f*trackWidth)+6;
-    // Decorative halo stays behind the same 5px interactive slider; hit zones are unchanged.
-    if (f>0) gr.FillRoundRect(6,y-2,Math.max(2,Math.round(trackWidth*f)),9,4,4,0x23f4a2c3);
-    gr.FillRoundRect(6,y,trackWidth,5,3,3,TRACK);
-    if (f>0) gr.FillRoundRect(6,y,Math.max(2,Math.round(trackWidth*f)),5,3,3,FILL);
-    gr.FillEllipse(Math.max(1,Math.min(trackWidth+1,px-5)),y-4,11,13,over||dragging?HOVER:KNOB);
-    if(!SEEK) gr.GdiDrawText(String(Math.round(f*100))+'%',PERCENT_FONT,0xffeddde2,w-38,0,37,h,0x4 | 0x20);
+    if(SEEK){
+        // Opaque-enough unplayed track stays visible on both dark and luminous
+        // sections of the illustrated wallpaper. A thin highlight defines its edge.
+        gr.FillRoundRect(4,y-3,trackWidth+4,12,6,6,0xc431244d);
+        gr.DrawRoundRect(4,y-3,trackWidth+4,12,6,6,1,0xffd9a9cd);
+        const played=Math.round(trackWidth*f);
+        if(played>0){
+            gr.FillRoundRect(5,y-5,played+2,16,8,8,0x36ff93d3);
+            gr.FillRoundRect(5,y-3,played+2,12,6,6,0x63ffb0da);
+            gr.FillRoundRect(6,y,played,5,3,3,0xffffc4e2);
+            gr.FillSolidRect(7,y+1,Math.max(1,played-2),1,0xfffff1fa);
+        }
+        const bx=Math.max(23,Math.min(w-23,px)),by=Math.floor(h/2);
+        drawAsset(gr,BUTTERFLY,bx,by,40,Math.round(28+28*(1+Math.sin(breathPhase))/2));
+        drawAsset(gr,BUTTERFLY,bx,by,36,255);
+    }else{
+        // Match the progress rail: rich glass cavity, visible rim, luminous played part.
+        const x=4, railY=y-3, railW=trackWidth+4;
+        gr.FillRoundRect(x,railY,railW,12,6,6,0xc431244d);
+        gr.DrawRoundRect(x,railY,railW,12,6,6,1,0xe9dfb5d7);
+        const played=Math.max(0,Math.round(trackWidth*f));
+        if(played>0){
+            gr.FillRoundRect(x+1,railY-2,played+2,16,7,7,0x3dff98cc);
+            gr.FillRoundRect(x+2,railY,played+1,12,6,6,0x74ffafd5);
+            gr.FillRoundRect(x+3,railY+3,played,5,3,3,0xffffd0e9);
+        }
+        const kx=Math.max(6,Math.min(w-7,px));
+        if(over||dragging)drawAsset(gr,VOLUME_THUMB,kx,y+2,25,76);
+        drawAsset(gr,VOLUME_THUMB,kx,y+2,20,255);
+    }
 }
 function fractionAt(x) {
-    const trackWidth=Math.max(20,SEEK?window.Width-12:window.Width-49);
+    const trackWidth=Math.max(20,window.Width-12);
     return clamp((x-6)/trackWidth);
 }
 // The seek thumb is a visual preview; no audio seek occurs here.
@@ -59,7 +99,6 @@ function cancelSeekPreview() {
     if (hadPreview) window.Repaint();
 }
 function on_mouse_lbtn_down(x,y) {
-    if (!SEEK && x>window.Width-39) return;
     // Duration-less streams have no seekable position.
     if (SEEK && !(fb.PlaybackLength>0)) return;
     dragging=true;
@@ -103,3 +142,19 @@ function on_playback_seek(){ if(SEEK) window.Repaint(); }
 function on_playback_new_track(){ cancelSeekPreview(); window.Repaint(); }
 function on_playback_stop(){ cancelSeekPreview(); window.Repaint(); }
 function on_volume_change(){ if(!SEEK) window.Repaint(); }
+
+// A 90 ms timer animates only the 27px-high seek panel, not the entire skin.
+if(SEEK) breathTimer=window.SetInterval(function(){
+    // No timer-driven paints for a hidden panel or when playback is stopped.
+    if(window.IsVisible===false || !fb.IsPlaying)return;
+    breathPhase+=0.24; // about a 3.1-second breathing cycle
+    const trackWidth=Math.max(20,window.Width-12);
+    const x=Math.max(23,Math.min(window.Width-23,Math.round(frac()*trackWidth)+6));
+    // Repaint only the thumb's glow, not every pixel of the seekbar.
+    window.RepaintRect(Math.max(0,x-25),0,50,window.Height);
+},120);
+function on_script_unload(){if(breathTimer)window.ClearInterval(breathTimer);}
+
+function on_mouse_rbtn_up(){return true;}
+
+function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
