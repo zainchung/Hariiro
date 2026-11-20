@@ -6,6 +6,8 @@
 include('anna_i18n.js');
 include('anna_theme.js');
 include('anna_shared.js');
+include('anna_dpi.js');
+include('anna_drop_fix.js');
 const VK_UP=0x26, VK_DOWN=0x28, VK_RETURN=0x0D, VK_DELETE=0x2e, VK_HOME=0x24, VK_END=0x23;
 const VK_PRIOR=0x21, VK_NEXT=0x22, VK_A=0x41, VK_ESCAPE=0x1b;
 const MK_CONTROL=8, MK_SHIFT=4;
@@ -18,9 +20,9 @@ const TXT=0xfff0f3fb, SOFT=0xffd4d7e6, GOLD=0xffebc29a, PINK=0xffffbfd8;
 const FRAME=0x58a4afcb, GROUP_FRAME=0x92c9ac99;
 // Active row colors are selected at paint time to match the concept palette.
 const GLOW_FAR=0x24ff8fca, GLOW_MID=0x48ff9fd0, GLOW_NEAR=0x78ffc0d9;
-const FONT=gdi.Font('Yu Gothic UI',13,0), BOLD=gdi.Font('Yu Gothic UI',13,1);
-const SMALL=gdi.Font('Yu Gothic UI',11,0), HEAD=gdi.Font('Yu Gothic UI',17,1);
-const GLYPH=gdi.Font('Segoe UI Symbol',17,0);
+const FONT=AnnaDpi.font('Yu Gothic UI',13,0), BOLD=AnnaDpi.font('Yu Gothic UI',13,1);
+const SMALL=AnnaDpi.font('Yu Gothic UI',11,0), HEAD=AnnaDpi.font('Yu Gothic UI',17,1);
+const GLYPH=AnnaDpi.font('Segoe UI Symbol',17,0);
 const TF_GROUP=fb.TitleFormat('$if2(%album artist%,$if2(%artist%,Unknown Artist))');
 const TF_ALBUM=fb.TitleFormat('$if2(%album%,Singles / Unknown Album)');
 const TF_DATE=fb.TitleFormat('[$meta(date)]');
@@ -32,7 +34,7 @@ let data=[], nodes=[], trackNodes=[], totalHeight=0, scroll=0, anchor=-1, downAt
 let scrollingThumb=false,scrollThumbGrab=0;
 let miniEqFrame=0,miniEqTimer=0; // low-rate animated playing-row glyph only
 function glassScrollbar(){
- const h=Math.max(1,window.Height),w=window.Width,max=maxScroll();
+ const h=Math.max(1,AnnaDpi.height()),w=AnnaDpi.width(),max=maxScroll();
  if(max<=0)return null;
  const thumb=Math.min(h,Math.max(35,Math.floor(h*h/Math.max(1,totalHeight))));
  const travel=Math.max(1,h-thumb);
@@ -127,6 +129,14 @@ function on_drag_over(action,x,y){
  window.Repaint();
 }
 function on_drag_leave(){acceptingImport=false;importStatus='';window.Repaint();}
+// Files from another program never reach on_drag_drop (see anna_drop_fix.js).
+// Accepted files already sit in the playlist shown here (the active one).
+function externalDropPlan(){
+ const r=evaluateDrop();
+ if(r.ok){try{panelsui.RunAction('JSPANEL:Playlists:syncactive');}catch(e){}return null;}
+ importStatus=r.msg;if(r.msg)flashImportStatus(2800);window.Repaint();
+ return {kind:'reject'};
+}
 function on_drag_drop(action,x,y){
  const r=evaluateDrop();acceptingImport=false;
  if(!r.ok){
@@ -212,7 +222,7 @@ function rowActionAt(x,width){
     if(x>=width-44&&x<width-8)return 'menu';
     return '';
 }
-function maxScroll(){return Math.max(0,totalHeight-Math.max(0,window.Height));}
+function maxScroll(){return Math.max(0,totalHeight-Math.max(0,AnnaDpi.height()));}
 function clampScroll(){scroll=clamp(scroll,0,maxScroll());}
 function releaseCover(key){
     const entry=covers.get(key);
@@ -278,7 +288,7 @@ function firstVisible(){
     return lo;
 }
 function nodeAt(y){
-    if(y<0||y>=window.Height)return null;
+    if(y<0||y>=AnnaDpi.height())return null;
     const sy=y+scroll;let lo=0,hi=nodes.length;
     while(lo<hi){const m=(lo+hi)>>1;if(nodes[m].y+nodes[m].h<=sy)lo=m+1;else hi=m;}
     return lo<nodes.length&&nodes[lo].y<=sy?nodes[lo]:null;
@@ -306,7 +316,7 @@ function drawCover(gr,g,x,y){
     gr.DrawRoundRect(x,y,S,S,6,6,1,0xc8d8a88f);
 }
 function on_paint(gr){gr=AnnaTheme.graphics(gr);
-    const w=window.Width,h=window.Height,p=current();
+    const w=AnnaDpi.width(),h=AnnaDpi.height(),p=current();
     if(error){gr.FillRoundRect(9,16,Math.max(30,w-18),60,7,7,0xc01e1b34);gr.GdiDrawText('JS Playlist: '+error,SMALL,PINK,17,16,w-34,60,0x10);return;}
     if(p<0||!nodes.length){gr.GdiDrawText(p<0?'No playlist':'Empty playlist',FONT,TXT,16,14,Math.max(15,w-32),45,DT);return;}
     const playing=plman.GetPlayingItemLocation(),focus=plman.GetPlaylistFocusItemIndex(p);
@@ -423,7 +433,7 @@ function selectTrack(i,mask){
     else {plman.ClearPlaylistSelection(p);plman.SetPlaylistSelectionSingle(p,i,true);anchor=i;}
     plman.SetPlaylistFocusItem(p,i);window.Repaint();
 }
-function reveal(i){let n=trackNodes[i];if(!n){build();n=trackNodes[i];}if(!n)return;if(n.y<scroll)scroll=n.y; else if(n.y+n.h>scroll+window.Height)scroll=n.y+n.h-window.Height;clampScroll();}
+function reveal(i){let n=trackNodes[i];if(!n){build();n=trackNodes[i];}if(!n)return;if(n.y<scroll)scroll=n.y; else if(n.y+n.h>scroll+AnnaDpi.height())scroll=n.y+n.h-AnnaDpi.height();clampScroll();}
 function toggleGroup(k){cancelTip();if(groupCollapsed.has(k))groupCollapsed.delete(k);else groupCollapsed.add(k);hover=-1;build();}
 function on_mouse_lbtn_down(x,y,mask){
     cancelTip();
@@ -438,7 +448,7 @@ function on_mouse_lbtn_down(x,y,mask){
     if(n&&n.kind==='group'){toggleGroup(n.key);return;}
     if(n&&n.kind==='song'){
         // Keep icon clicks separate from row selection / drag initiation.
-        const action=rowActionAt(x,window.Width);
+        const action=rowActionAt(x,AnnaDpi.width());
         if(action){downAt={action,index:n.index};return;}
         // A click on an already selected row keeps multiselection until mouse-up,
         // so a later drag or context menu does not silently discard the range.
@@ -456,7 +466,7 @@ function on_mouse_lbtn_up(x,y,mask){
     const down=downAt;downAt=null;
     const n=nodeAt(y);
     if(down&&down.action&&n&&n.kind==='song'&&n.index===down.index&&
-        rowActionAt(x,window.Width)===down.action){
+        rowActionAt(x,AnnaDpi.width())===down.action){
         if(down.action==='favorite')toggleTrackFavorite(n.index);
         if(down.action==='menu'){
             if(!plman.IsPlaylistItemSelected(current(),n.index))selectTrack(n.index,0);
@@ -469,7 +479,7 @@ function on_mouse_lbtn_up(x,y,mask){
 }
 function on_mouse_lbtn_dblclk(x,y){
     const n=nodeAt(y);
-    if(n&&n.kind==='song'&&!rowActionAt(x,window.Width))
+    if(n&&n.kind==='song'&&!rowActionAt(x,AnnaDpi.width()))
         plman.ExecutePlaylistDefaultAction(current(),n.index);
 }
 function queueSelected() {
@@ -487,7 +497,7 @@ function on_mouse_move(x,y,mask){
     hoverMouseY=y;
     if(scrollingThumb){if(mask&1){dragGlassScrollbar(y);return;}scrollingThumb=false;}
     const n=nodeAt(y),h=n&&n.kind==='song'?n.index:-1;
-    const action=h>=0?rowActionAt(x,window.Width):'';
+    const action=h>=0?rowActionAt(x,AnnaDpi.width()):'';
     if(h!==hover||action!==hoverAction){
         hover=h;hoverAction=action;
         queueTip(action?-1:h);
@@ -502,7 +512,7 @@ function on_mouse_move(x,y,mask){
                 localGlassTrackOLE=true;
                 if(clearGlassOriginTimer){window.ClearTimeout(clearGlassOriginTimer);clearGlassOriginTimer=0;}
                 AnnaShared.setOrigin(AnnaShared.glassMarker(current()));
-                try{fb.DoDragDrop(window.ID,selected,1,{});}
+                try{AnnaDpi.doDragDrop(window.ID,selected,1,{});}
                 finally{
                   localGlassTrackOLE=false;localGlassGuardUntil=Date.now()+350;
                   clearGlassOriginTimer=window.SetTimeout(clearGlassOrigin,350);
@@ -537,7 +547,7 @@ function on_mouse_rbtn_up(x,y){
            m.AppendMenuItem(0,3,AnnaI18n.t('removeSelected'));
         m.AppendMenuSeparator();
         const cm=fb.CreateContextMenuManager();cm.InitContextPlaylist();cm.BuildMenu(m,100,1000);
-        const cmd=m.TrackPopupMenu(x,y);
+        const cmd=AnnaDpi.popup(m,x,y);
         if(cmd===1){panelsui.RunAction('PVAR:TOGGLE:anna.playlist.experimental');}
         else if(cmd===2){queueSelected();}
         else if(cmd===3){removeFromCurrentPlaylist();}
@@ -563,7 +573,7 @@ function on_key_down(key){
     if(key===VK_DELETE){return removeFromCurrentPlaylist();}
     if(key===VK_UP||key===VK_DOWN||key===VK_HOME||key===VK_END||key===VK_PRIOR||key===VK_NEXT){
         const count=data.length;if(!count)return false;
-        const page=Math.max(1,Math.floor(window.Height/ROW_H)-2);
+        const page=Math.max(1,Math.floor(AnnaDpi.height()/ROW_H)-2);
         const delta=key===VK_UP?-1:key===VK_DOWN?1:key===VK_PRIOR?-page:page;
         const next=key===VK_HOME?0:key===VK_END?count-1:clamp((focus<0?0:focus)+delta,0,count-1);
         // An arrow key into a folded group unfolds it before selecting the target.
@@ -620,3 +630,7 @@ miniEqTimer=window.SetInterval(function(){
 function on_script_unload(){if(miniEqTimer)window.ClearInterval(miniEqTimer);if(importMessageTimer)window.ClearTimeout(importMessageTimer);if(clearGlassOriginTimer)window.ClearTimeout(clearGlassOriginTimer);}
 
 function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+
+AnnaDropFix.install({plan:externalDropPlan});
+// Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
+AnnaDpi.install();

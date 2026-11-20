@@ -20,6 +20,10 @@ vm.runInContext=(source,context,options)=>{
   originalVmRun(readFileSync(root+'/js/anna_playlist_dedup.js','utf8'),context);
   source=source.replace("include('anna_playlist_dedup.js');",'');
  }
+ if(typeof source==='string'&&source.includes("include('anna_dpi.js');")){ // Round 15
+  originalVmRun(readFileSync(root+'/js/anna_dpi.js','utf8'),context);
+  source=source.replace("include('anna_dpi.js');",'');
+ }
  return originalVmRun(source,context,options);
 };
 const read=f=>readFileSync(root+'/'+f,'utf8');

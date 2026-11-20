@@ -159,8 +159,9 @@ let a={Effect:0};glass.on_drag_over(a,40,120);assert.equal(a.Effect,1);
 vars.set('anna.nav.mode','artists');a={Effect:1};glass.on_drag_over(a,40,120);assert.equal(a.Effect,0);
 vars.set('anna.nav.mode','library');vars.set('anna.sidebar.editable.name','Anna - Favorites');active=plman.FindPlaylist('Anna - Favorites');a={Effect:1};glass.on_drag_over(a,40,120);assert.equal(a.Effect,0);
 // 4. Host routing/caption/assets/paint stacking.
+// Round 15 reversed Round 13's windowless routing: Panels UI misrouted drops.
 for(const name of ['Playlists','GlassPlaylist','AnnaQueue'])
- assert(source('foo_ui_panels.ini').includes(`panel.${name}.windowless = 1`));
+ assert(source('foo_ui_panels.ini').includes(`panel.${name}.windowless = 0`));
 assert(captionAreas.length===0);
 const cap=makePanel('CaptionStrip',{Width:398});vm.runInContext(source('js/anna_caption_strip.js'),cap);
 assert.deepEqual(captionAreas.at(-1),[367,4,398,37]);

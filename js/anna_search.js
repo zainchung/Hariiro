@@ -4,8 +4,10 @@
 'use strict';
 include('anna_i18n.js');
 include('anna_theme.js');
-const FONT=gdi.Font('Yu Gothic UI',11,0);
-const SMALL=gdi.Font('Segoe UI',10,0);
+include('anna_dpi.js');
+const FONT=AnnaDpi.font('Yu Gothic UI',11,0);
+const SMALL=AnnaDpi.font('Segoe UI',10,0);
+const GLYPH=AnnaDpi.font('Segoe UI Symbol',18,0), CLEAR_FONT=AnnaDpi.font('Segoe UI',15,0);
 const GLASS=0xa8142347,FRAME=0xbfeab5d4,INK=0xfff6e8f4,MUTED=0xffbdacc5,PINK=0xffffb9d7;
 const OWNED_PROPERTY='Anna.OwnedSearchResults.v1';
 const QUERY_PROPERTY='Anna.Search.LastQuery.v1';
@@ -118,10 +120,10 @@ function performSearch(){
 }
 function on_paint(gr){
  gr=AnnaTheme.graphics(gr);
-    const w=window.Width,h=window.Height;if(w<30||h<18)return;
+    const w=AnnaDpi.width(),h=AnnaDpi.height();if(w<30||h<18)return;
     gr.FillRoundRect(0,0,w,h,12,12,GLASS);
     gr.DrawRoundRect(1,1,w-3,h-3,11,11,1,focused?PINK:FRAME);
-    gr.GdiDrawText('⌕',gdi.Font('Segoe UI Symbol',18,0),PINK,9,3,23,h-6,0x8024);
+    gr.GdiDrawText('⌕',GLYPH,PINK,9,3,23,h-6,0x8024);
     const hasText=!!query;
     const showText=hasText?query:AnnaI18n.t('searchHint');
     const right=hasText?37:10;
@@ -131,7 +133,7 @@ function on_paint(gr){
             gr.CalcTextWidth(query,FONT)+4)),h-10,3,3,0x8a985278);
     gr.GdiDrawText(showText,FONT,hasText?INK:MUTED,38,2,visibleWidth,h-4,0x8024);
     if(hasText)
-        gr.GdiDrawText('×',gdi.Font('Segoe UI',15,0),PINK,w-31,3,24,h-6,0x8024);
+        gr.GdiDrawText('×',CLEAR_FONT,PINK,w-31,3,24,h-6,0x8024);
     // Always blink while focused, even in an empty search field.
     if(focused&&cursorOn&&!selectAll){
         const prefix=Array.from(query).slice(0,caret).join('');
@@ -145,7 +147,7 @@ function on_paint(gr){
 function on_focus(value){focused=!!value;cursorOn=true;window.Repaint();}
 function on_mouse_move(x,y){window.SetCursor(32513);} // I-beam
 function on_mouse_lbtn_down(x,y){
-    if(query&&x>window.Width-36){clearText();return;}
+    if(query&&x>AnnaDpi.width()-36){clearText();return;}
     focused=true;cursorOn=true;selectAll=false;
     // Approximate the nearest character boundary using the actual GDI font.
     const points=Array.from(query),target=Math.max(0,x-38);
@@ -158,7 +160,7 @@ function on_mouse_lbtn_down(x,y){
     window.Repaint();
 }
 function graphemeWidth(text){
-    try{return gdi.CalcTextWidth?gdi.CalcTextWidth(text,FONT):text.length*8;}
+    try{const w=AnnaDpi.textWidth(text,FONT);return w===null?text.length*8:w;}
     catch(e){return text.length*8;}
 }
 function on_char(code){
@@ -208,7 +210,7 @@ function on_mouse_rbtn_up(x,y){
     m.AppendMenuItem(0,1,AnnaI18n.t('searchNow'));
     m.AppendMenuItem(0,2,AnnaI18n.t('paste'));
     m.AppendMenuItem(0,3,AnnaI18n.t('clearSearch'));
-    const choice=m.TrackPopupMenu(x,y);
+    const choice=AnnaDpi.popup(m,x,y);
     if(choice===1)performSearch();
     else if(choice===2){try{addChars(utils.GetClipboardText());}catch(e){console.log('Clipboard: '+String(e));}}
     else if(choice===3)clearText();
@@ -218,9 +220,12 @@ function on_mouse_rbtn_up(x,y){
 blinkTimer=window.SetInterval(function(){
     if(!focused||!window.IsVisible)return;
     cursorOn=!cursorOn;
-    window.RepaintRect(37,2,Math.max(1,window.Width-74),Math.max(1,window.Height-4));
+    AnnaDpi.repaintRect(37,2,Math.max(1,AnnaDpi.width()-74),Math.max(1,AnnaDpi.height()-4));
 },500);
 function on_script_unload(){if(blinkTimer)window.ClearInterval(blinkTimer);}
 
 function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'){window.Repaint();return;}
 if(name==='anna.language')window.Repaint();}
+
+// Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
+AnnaDpi.install();

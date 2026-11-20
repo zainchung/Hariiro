@@ -53,7 +53,7 @@ for(const w of widths){const h=Math.round(w*9/16);const navEnd=16+350,searchStar
 }
 const flow=readFileSync(root+'js/anna_now_details.js','utf8');assert(flow.includes("gdi.Font('Yu Gothic UI',15"));assert(flow.includes("gdi.Font('Yu Gothic UI',12"));assert(flow.includes("gdi.Font('Yu Gothic UI',11"));
 assert(flow.includes('const date=field(handle'));assert(!flow.includes('y+=6'));
-const sidebar=readFileSync(root+'js/playlist_browser.js','utf8');assert(sidebar.includes("source.kind==='artist'"));assert(sidebar.includes('fb.DoDragDrop(window.ID,handles,1,{})'));
+const sidebar=readFileSync(root+'js/playlist_browser.js','utf8');assert(sidebar.includes("source.kind==='artist'"));assert(sidebar.includes('AnnaDpi.doDragDrop(window.ID,handles,1,{})')); // Round 15: fb.DoDragDrop via the DPI adapter
 const desk=readFileSync(root+'js/anna_desktop_lyrics.js','utf8');assert(desk.includes('gr.DrawRoundRect(2,2,w-5,h-5'));assert(desk.includes('Desk ON'));assert(desk.includes('Desk OFF'));
 const lyrics=readFileSync(root+'js/anna_lyrics.js','utf8');
 assert(lyrics.includes("AnnaI18n.t('lyricSearch')"));

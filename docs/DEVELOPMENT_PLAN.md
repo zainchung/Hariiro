@@ -38,6 +38,12 @@ Failures become Round 15 bug fixes; nothing new is built on unverified behaviour
 ### Phase C — Round 15: fix what Phase B finds
 - Triage by severity (data loss > wrong drop result > cosmetic). One bug = one failing offline test first, then the fix.
 - Expect the likely weak spots: OLE drop targets over windowless panels, stale origin markers, NATIVE-mode drops, HiDPI geometry.
+- **Round 15 (2026-11-20):** confirmed the first weak spot — windowless drop targets were
+  misrouted by Panels UI (drops went to the active playlist). Sidebar / middle / Queue are
+  child windows again, scaled by `js/anna_dpi.js` (also the search box and scroll strip).
+  Files from File Explorer were taken by foobar2000's main window in both modes;
+  `js/anna_drop_fix.js` redirects them. See `docs/ROUND15_REVIEW.md`. Still open on Windows:
+  Artist-tab drags, 125 % / 150 % DPI and multi-monitor DPI changes (offline-tested only).
 
 ### Phase D — Structure and maintainability (in progress)
 Done 2026-11-20 (no behaviour change, all tests green):

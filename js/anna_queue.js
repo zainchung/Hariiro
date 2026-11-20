@@ -1,13 +1,17 @@
-// Anna Glass V2 — real playback queue, transparent windowless JS Panel.
-// Requires JS Panel 1.6+ for queue APIs, 1.9+ AND Panels UI 1.26+ for
-// native drag/drop into a windowless target. No fake drag affordances.
+// Anna Glass V2 — real playback queue, transparent child-window JS Panel.
+// Requires JS Panel 1.6+ for queue APIs. A real child window receives its own
+// OLE drops (Round 15); AnnaDpi keeps it at the right size. No fake drag affordances.
 // The buffer playlist keeps queue references valid after the drop.
 'use strict';
 include('anna_i18n.js');
 include('anna_theme.js');
+include('anna_shared.js');
+include('anna_dpi.js');
+include('anna_drop_fix.js');
 const ROW=35, TOP=29, TXT=0xfff7eaf3, MUTED=0xffc5c5df, PINK=0xffffbbd8;
-const FONT=gdi.Font('Yu Gothic UI',11,0), BOLD=gdi.Font('Yu Gothic UI',11,1);
-const SMALL=gdi.Font('Segoe UI',9,0), DT=0x8024;
+const FONT=AnnaDpi.font('Yu Gothic UI',11,0), BOLD=AnnaDpi.font('Yu Gothic UI',11,1);
+const SMALL=AnnaDpi.font('Segoe UI',9,0), DT=0x8024;
+const TRASH_FONT=AnnaDpi.font('Segoe UI Emoji',14,0);
 const BUFFER='Anna - Queue Buffer';
 const BUFFER_PROPERTY='Anna.OwnedQueueBuffer.v1';
 // Do not reuse a pre-existing playlist simply because its name matches BUFFER.
@@ -59,15 +63,15 @@ function refresh(){
         rows=handles.Convert().map((h,i)=>({handle:h,title:String(titles[i]||''),artist:String(artists[i]||'')}));
         error='';
     }catch(e){rows=[];error=AnnaI18n.t('queueUnavailable')+': '+String(e);}
-    scroll=clamp(scroll,0,Math.max(0,rows.length*ROW-Math.max(0,window.Height-TOP)));
+    scroll=clamp(scroll,0,Math.max(0,rows.length*ROW-Math.max(0,AnnaDpi.height()-TOP)));
     window.Repaint();
 }
 function rowAt(y){
-    if(y<TOP||y>=window.Height)return -1;
+    if(y<TOP||y>=AnnaDpi.height())return -1;
     const index=Math.floor((y-TOP+scroll)/ROW);
     return index>=0&&index<rows.length?index:-1;
 }
-function trashHit(x,y){return y>=1&&y<TOP&&x>=window.Width-151&&x<window.Width-122;}
+function trashHit(x,y){return y>=1&&y<TOP&&x>=AnnaDpi.width()-151&&x<AnnaDpi.width()-122;}
 function reorder(from,to){
     if(from<0||to<0||from>=rows.length||to>=rows.length||from===to)return false;
     // The API exposes queue append/remove but not insert. Rebuild in exact
@@ -96,7 +100,7 @@ function moveOrRemove(index,delta){
 }
 function on_paint(gr){
  gr=AnnaTheme.graphics(gr);
-    const w=window.Width,h=window.Height;if(w<10||h<10)return;
+    const w=AnnaDpi.width(),h=AnnaDpi.height();if(w<10||h<10)return;
     // Queue mode is deliberately visually distinct from lyrics: opaque rose/navy.
     // Only an explicit user click on the clear button flushes the playback queue.
     gr.FillSolidRect(1,1,w-2,h-2,0x94502c59);
@@ -108,7 +112,7 @@ function on_paint(gr){
     if(removeCue)gr.DrawRoundRect(w-155,1,36,29,6,6,2,0xffffe7a7);
     gr.FillRoundRect(w-151,4,29,23,5,5,
         removeCue?0xffc73f67:movingRow?0xff945078:0x99553663);
-    gr.GdiDrawText('🗑',gdi.Font('Segoe UI Emoji',14,0),
+    gr.GdiDrawText('🗑',TRASH_FONT,
         removeCue?0xffffffff:0xffffd5e8,w-148,5,24,21,0x8025);
     gr.FillRoundRect(w-119,4,108,23,5,5,0xff8b3c72);
     gr.DrawRoundRect(w-119,4,108,23,5,5,1,0xffffc6df);
@@ -180,6 +184,11 @@ function compactBufferIfSafe(p){
     plman.ClearPlaylist(p); // hides old transient tracks; no user playlists touched
     processed=0;
 }
+// Files from another program never reach on_drag_drop (see anna_drop_fix.js).
+function externalDropPlan(){
+    try{return plman.IsPlaylistLocked(bufferPlaylist())?{kind:'reject'}:{kind:'queue'};}
+    catch(e){return {kind:'reject'};}
+}
 function on_drag_drop(action,x,y){
     acceptingDrop=false;
     try {
@@ -218,7 +227,7 @@ function on_mouse_lbtn_up(x,y){
         if(target>=0&&target!==from){reorder(from,target);return true;}
         window.Repaint();return true;
     }
-    if(y>=0&&y<TOP&&x>=window.Width-123){
+    if(y>=0&&y<TOP&&x>=AnnaDpi.width()-123){
         if(rows.length)plman.FlushPlaybackQueue();
         refresh();return true;
     }
@@ -238,7 +247,7 @@ function on_mouse_move(x,y,mask){
     if(n!==hover||movingRow){hover=n;window.Repaint();}
 }
 function on_mouse_leave(){hover=-1;if(!movingRow)window.Repaint();}
-function on_mouse_wheel(step){scroll=clamp(scroll-step*ROW*2,0,Math.max(0,rows.length*ROW-(window.Height-TOP)));window.Repaint();}
+function on_mouse_wheel(step){scroll=clamp(scroll-step*ROW*2,0,Math.max(0,rows.length*ROW-(AnnaDpi.height()-TOP)));window.Repaint();}
 function on_mouse_rbtn_up(x,y){
     const i=rowAt(y);
     const m=window.CreatePopupMenu();
@@ -249,7 +258,7 @@ function on_mouse_rbtn_up(x,y){
         m.AppendMenuSeparator();
     }
     if(rows.length)m.AppendMenuItem(0,13,AnnaI18n.t('clearQueue'));
-    const cmd=m.TrackPopupMenu(x,y);
+    const cmd=AnnaDpi.popup(m,x,y);
     if(cmd===10)moveOrRemove(i,-1);
     else if(cmd===11)moveOrRemove(i,1);
     else if(cmd===12)moveOrRemove(i,null);
@@ -260,3 +269,7 @@ function on_size(){refresh();}
 refresh();
 
 function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+
+AnnaDropFix.install({plan:externalDropPlan});
+// Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
+AnnaDpi.install();

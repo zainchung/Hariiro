@@ -1,17 +1,19 @@
 // Anna Glass V2, Stage 3I.1 - synchronized selection/playing palette in transparent navigator.
 // This panel intentionally paints NO opaque background.
-// It requires Panels UI (reborn) + JS Panel 1.7.0 (windowless and transparent).
+// It requires Panels UI (reborn) + JS Panel 1.7.0 (transparent child window, scaled by AnnaDpi).
 'use strict';
 include('anna_i18n.js');
 include('anna_theme.js');
 include('anna_playlist_dedup.js');
 include('anna_shared.js');
+include('anna_dpi.js');
+include('anna_drop_fix.js');
 
 const ROW = 30;
 const TABS = 8; // main navigation moved to the shared header
-const NORMAL = gdi.Font('Yu Gothic UI', 12, 0);
-const SMALL = gdi.Font('Segoe UI', 10, 0);
-const BOLD = gdi.Font('Yu Gothic UI', 12, 1);
+const NORMAL = AnnaDpi.font('Yu Gothic UI', 12, 0);
+const SMALL = AnnaDpi.font('Segoe UI', 10, 0);
+const BOLD = AnnaDpi.font('Yu Gothic UI', 12, 1);
 const TXT = 0xFFE9F0FB;
 const MUTED = 0xFFC0CEE3;
 // Match Stage 3I GlassPlaylist's exact alpha/RGB values.
@@ -51,7 +53,7 @@ function clearSidebarDragMarker(){sidebarOLEClearTimer=0;AnnaShared.clearOriginI
 function dropRowIsEditable(row){return !!row&&editablePlaylistRow(row)&&!plman.IsPlaylistLocked(row.index);}
 
 function playlistRowAt(y){
- if(y<TABS || y>=window.Height)return null;
+ if(y<TABS || y>=AnnaDpi.height())return null;
  const i=Math.floor((y-TABS+scroll)/ROW),rows=entries();
  return {i,row:rows[i]||null};
 }
@@ -119,14 +121,24 @@ function on_drag_drop(action,x,y){
   // The host only commits accepted playable files/tracks after Drop returns.
   // For blank space, a staging callback creates a real playlist ONLY when
   // at least one playable track was imported.
-  if(!isBlank){
-   plman.ActivePlaylist=p;setEditable(p);
-   picked=entries().findIndex(e=>e.kind==='playlist'&&e.index===p);
-  }
+  if(!isBlank)activateDropTarget(p);
   action.Playlist=p;action.Base=plman.PlaylistItemCount(p);
   action.ToSelect=!isBlank;action.Effect=1;error='';
  }catch(e){action.Effect=0;error=AnnaI18n.t('dropFailed')+': '+String(e);}
  clearTrackDrop();
+}
+function activateDropTarget(p){
+ plman.ActivePlaylist=p;setEditable(p);
+ picked=entries().findIndex(e=>e.kind==='playlist'&&e.index===p);
+}
+// Files from another program never reach on_drag_drop (see anna_drop_fix.js):
+// the same decision as on_drag_drop, for AnnaDropFix to carry out.
+function externalDropPlan(_x,y){
+ if(mode==='artists')return {kind:'reject'};
+ const hit=playlistRowAt(y),row=hit&&hit.row;
+ if(dropRowIsEditable(row))return {kind:'playlist',p:row.index,select:true,activate:true};
+ if(blankDropAllowed(y)){const s=stagingPlaylist();if(s>=0)return {kind:'playlist',p:s,select:false,activate:false};}
+ return {kind:'reject'};
 }
 function completeStagingImport(){
  importStageTimer=0;
@@ -163,7 +175,7 @@ function onStagingItemsAdded(p){
 }
 
 function sidebarScrollbar(){
- const h=window.Height,w=window.Width,avail=Math.max(1,h-TABS);
+ const h=AnnaDpi.height(),w=AnnaDpi.width(),avail=Math.max(1,h-TABS);
  const max=Math.max(0,entries().length*ROW-avail);
  if(max<=0)return null;
  const thumb=Math.min(avail,Math.max(28,Math.floor(avail*avail/(avail+max))));
@@ -349,7 +361,7 @@ function playingRow(item) {
 }
 function on_paint(gr) {
     gr=AnnaTheme.graphics(gr);
-    const w=window.Width, h=window.Height;
+    const w=AnnaDpi.width(), h=AnnaDpi.height();
     // Navigation labels live in the skin header: more room for artist/library rows.
     gr.FillSolidRect(0,0,w,TABS,0x30202B47);
     // Errors are a nonblocking overlay: user can still use context menus to recover.
@@ -390,7 +402,7 @@ function on_paint(gr) {
             9+indent,y+2,19,ROW-5,DT);
         gr.GdiDrawText(item.name,selected||playing?BOLD:NORMAL,
             TXT,29+indent,y+2,
-            Math.max(20,w-86-indent),ROW-5,DT);
+            Math.max(20,w-80-indent),ROW-5,DT); // GDI text at 2x is a little wider than the host's scaled text
         const n=mode==='artists'?item.indices.length:item.count;
         gr.GdiDrawText(Number(n).toLocaleString('en-US'),selected?BOLD:SMALL,
             selected?0xffffdfed:MUTED,Math.max(25,w-56),y+2,46,ROW-5,
@@ -684,7 +696,7 @@ function openDragAsHandles(source){
   sidebarOLEInProgress=true;
   if(sidebarOLEClearTimer){window.ClearTimeout(sidebarOLEClearTimer);sidebarOLEClearTimer=0;}
   AnnaShared.setOrigin(AnnaShared.sidebarMarker(source.kind,source.index));
-  try{fb.DoDragDrop(window.ID,handles,1,{});} // COPY only: never move source entries.
+  try{AnnaDpi.doDragDrop(window.ID,handles,1,{});} // COPY only: never move source entries.
   finally{
    sidebarOLEInProgress=false;clearTrackDrop();
    // OLE callbacks may arrive after the synchronous source call completes.
@@ -761,7 +773,7 @@ function on_mouse_rbtn_up(x,y){
   const i=Math.floor((y-TABS+scroll)/ROW),row=i>=0?rows[i]:null;
   if(mode!=='playlists'){
    menu.AppendMenuItem(0,1,AnnaI18n.t('artistHint'));
-   menu.TrackPopupMenu(x,y);return true;
+   AnnaDpi.popup(menu,x,y);return true;
   }
   menu.AppendMenuItem(0,1,AnnaI18n.t('createPlaylist'));
   if(editablePlaylistRow(row)){
@@ -771,7 +783,7 @@ function on_mouse_rbtn_up(x,y){
    menu.AppendMenuItem(0,4,AnnaI18n.t('importFolder'));
    menu.AppendMenuItem(0,6,AnnaI18n.t('duplicatePlaylist'));
   }
-  const cmd=menu.TrackPopupMenu(x,y);
+  const cmd=AnnaDpi.popup(menu,x,y);
   if(cmd===1){
    const name=askPlaylistName(AnnaI18n.t('newPlaylistName'),AnnaI18n.t('createPlaylist'));
    if(!name)return true;
@@ -844,7 +856,7 @@ function on_mouse_leave(){
  playlistReorder=null;playlistDropTarget=-1;
  if(!scrollingThumb){hover=-1;window.Repaint();}
 }
-function on_mouse_wheel(step){const h=window.Height-TABS;scroll=clamp(scroll-step*ROW*3,0,Math.max(0,entries().length*ROW-h));window.Repaint();}
+function on_mouse_wheel(step){const h=AnnaDpi.height()-TABS;scroll=clamp(scroll-step*ROW*3,0,Math.max(0,entries().length*ROW-h));window.Repaint();}
 function on_playlist_switch(){window.Repaint();}
 function on_playlists_changed(){
  syncOrdinaryBaselines();
@@ -934,3 +946,7 @@ function on_notify_data(name, info) {
     }
     window.Repaint();
 }
+
+AnnaDropFix.install({plan:externalDropPlan,activate:activateDropTarget});
+// Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
+AnnaDpi.install();

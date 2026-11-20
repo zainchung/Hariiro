@@ -111,14 +111,18 @@ function extractFunction(source,name){
  return source.slice(i,j+1);
 }
 // Use an explicit brace counter only for functions that contain no braces in strings.
-const sideCtx=vm.createContext({window:{Width:200,Height:300,Repaint(){}},
+// AnnaDpi (Round 15) reports layout units; at scale 1 they equal window.Width/Height.
+const dpiOf=win=>({width:()=>win.Width,height:()=>win.Height});
+const sideWin={Width:200,Height:300,Repaint(){}};
+const sideCtx=vm.createContext({window:sideWin,AnnaDpi:dpiOf(sideWin),
  entries:()=>Array.from({length:100}),ROW:30,TABS:8,scroll:0,scrollThumbGrab:0,
  clamp:(n,lo,hi)=>Math.min(hi,Math.max(lo,n))});
 vm.runInContext(extractFunction(browserCode,'sidebarScrollbar')+'\n'+extractFunction(browserCode,'dragSidebarScrollbar'),sideCtx);
 const sg=sideCtx.sidebarScrollbar();assert(sg&&sg.max>0);
 sideCtx.dragSidebarScrollbar(sg.top+sg.travel+sg.thumb/2);
 assert(sideCtx.scroll>sg.max*.9);
-const glassCtx=vm.createContext({window:{Width:620,Height:500,Repaint(){}},
+const glassWin={Width:620,Height:500,Repaint(){}};
+const glassCtx=vm.createContext({window:glassWin,AnnaDpi:dpiOf(glassWin),
  totalHeight:2500,scroll:0,scrollThumbGrab:0,
  maxScroll:()=>2000,
  clamp:(n,lo,hi)=>Math.min(hi,Math.max(lo,n)),cancelTip(){}});

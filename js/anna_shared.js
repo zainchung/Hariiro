@@ -10,7 +10,8 @@ var AnnaShared=(function(){
   queueBuffer:'anna.queue.buffer.name',
   searchOwned:'anna.search.results.owned',
   searchName:'anna.search.results.name',
-  sidebarEditable:'anna.sidebar.editable.name'
+  sidebarEditable:'anna.sidebar.editable.name',
+  dropPending:'anna.drop.pending' // Round 15: external drop to redirect (AnnaDropFix)
  });
  // Playlists created and owned by the skin. Users never drop into these.
  const LIST=Object.freeze({
