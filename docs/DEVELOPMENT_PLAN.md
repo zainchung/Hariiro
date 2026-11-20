@@ -65,7 +65,7 @@ Done after Round 15 (no behaviour change, all tests green; Windows smoke test pe
   hard-coded include lists.
 
 Done 2026-11-20, D1 step 2 (no behaviour change, all tests green; Windows smoke test passed,
-see the end of `docs/ROUND15_REVIEW.md`):
+see the end of `docs/ROUND15_REVIEW.md` — it also notes an older cleanup gap for Round 16):
 - The sidebar's scratch-view registry (sorted / Artist working playlists: ownership property,
   slot claiming, cleanup of unreferenced numbered copies) moved to `js/anna_scratch_views.js`
   (`AnnaScratchViews.isOwned/claim/prune`). `tests/test_scratch_views.mjs` tests it directly.

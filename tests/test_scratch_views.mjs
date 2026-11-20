@@ -60,7 +60,7 @@ assert.equal(V.AnnaScratchViews.prune(), 1, 'only Sorted Library View #2 is free
 assert.deepEqual(rows, ['User', 'Anna - Artist View', 'Anna - Artist View #2', 'Anna - Artist View #3']);
 assert.deepEqual(owned(), ['Anna - Artist View', 'Anna - Artist View #2', 'Anna - Artist View #3'], 'missing #9 forgotten');
 V = host(JSON.stringify(['Anna - Artist View #2']));
-locked.add(2); assert.equal(V.AnnaScratchViews.prune(), 0, 'locked list kept');
+locked.add(2); unlockFails = true; assert.equal(V.AnnaScratchViews.prune(), 0, 'list locked by another component kept');
 V = host(JSON.stringify(['Anna - Artist View #2']));
 active = 2; assert.equal(V.AnnaScratchViews.prune(), 0, 'active list kept');
 V = host(JSON.stringify(['Anna - Artist View #2']));

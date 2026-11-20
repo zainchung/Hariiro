@@ -71,9 +71,15 @@ var AnnaScratchViews=(function(){
    for(const name of [...owned]){
     const idx=plman.FindPlaylist(name);
     if(idx<0){owned.delete(name);continue;}
-    if(!isDuplicate(name)||protectedNames.has(name)||plman.IsPlaylistLocked(idx))continue;
-    try{if(plman.RemovePlaylist(idx)!==false){owned.delete(name);removed++;}}
-    catch(e){console.log('Anna scratch cleanup skipped: '+String(e));}
+    if(!isDuplicate(name)||protectedNames.has(name))continue;
+    // Populated views carry our own AddItems lock (see claim). Lifting it only works for
+    // our own JS Panel lock; another component's lock throws, and that list is kept.
+    const relock=plman.IsPlaylistLocked(idx);
+    if(relock){try{plman.SetPlaylistLockedActions(idx,[]);}catch(e){continue;}}
+    try{
+     if(plman.RemovePlaylist(idx)!==false){owned.delete(name);removed++;continue;}
+    }catch(e){console.log('Anna scratch cleanup skipped: '+String(e));}
+    if(relock){try{plman.SetPlaylistLockedActions(idx,['AddItems']);}catch(e){}}
    }
    save();return removed;
   }finally{pruning=false;}

@@ -176,7 +176,7 @@ Seen, not changed (same before the move): `#2` is not removed by the cleanup onc
 no longer active or playing, because the sidebar locks every populated view (`AddItems`,
 Round 13) and the cleanup skips locked lists (Round 11). The copy is reused by the next
 view that needs a free slot, so it does not pile up, but it stays in the playlist list.
-Candidate for Round 16.
+Fixed in Round 16 (`docs/ROUND16_REVIEW.md`).
 
 ## Known limits
 
