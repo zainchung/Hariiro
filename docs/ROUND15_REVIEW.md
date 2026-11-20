@@ -147,8 +147,25 @@ Explorer; File Explorer itself could not be driven), logged per drop:
 
 All test playlist changes were restored from a backup of `playlists-v2.0` afterwards.
 
-Not checked on Windows: Artist-tab drags; 125 % / 150 % and moving between monitors
-(covered offline only — changing the Windows display scale is not done by the agent).
+Artist tab, checked later the same day (with the Phase D1/D2 build, see below):
+
+| Drag | Result |
+|---|---|
+| Artist row → Queue | ✅ the artist's tracks queued (QUEUE · 2) |
+| Artist row → middle list | ✅ warning, nothing added |
+| External file → Artist row | ✅ rejected, taken back out of the active list |
+| Middle track → Artist row | ✅ rejected, nothing changed |
+
+Not checked on Windows: 125 % / 150 % and moving between monitors (covered offline only —
+changing the Windows display scale is not done by the agent).
+
+## Phase D smoke test (2026-11-20, after `5caabca`)
+
+D3 test shim, D2 `AnnaShared.PVAR` keys and D1 step 1 (`AnnaGlassDrop`) on Windows:
+skin loads with no script errors; QUEUE/lyrics toggle, GLASS/NATIVE switch and accent
+colour (Sky blue and back to Rose, all panels recolour and the menu tick follows) work;
+middle → sidebar drop, pinned → middle rejection and an external file onto the middle list
+behave as in Round 15. Playlists were restored from a backup afterwards.
 
 ## Known limits
 
