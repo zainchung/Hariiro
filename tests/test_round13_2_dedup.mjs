@@ -100,7 +100,8 @@ assert.equal(path(0).length,6);
 const stage=sidebar.stagingPlaylist();data[stage].items.push(handle('J:\\New\\Only.flac'),handle('j:/new/only.FLAC'),handle('K:\\New\\Different.flac'));
 sidebar.on_playlist_items_added(stage);
 for(const [id,fn] of [...pendingTimers]){pendingTimers.delete(id);fn();}
-const importedName=data.find(x=>x.name.startsWith('Imported Tracks'));
+// The playlist name is localised (host locale may be ja/zh), so compare with the i18n string.
+const importedName=data.find(x=>x.name.startsWith(sidebar.AnnaI18n.t('importedPlaylistName')));
 assert(importedName,'only playable imported files create a new ordinary playlist');
 assert.deepEqual(importedName.items.map(x=>x.Path),['J:\\New\\Only.flac','K:\\New\\Different.flac']);
 assert.equal(filesRemoved,0,'never delete the source audio');

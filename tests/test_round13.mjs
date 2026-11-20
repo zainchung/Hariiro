@@ -145,11 +145,13 @@ assert.equal(regular.Playlist,plman.FindPlaylist('User A'));
 const createdBefore=createCount;const empty={Effect:0};sidebar.on_drag_drop(empty,40,400);
 assert.equal(empty.Effect,1);assert.equal(createCount,createdBefore+1);
 assert.equal(sidebar.entries().some(r=>r.name.includes('Import Staging')),false);
-assert.equal(sidebar.entries().some(r=>r.name.startsWith('Imported Tracks')),false);
+// The playlist name is localised (host locale may be ja/zh), so compare with the i18n string.
+const importedTracksName=sidebar.AnnaI18n.t('importedPlaylistName');
+assert.equal(sidebar.entries().some(r=>r.name.startsWith(importedTracksName)),false);
 // Stage receives audio: once idle, a normal playlist is created and focused.
 plman.InsertPlaylistItems(empty.Playlist,0,mkHandles([{Path:'imported.flac'}]));sidebar.on_playlist_items_added(empty.Playlist);
 for(const [k,fn] of [...timers]){timers.delete(k);if(typeof fn==='function')fn();}
-assert.equal(sidebar.entries().some(r=>r.name.startsWith('Imported Tracks')),true);
+assert.equal(sidebar.entries().some(r=>r.name.startsWith(importedTracksName)),true);
 assert.equal(records[plman.FindPlaylist('Anna - Import Staging')].items.length,0);
 // Centre mode: only a regular playlist allows file/dir imports.
 vars.set('anna.nav.mode','library');vars.set('anna.sidebar.editable.name','User A');active=plman.FindPlaylist('User A');vm.runInContext('localGlassGuardUntil=0;',glass);
