@@ -5,23 +5,10 @@ import {resolve,dirname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..')+sep;
 
-// JS Panel's include() loads shared files into the same script context.
-const originalVmRun=vm.runInContext.bind(vm);
-vm.runInContext=(source,context,options)=>{
- if(typeof source==='string'&&source.includes("include('anna_i18n.js');")){
-  originalVmRun(readFileSync(root+'/js/anna_i18n.js','utf8'),context);
-  source=source.replace("include('anna_i18n.js');",'');
- }
- if(typeof source==='string'&&source.includes("include('anna_theme.js');")){
-  originalVmRun(readFileSync(root+'/js/anna_theme.js','utf8'),context);
-  source=source.replace("include('anna_theme.js');",'');
- }
- if(typeof source==='string'&&source.includes("include('anna_playlist_dedup.js');")){
-  originalVmRun(readFileSync(root+'/js/anna_playlist_dedup.js','utf8'),context);
-  source=source.replace("include('anna_playlist_dedup.js');",'');
- }
- return originalVmRun(source,context,options);
-};
+// JS Panel's include() loads shared files into the same script context
+// (generic shim: every include('x.js') resolves to js/x.js).
+import {installIncludeShim} from './helpers/js_panel.mjs';
+const originalVmRun=installIncludeShim(vm);
 for(const file of readdirSync(root+'js').filter(x=>x.endsWith('.js'))){new vm.Script(readFileSync(root+'js/'+file,'utf8'),{filename:file});}
 const main=readFileSync(root+'main.txt','utf8');const ini=readFileSync(root+'foo_ui_panels.ini','utf8');
 const pack=['NavTabs','TopChrome','NativeScroll','FooterQueueToggle','FooterVolume','FooterTransport','NowDetails','AnnaLyrics','DesktopLyrics','AnnaQueue','SwitchGlass','SwitchNative'];
