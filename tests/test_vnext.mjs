@@ -41,7 +41,7 @@ for(const w of widths){const h=Math.round(w*9/16);const navEnd=16+350,searchStar
 const flow=readFileSync(root+'js/anna_now_details.js','utf8');assert(flow.includes("gdi.Font('Yu Gothic UI',15"));assert(flow.includes("gdi.Font('Yu Gothic UI',12"));assert(flow.includes("gdi.Font('Yu Gothic UI',11"));
 assert(flow.includes('const date=field(handle'));assert(!flow.includes('y+=6'));
 const sidebar=readFileSync(root+'js/playlist_browser.js','utf8');assert(sidebar.includes("source.kind==='artist'"));assert(sidebar.includes('AnnaDpi.doDragDrop(window.ID,handles,1,{})')); // Round 15: fb.DoDragDrop via the DPI adapter
-const desk=readFileSync(root+'js/anna_desktop_lyrics.js','utf8');assert(desk.includes('gr.DrawRoundRect(2,2,w-5,h-5'));assert(desk.includes('Desk ON'));assert(desk.includes('Desk OFF'));
+const desk=readFileSync(root+'js/anna_desktop_lyrics.js','utf8');assert(desk.includes('AnnaTheme.paintSwitch(gr,w,h,'));assert(readFileSync(root+'js/anna_theme.js','utf8').includes('gr.DrawRoundRect(2,2,w-5,h-5')); // Phase D2assert(desk.includes('Desk ON'));assert(desk.includes('Desk OFF'));
 const lyrics=readFileSync(root+'js/anna_lyrics.js','utf8');
 assert(lyrics.includes("AnnaI18n.t('lyricSearch')"));
 assert(lyrics.includes("new ActiveXObject('ESLyric')"));
@@ -85,5 +85,6 @@ nav.on_mouse_lbtn_up(35,15);assert.equal(mode,'artists');
 nav.on_mouse_lbtn_up(150,15);assert.equal(mode,'library');
 nav.on_mouse_lbtn_up(278,15);assert.equal(mode,'library');assert.equal(nav.selected(nav.TABS?.[2]??{state:'nowplaying'}),false);
 assert.equal(navCalls.length,3);
-assert.match(readFileSync(root+'js/anna_queue_toggle.js','utf8'),/FillRoundRect/);
+assert.match(readFileSync(root+'js/anna_queue_toggle.js','utf8'),/AnnaTheme\.paintSwitch\(/); // Phase D2: drawn by anna_theme.js
+assert.match(readFileSync(root+'js/anna_theme.js','utf8'),/FillRoundRect/);
 console.log('PASS: all JS syntax checks, native Album Art, four corner assets, no aspect lock, iOS mode switch, ESLyric search, and 4 widths/no overlaps, real device menu, 7 playback-order PNGs, image-based controls, UIWizard window actions, artist drag, lyric border and metadata sizing');

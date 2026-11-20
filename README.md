@@ -25,9 +25,9 @@ Rollback: restore the backed-up skin folder (and profile if you tested playlist 
 | Path | Content |
 |---|---|
 | `main.txt`, `foo_ui_panels.ini` | Panels UI skin layout and panel registration |
-| `js/` | One JS Panel per file (`anna_*.js`) plus `playlist_browser.js` (sidebar). Shared modules: `anna_i18n.js`, `anna_theme.js`, `anna_shared.js` (pvar keys, reserved playlist names, drag-origin markers), `anna_playlist_dedup.js` |
+| `js/` | One JS Panel per file (`anna_*.js`) plus `playlist_browser.js` (sidebar). Shared modules: `anna_i18n.js`, `anna_theme.js` (accents, shared colours, pill switch), `anna_shared.js` (pvar keys, reserved playlist names, drag-origin markers), `anna_playlist_dedup.js`, `anna_dpi.js`, `anna_drop_fix.js`. Logic split out of the two lists: `anna_glass_drop.js`, `anna_sidebar_drop.js`, `anna_scratch_views.js`, `anna_dedup_tracker.js`, `anna_import_staging.js` |
 | `images/` | Wallpaper, ornaments, and control PNGs per palette (`images/controls/README.md`) |
-| `tests/` | Offline regression tests, one file per round (`test_roundNN*.mjs`), `test_shared.mjs`, helpers in `tests/helpers/` |
+| `tests/` | Offline regression tests, one file per round (`test_roundNN*.mjs`), `test_shared.mjs`, helpers in `tests/helpers/` (`js_panel.mjs` include shim, `fake_host.mjs` fake foobar2000 host) |
 | `tools/` | `run_tests.mjs`, `package_skin.py`, `generate_controls.py`, `audit_playlist_databases.py` |
 | `docs/` | Review per round (`ROUNDnn_REVIEW.md`), acceptance matrix, `DEVELOPMENT_PLAN.md`, `release_notes/` |
 

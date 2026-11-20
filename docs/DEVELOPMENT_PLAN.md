@@ -45,7 +45,7 @@ Failures become Round 15 bug fixes; nothing new is built on unverified behaviour
   `js/anna_drop_fix.js` redirects them. See `docs/ROUND15_REVIEW.md`. Still open on Windows:
   Artist-tab drags, 125 % / 150 % DPI and multi-monitor DPI changes (offline-tested only).
 
-### Phase D — Structure and maintainability (in progress)
+### Phase D — Structure and maintainability (done 2026-11-20)
 Done 2026-11-20 (no behaviour change, all tests green):
 - `js/anna_shared.js` (`AnnaShared`): panel-variable keys, reserved playlist names,
   origin-marker build/parse/clear. `anna_glass_playlist.js` and `playlist_browser.js`
@@ -55,7 +55,7 @@ Done 2026-11-20 (no behaviour change, all tests green):
   copies back in those two panels), and a load test of every `js/*.js` in a fake host.
 - PR #1 closed; `main` is the only trunk.
 
-Done after Round 15 (no behaviour change, all tests green; Windows smoke test pending):
+Done after Round 15 (no behaviour change, all tests green; Windows smoke test passed):
 - D1 step 1: the middle list's drop decision moved to `js/anna_glass_drop.js` (`AnnaGlassDrop`);
   `anna_glass_playlist.js` keeps only its own-drag state and a one-line `evaluateDrop()`.
   `tests/test_glass_drop.mjs` covers the source/target/decision matrix directly.
@@ -70,12 +70,25 @@ see the end of `docs/ROUND15_REVIEW.md` — it also notes an older cleanup gap f
   slot claiming, cleanup of unreferenced numbered copies) moved to `js/anna_scratch_views.js`
   (`AnnaScratchViews.isOwned/claim/prune`). `tests/test_scratch_views.mjs` tests it directly.
 
-Remaining:
-- D1. Split `playlist_browser.js` further (sidebar drag/drop, import + dedup bookkeeping).
-  Larger move: one module per round, each followed by a Windows smoke test.
-- D2 (rest). Colour constants into `anna_theme.js`.
-- D3 (rest). Grow `tests/helpers/` into a reusable fake host (plman/fb/window) and migrate the
-  per-test mocks to it gradually.
+Done 2026-11-20, last steps (no behaviour change, all tests green; Windows smoke test passed,
+see `docs/PHASE_D_REVIEW.md`):
+- D1 step 3: the rest of the sidebar logic that does not need the panel's state moved out of
+  `playlist_browser.js`: `js/anna_sidebar_drop.js` (`AnnaSidebarDrop.decide`, the one drop
+  decision behind `on_drag_over`, `on_drag_drop` and the external-file plan, which had three
+  copies), `js/anna_dedup_tracker.js` (`AnnaDedupTracker`, Round 13.2 duplicate removal) and
+  `js/anna_import_staging.js` (`AnnaImportStaging`, the hidden list for blank-space drops).
+  `tests/test_sidebar_modules.mjs` tests all three directly.
+- D2 colours: colours used by more than one panel live in `AnnaTheme.COLORS`; the pill switch
+  (GLASS/NATIVE, QUEUE, DESK — three identical copies) is `AnnaTheme.paintSwitch`.
+  `tests/test_theme_colors.mjs` compares its draw calls with the old code and rejects copies.
+- D3: `tests/helpers/fake_host.mjs` (`createHost`, `panelContext`): playlists, selection,
+  focus, locks with an owner, playback queue, panel variables, window properties, timers. The
+  Phase D suites use it. The include shim now only resolves include statements, not the text
+  "include('x.js')" in a comment. Older round suites keep their own mocks: they record the
+  behaviour of their round and are only migrated when they are touched for another reason.
+
+What stays in `playlist_browser.js` is panel glue: paint, mouse, menus, tab switching and the
+post-import sort, all of which read and write the panel's own state.
 
 ### Phase E — Feature backlog (only after B/C are green)
 - E1. Lyrics: more ESLyric file-name patterns, per-track offset, better plain-LRC progress.

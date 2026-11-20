@@ -19,7 +19,8 @@ const desk=read('js/anna_desktop_lyrics.js');
 assert.match(main,/\$panel\(DesktopLyrics,JS Panel,\$eval\(%_width% - 209\),\$eval\(%_height% - 94\),84,24/);
 assert.match(main,/\$panel\(FooterQueueToggle,JS Panel,\$eval\(%_width% - 117\),\$eval\(%_height% - 94\),84,24/);
 assert(!main.includes(',$eval(%_width% - 133),345,84,24'));
-assert.match(queue,/FillRoundRect\(2,2,w-5,h-5,9,9/);
+assert(queue.includes('AnnaTheme.paintSwitch(gr,w,h,')); // Phase D2: pill drawing lives in anna_theme.js
+assert.match(read('js/anna_theme.js'),/FillRoundRect\(2,2,w-5,h-5,9,9/);
 assert(desk.includes("on?'Desk ON':'Desk OFF'"));
 // At every target width the footer controls share exactly the same y and width.
 for(const w of [960,1280,1536,1920]){

@@ -1,24 +1,19 @@
 // Phase D1 (step 1): the middle list's drop decision lives in js/anna_glass_drop.js.
 // Same rules as the Round 14 drag matrix; the panel only supplies its own-drag state.
 import assert from 'node:assert/strict';
-import vm from 'node:vm';
-import { read, installIncludeShim } from './helpers/js_panel.mjs';
+import { read } from './helpers/js_panel.mjs';
+import { createHost, panelContext, run } from './helpers/fake_host.mjs';
 
-installIncludeShim(vm);
 const names = ['User A', 'User B', 'Anna - Favorites', 'Anna - Artist View', 'Anna - Queue Buffer #2', 'Anna - Search Results'];
-let active = 0, locked = new Set(), now = 1000;
-const vars = new Map();
-const ctx = vm.createContext({
-  Date: { now: () => now }, JSON, String, Array, Object,
-  plman: { get ActivePlaylist() { return active; }, get PlaylistCount() { return names.length; },
-    GetPlaylistName: i => names[i], IsPlaylistLocked: i => locked.has(i) },
-  panelsui: { GetVariable: (k, d) => (vars.has(k) ? vars.get(k) : d), SetVariable: (k, v) => vars.set(k, v) },
-});
-ctx.include = f => vm.runInContext(read('js/' + f), ctx);
-vm.runInContext("include('anna_i18n.js');include('anna_shared.js');include('anna_glass_drop.js');", ctx);
+const host = createHost({ playlists: names.map(name => ({ name })) }), st = host.state;
+let now = 1000;
+const ctx = panelContext(host, { Date: { now: () => now } });
+run(ctx, "include('anna_i18n.js');include('anna_shared.js');include('anna_glass_drop.js');");
 const G = ctx.AnnaGlassDrop, S = ctx.AnnaShared, t = k => ctx.AnnaI18n.t(k);
+let vars; // = host.state.vars after reset()
+const lock = i => { st.playlists[i].locked = { owner: 'js', actions: ['AddItems'] }; };
 const reset = () => {
-  active = 0; locked = new Set(); now = 1000; vars.clear();
+  st.active = 0; st.playlists.forEach(p => { p.locked = null; }); now = 1000; st.vars.clear(); vars = st.vars;
   vars.set(S.PVAR.navMode, 'library'); vars.set(S.PVAR.queueBuffer, 'Anna - Queue Buffer #2');
   vars.set(S.PVAR.searchOwned, '["Anna - Search Results"]');
 };
@@ -38,13 +33,13 @@ S.setOrigin('sidebar:artist:2'); assert.deepEqual(JSON.parse(JSON.stringify(G.so
 reset();
 assert.equal(G.target(), 0);
 for (const [setup, why] of [
-  [() => { active = 2; }, 'Favorites is reserved'],
-  [() => { active = 3; }, 'Artist view'],
-  [() => { active = 4; }, 'Queue buffer'],
-  [() => { active = 5; }, 'search results owned by the skin'],
-  [() => { locked.add(0); }, 'locked playlist'],
+  [() => { st.active = 2; }, 'Favorites is reserved'],
+  [() => { st.active = 3; }, 'Artist view'],
+  [() => { st.active = 4; }, 'Queue buffer'],
+  [() => { st.active = 5; }, 'search results owned by the skin'],
+  [() => { lock(0); }, 'locked playlist'],
   [() => { vars.set(S.PVAR.navMode, 'artists'); }, 'Artists tab'],
-  [() => { active = -1; }, 'no playlist'],
+  [() => { st.active = -1; }, 'no playlist'],
 ]) { reset(); setup(); assert.equal(G.target(), -1, why); }
 
 // Decisions (Round 14 matrix)
@@ -55,8 +50,8 @@ S.setOrigin('sidebar:fixedFavorites:2'); assert.deepEqual(ev(), { ok: false, msg
 S.setOrigin('sidebar:playlist:0'); assert.deepEqual(ev(), { ok: false, msg: t('sameListDenied') });
 S.setOrigin('sidebar:playlist:1'); assert.deepEqual(ev(), { ok: true, msg: t('dropToImport'), target: 0 });
 S.setOrigin(''); assert.deepEqual(ev(), { ok: true, msg: t('dropToImport'), target: 0 }, 'external files into an ordinary list');
-active = 2; assert.deepEqual(ev(), { ok: false, msg: t('chooseRegularPlaylist') });
-active = 3; assert.deepEqual(ev(), { ok: false, msg: t('artistHint') }, 'artist view gets the artist hint');
+st.active = 2; assert.deepEqual(ev(), { ok: false, msg: t('chooseRegularPlaylist') });
+st.active = 3; assert.deepEqual(ev(), { ok: false, msg: t('artistHint') }, 'artist view gets the artist hint');
 reset(); vars.set(S.PVAR.navMode, 'artists'); assert.deepEqual(ev(), { ok: false, msg: t('artistHint') });
 
 // The panel keeps only its own-drag state and a thin wrapper.

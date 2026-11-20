@@ -7,6 +7,9 @@ include('anna_theme.js');
 include('anna_playlist_dedup.js');
 include('anna_shared.js');
 include('anna_scratch_views.js');
+include('anna_dedup_tracker.js');
+include('anna_import_staging.js');
+include('anna_sidebar_drop.js');
 include('anna_dpi.js');
 include('anna_drop_fix.js');
 
@@ -17,15 +20,15 @@ const SMALL = AnnaDpi.font('Segoe UI', 10, 0);
 const BOLD = AnnaDpi.font('Yu Gothic UI', 12, 1);
 const TXT = 0xFFE9F0FB;
 const MUTED = 0xFFC0CEE3;
-// Match Stage 3I GlassPlaylist's exact alpha/RGB values.
-const BORDER = 0x58A4AFCB;
-const NORMAL_BG = 0x41121D38;
-const HOT = 0x48324667;
+// Row colours shared with GlassPlaylist (Stage 3I): AnnaTheme.COLORS.
+const BORDER = AnnaTheme.COLORS.rowFrame;
+const NORMAL_BG = AnnaTheme.COLORS.rowNormal;
+const HOT = AnnaTheme.COLORS.rowHover;
 const SELECTED = 0x86864B75;
 const PLAYING = 0x755B3568;
 const SELECTED_BORDER = 0xFFFFB7D8;
 const PLAYING_BORDER = 0xFFE8ACCD;
-const GLOW = 0x48FF9FD0;
+const GLOW = AnnaTheme.COLORS.rowGlow;
 const DT = 0x8024; // single line | vertical center | end ellipsis
 
 let mode = 'playlists'; // matches the initial Library tab highlighted in main.txt
@@ -63,61 +66,31 @@ function clearTrackDrop(){trackDropTarget=-1;trackDropNotice='';trackDropInProgr
 // OLE from our Glass panel may copy tracks to ordinary playlists, never create
 // a playlist by dropping onto blank sidebar space.
 function isExternalFileDrop(){return !origin();}
-const IMPORT_STAGING_PROPERTY='Anna.Sidebar.ImportStaging.v1';
-let importStageName=String(window.GetProperty(IMPORT_STAGING_PROPERTY,'')||'');
 let importStageTimer=0;
-function stagingPlaylist(){
- if(importStageName){const p=plman.FindPlaylist(importStageName);if(p>=0)return p;}
- for(let i=0;i<10000;i++){
-  const name=AnnaShared.LIST.importStaging+(i?' #'+(i+1):'');
-  if(plman.FindPlaylist(name)>=0)continue;
-  const p=plman.CreatePlaylist(plman.PlaylistCount,name);
-  if(p>=0){importStageName=name;window.SetProperty(IMPORT_STAGING_PROPERTY,name);return p;}
- }
- return -1;
-}
+// Blank-space drops land in a hidden staging list first: js/anna_import_staging.js.
 function blankDropAllowed(y){
  return mode==='playlists'&&isExternalFileDrop()&&
   (y<TABS||!playlistRowAt(y).row);
 }
 function on_drag_enter(action,x,y){on_drag_over(action,x,y);}
 function glassOriginIndex(){const src=AnnaShared.parseOrigin(origin());return src.kind==='glass'?src.index:-2;}
-// Tracks dragged out of the middle list may be copied into any ORDINARY playlist
-// except the one they came from. Artist and pinned rows are read-only (warning).
+// Drop rules (Round 14 matrix, Round 15 external files): js/anna_sidebar_drop.js.
+function dropDecision(y,src,busy){
+ return AnnaSidebarDrop.decide({mode,busy,src,hit:playlistRowAt(y),editable:dropRowIsEditable,
+  blankAllowed:blankDropAllowed(y),glassIndex:glassOriginIndex()});
+}
 function on_drag_over(action,x,y){
- const src=origin();
- // Sidebar-to-sidebar can only reorder locally without OLE.
- if(sidebarOLEInProgress||src.startsWith('sidebar:')||mode==='artists'){
-  action.Effect=0;trackDropTarget=-1;
-  trackDropNotice=mode==='artists'?AnnaI18n.t('artistHint'):AnnaI18n.t('sidebarToMiddleDenied');
-  trackDropInProgress=true;window.Repaint();return;
- }
- const hit=playlistRowAt(y);
- const target=hit&&dropRowIsEditable(hit.row)?hit:null;
- const same=!!target&&src.startsWith('glass:')&&target.row.index===glassOriginIndex();
- const readOnlyRow=!target&&!!hit&&!!hit.row;
- const newList=!target&&blankDropAllowed(y);
- trackDropTarget=target&&!same?target.i:-1;
- trackDropNotice=same?AnnaI18n.t('sameListDenied'):
-   target?AnnaI18n.t('dropTo')+' '+target.row.name:
-   newList?AnnaI18n.t('dropNewPlaylist'):
-   readOnlyRow?AnnaI18n.t('listReadOnlyDrop'):AnnaI18n.t('dropEditable');
- action.Effect=(target&&!same)||newList?1:0;
+ const d=dropDecision(y,origin(),sidebarOLEInProgress);
+ action.Effect=d.accept?1:0;trackDropTarget=d.target;trackDropNotice=d.notice;
  trackDropInProgress=true;window.Repaint();
 }
 function on_drag_leave(){clearTrackDrop();}
 function on_drag_drop(action,x,y){
- const src=origin();
- if(sidebarOLEInProgress||src.startsWith('sidebar:')||mode==='artists'){
-  action.Effect=0;clearTrackDrop();return;
- }
- const hit=playlistRowAt(y),row=hit&&hit.row;
- const ordinary=dropRowIsEditable(row);
- const isBlank=!ordinary&&blankDropAllowed(y);
- if(!ordinary&&!isBlank){action.Effect=0;clearTrackDrop();return;}
- if(ordinary&&src.startsWith('glass:')&&row.index===glassOriginIndex()){action.Effect=0;clearTrackDrop();return;}
+ const d=dropDecision(y,origin(),sidebarOLEInProgress);
+ if(!d.accept){action.Effect=0;clearTrackDrop();return;}
+ const isBlank=d.kind==='blank';
  try{
-  const p=isBlank?stagingPlaylist():row.index;
+  const p=isBlank?AnnaImportStaging.playlist():d.p;
   if(p<0)throw new Error(AnnaI18n.t('playlistCreateFailed'));
   // The host only commits accepted playable files/tracks after Drop returns.
   // For blank space, a staging callback creates a real playlist ONLY when
@@ -135,15 +108,14 @@ function activateDropTarget(p){
 // Files from another program never reach on_drag_drop (see anna_drop_fix.js):
 // the same decision as on_drag_drop, for AnnaDropFix to carry out.
 function externalDropPlan(_x,y){
- if(mode==='artists')return {kind:'reject'};
- const hit=playlistRowAt(y),row=hit&&hit.row;
- if(dropRowIsEditable(row))return {kind:'playlist',p:row.index,select:true,activate:true};
- if(blankDropAllowed(y)){const s=stagingPlaylist();if(s>=0)return {kind:'playlist',p:s,select:false,activate:false};}
+ const d=dropDecision(y,'',false);
+ if(d.kind==='row')return {kind:'playlist',p:d.p,select:true,activate:true};
+ if(d.kind==='blank'){const s=AnnaImportStaging.playlist();if(s>=0)return {kind:'playlist',p:s,select:false,activate:false};}
  return {kind:'reject'};
 }
 function completeStagingImport(){
  importStageTimer=0;
- const stage=importStageName?plman.FindPlaylist(importStageName):-1;
+ const stage=AnnaImportStaging.find();
  if(stage<0)return;
  try{
   const list=plman.GetPlaylistItems(stage);
@@ -153,7 +125,7 @@ function completeStagingImport(){
   while(plman.FindPlaylist(name)>=0)name=base+' ('+(number++)+')';
   const p=plman.CreatePlaylist(plman.PlaylistCount,name);
   if(p<0)throw new Error(AnnaI18n.t('playlistCreateFailed'));
-  refreshOrdinaryBaseline(p); // Record the empty normal playlist before the first insertion.
+  dedup.refresh(p); // Record the empty normal playlist before the first insertion.
   // Deduplicate a newly created ordinary playlist before insertion.
   const unique=AnnaPlaylistDedup.uniqueHandleList(list,()=>fb.CreateHandleList());
   plman.InsertPlaylistItems(p,0,unique);
@@ -169,7 +141,7 @@ function completeStagingImport(){
  window.Repaint();
 }
 function onStagingItemsAdded(p){
- if(!importStageName||p!==plman.FindPlaylist(importStageName))return false;
+ if(!AnnaImportStaging.name()||p!==AnnaImportStaging.find())return false;
  if(importStageTimer)window.ClearTimeout(importStageTimer);
  importStageTimer=window.SetTimeout(completeStagingImport,550);
  return true;
@@ -309,7 +281,7 @@ function entries() {
  const searchOwned=searchOwnedNames();
  for(let i=0;i<plman.PlaylistCount;i++){
   const name=plman.GetPlaylistName(i);
-  if(name===FAVORITES||name===buffer||name===importStageName||AnnaScratchViews.isOwned(name)||searchOwned.has(name))continue;
+  if(name===FAVORITES||name===buffer||name===AnnaImportStaging.name()||AnnaScratchViews.isOwned(name)||searchOwned.has(name))continue;
   out.push({kind:'playlist',name,index:i,count:plman.PlaylistItemCount(i)});
  }
  return out;
@@ -447,77 +419,15 @@ function keyCounts(p){
  }
  return map;
 }
-// Track pre-import file paths for every ordinary playlist, including playlists
-// that are not currently active. The foobar2000 OLE host inserts tracks after
-// on_drag_drop returns, so the added callback must remove the excess copies.
-const ordinaryPathBaselines = new Map();
-const dedupRemoving = new Set();
+// Which playlists are the user's own lists (duplicate imports removed: js/anna_dedup_tracker.js).
 function ordinaryPlaylistForDedup(p){
  if(!Number.isInteger(p)||p<0||p>=plman.PlaylistCount)return false;
  const name=String(plman.GetPlaylistName(p));
- if(name===FAVORITES||name===importStageName||AnnaScratchViews.isOwned(name)||searchOwnedNames().has(name))return false;
+ if(name===FAVORITES||name===AnnaImportStaging.name()||AnnaScratchViews.isOwned(name)||searchOwnedNames().has(name))return false;
  try{if(name===String(panelsui.GetVariable(AnnaShared.PVAR.queueBuffer,'')||''))return false;}catch(e){}
  return true;
 }
-function ordinaryToken(p){
- const name=String(plman.GetPlaylistName(p));
- let serial=0;
- for(let i=0;i<=p;i++)if(String(plman.GetPlaylistName(i))===name)serial++;
- return name+'\u0000'+serial;
-}
-function pathSnapshot(p){return AnnaPlaylistDedup.paths(plman.GetPlaylistItems(p).Convert());}
-function syncOrdinaryBaselines(){
- const present=new Set();
- for(let p=0;p<plman.PlaylistCount;p++)if(ordinaryPlaylistForDedup(p)){
-  const token=ordinaryToken(p);present.add(token);
-  if(!ordinaryPathBaselines.has(token))ordinaryPathBaselines.set(token,pathSnapshot(p));
- }
- for(const token of ordinaryPathBaselines.keys())if(!present.has(token))ordinaryPathBaselines.delete(token);
-}
-function refreshOrdinaryBaseline(p){
- if(ordinaryPlaylistForDedup(p))ordinaryPathBaselines.set(ordinaryToken(p),pathSnapshot(p));
-}
-function removeImportDuplicates(p, indices){
- const removed=new Set(indices), len=plman.PlaylistItemCount(p);
- const selected=[],canReadSelection=typeof plman.IsPlaylistItemSelected==='function';
- if(canReadSelection)for(let i=0;i<len;i++)if(plman.IsPlaylistItemSelected(p,i))selected.push(i);
- const focus=typeof plman.GetPlaylistFocusItemIndex==='function'?plman.GetPlaylistFocusItemIndex(p):-1;
- function selectIndices(items){
-  if(!items.length)return;
-  if(typeof plman.SetPlaylistSelection==='function')plman.SetPlaylistSelection(p,items,true);
-  else if(typeof plman.SetPlaylistSelectionSingle==='function')for(const i of items)plman.SetPlaylistSelectionSingle(p,i,true);
- }
- plman.UndoBackup(p);
- dedupRemoving.add(p);
- try{
-  plman.ClearPlaylistSelection(p);
-  selectIndices(indices);
-  plman.RemovePlaylistSelection(p,false); // Remove from playlist only; never delete physical files.
-  if(plman.PlaylistItemCount(p)!==len-indices.length)
-   throw new Error('Playlist refused to remove duplicate imports');
-  // Preserve the user's selection and focused track after the removal.
-  plman.ClearPlaylistSelection(p);
-  const translated=i=>i-indices.filter(n=>n<i).length;
-  selectIndices(selected.filter(i=>!removed.has(i)).map(translated));
-  if(focus>=0&&typeof plman.SetPlaylistFocusItem==='function'){
-   const adjusted=translated(focus);
-   plman.SetPlaylistFocusItem(p,Math.min(Math.max(0,adjusted),Math.max(0,plman.PlaylistItemCount(p)-1)));
-  }
- }finally{dedupRemoving.delete(p);}
-}
-function deduplicateNewTracks(p){
- if(!ordinaryPlaylistForDedup(p)||dedupRemoving.has(p))return 0;
- const token=ordinaryToken(p), after=pathSnapshot(p);
- if(!ordinaryPathBaselines.has(token)){
-  ordinaryPathBaselines.set(token,after);return 0; // No earlier snapshot: never alter unknown user data.
- }
- const prior=ordinaryPathBaselines.get(token);
- const duplicates=AnnaPlaylistDedup.redundantAddedIndices(prior,after);
- try{
-  if(duplicates.length&&!plman.IsPlaylistLocked(p))removeImportDuplicates(p,duplicates);
- }finally{ordinaryPathBaselines.set(token,pathSnapshot(p));}
- return duplicates.length;
-}
+const dedup=AnnaDedupTracker.create(ordinaryPlaylistForDedup);
 function setEditable(p){
  watchIndex=p;watchName=p>=0?plman.GetPlaylistName(p):'';
  knownTracks=keyCounts(p);pendingAdds=[];
@@ -719,7 +629,7 @@ function on_mouse_rbtn_up(x,y){
    if(plman.FindPlaylist(name)>=0)throw new Error(AnnaI18n.t('playlistExists'));
    const p=plman.CreatePlaylist(plman.PlaylistCount,name);
    if(p<0)throw new Error(AnnaI18n.t('playlistCreateFailed'));
-   refreshOrdinaryBaseline(p);
+   dedup.refresh(p);
    plman.ActivePlaylist=p;setEditable(p);picked=entries().findIndex(e=>e.index===p);
   }else if(cmd===2&&editablePlaylistRow(row)){
    const name=askPlaylistName(AnnaI18n.t('newName'),AnnaI18n.t('renamePlaylist'),row.name);
@@ -735,7 +645,7 @@ function on_mouse_rbtn_up(x,y){
    while(plman.FindPlaylist(name)>=0){name=base+' ('+(n++)+')';if(n>9999)throw new Error(AnnaI18n.t('playlistDuplicateFailed'));}
    const copy=plman.DuplicatePlaylist(row.index,name);
    if(!Number.isInteger(copy)||copy<0)throw new Error(AnnaI18n.t('playlistDuplicateFailed'));
-   refreshOrdinaryBaseline(copy); // A copy inherits its original playlist history.
+   dedup.refresh(copy); // A copy inherits its original playlist history.
    plman.ActivePlaylist=copy;setEditable(copy);
    picked=entries().findIndex(e=>editablePlaylistRow(e)&&e.index===copy);
    error='';
@@ -788,21 +698,21 @@ function on_mouse_leave(){
 function on_mouse_wheel(step){const h=AnnaDpi.height()-TABS;scroll=clamp(scroll-step*ROW*3,0,Math.max(0,entries().length*ROW-h));window.Repaint();}
 function on_playlist_switch(){window.Repaint();}
 function on_playlists_changed(){
- syncOrdinaryBaselines();
- if(watchName){const p=plman.FindPlaylist(watchName);if(p>=0){watchIndex=p;if(!dedupRemoving.has(p))knownTracks=keyCounts(p);}else setEditable(-1);}
+ dedup.sync();
+ if(watchName){const p=plman.FindPlaylist(watchName);if(p>=0){watchIndex=p;if(!dedup.isRemoving(p))knownTracks=keyCounts(p);}else setEditable(-1);}
  try{pruneScratchViews();}catch(e){console.log('Anna scratch cleanup: '+String(e));}
     updateFavoriteIndicator();window.Repaint();
 }
 function on_playlist_items_added(p){
  if(onStagingItemsAdded(p)){window.Repaint();return;}
- try{deduplicateNewTracks(p);}catch(e){console.log('Anna ordinary playlist dedup: '+String(e));}
+ try{dedup.dedupe(p);}catch(e){console.log('Anna ordinary playlist dedup: '+String(e));}
  collectImport(p);updateFavoriteIndicator();window.Repaint();
 }
 function on_playlist_items_removed(p){
- if(!dedupRemoving.has(p)){refreshOrdinaryBaseline(p);if(p===watchIndex)knownTracks=keyCounts(p);}
+ if(!dedup.isRemoving(p)){dedup.refresh(p);if(p===watchIndex)knownTracks=keyCounts(p);}
  updateFavoriteIndicator();window.Repaint();
 }
-function on_playlist_items_reordered(p){if(!dedupRemoving.has(p))refreshOrdinaryBaseline(p);}
+function on_playlist_items_reordered(p){if(!dedup.isRemoving(p))dedup.refresh(p);}
 function on_playback_new_track(){refreshPlayingArtist();}
 function on_playback_stop(){playingArtistKey='';try{pruneScratchViews();}catch(e){}updateFavoriteIndicator();window.Repaint();}
 function on_playback_edited(){refreshPlayingArtist();}
@@ -812,7 +722,7 @@ function on_library_items_changed(){loadArtists();}
 function on_size(){window.Repaint();}
 function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
 loadArtists();
-syncOrdinaryBaselines();
+dedup.sync();
 refreshPlayingArtist();
 
 // Stage 2G: skin header messages. Keep local tab and list behaviour unchanged.

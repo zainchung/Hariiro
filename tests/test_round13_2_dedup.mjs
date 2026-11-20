@@ -97,7 +97,7 @@ sidebar.on_playlists_changed();
 assert.equal(path(0).length,6);
 // New ordinary playlist from blank-area drop: the staging import contains
 // two identical paths and one genuinely different file.
-const stage=sidebar.stagingPlaylist();data[stage].items.push(handle('J:\\New\\Only.flac'),handle('j:/new/only.FLAC'),handle('K:\\New\\Different.flac'));
+const stage=sidebar.AnnaImportStaging.playlist();data[stage].items.push(handle('J:\\New\\Only.flac'),handle('j:/new/only.FLAC'),handle('K:\\New\\Different.flac'));
 sidebar.on_playlist_items_added(stage);
 for(const [id,fn] of [...pendingTimers]){pendingTimers.delete(id);fn();}
 // The playlist name is localised (host locale may be ja/zh), so compare with the i18n string.

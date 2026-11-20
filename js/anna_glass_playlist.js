@@ -18,9 +18,9 @@ const DT=0x8024; // single-line + vertical centre + ellipsis
 // Stage 3C palette: soft outlines keep Anna and the lake visible through every row.
 // JS Panel painting uses ARGB colours (alpha in the highest byte).
 const TXT=0xfff0f3fb, SOFT=0xffd4d7e6, GOLD=0xffebc29a, PINK=0xffffbfd8;
-const FRAME=0x58a4afcb, GROUP_FRAME=0x92c9ac99;
+const FRAME=AnnaTheme.COLORS.rowFrame, GROUP_FRAME=0x92c9ac99;
 // Active row colors are selected at paint time to match the concept palette.
-const GLOW_FAR=0x24ff8fca, GLOW_MID=0x48ff9fd0, GLOW_NEAR=0x78ffc0d9;
+const GLOW_FAR=0x24ff8fca, GLOW_MID=AnnaTheme.COLORS.rowGlow, GLOW_NEAR=0x78ffc0d9;
 const FONT=AnnaDpi.font('Yu Gothic UI',13,0), BOLD=AnnaDpi.font('Yu Gothic UI',13,1);
 const SMALL=AnnaDpi.font('Yu Gothic UI',11,0), HEAD=AnnaDpi.font('Yu Gothic UI',17,1);
 const GLYPH=AnnaDpi.font('Segoe UI Symbol',17,0);
@@ -304,7 +304,7 @@ function on_paint(gr){gr=AnnaTheme.graphics(gr);
         const x0=BORDER_X+1,y0=y+2,rw=Math.max(20,w-BORDER_X*2-3),rh=ROW_H-4;
         // Keep playing/selection distinct while protecting the wallpaper below.
         const bg=selected?0x8b965075:isPlaying?0x7c86446b:
-            hover===n.index?0x48324667:0x41121d38;
+            hover===n.index?AnnaTheme.COLORS.rowHover:AnnaTheme.COLORS.rowNormal;
         const fr=selected?0xffffc3e3:isPlaying?0xffffafda:
             hover===n.index?0x97d0abc2:FRAME;
         // A selected or playing track receives the reference-style pink halo.

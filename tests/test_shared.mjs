@@ -63,7 +63,7 @@ for (const f of fs.readdirSync(root + '/js').filter(n => n.endsWith('.js')).map(
     assert(!new RegExp(`['":]${esc(v)}['"]`).test(src), `${f} hard-codes '${v}': use AnnaShared.PVAR`);
   }
   // Helper modules whose panels include their dependencies first (used inside functions only).
-  if (/\bAnnaShared\./.test(src) && !['js/anna_drop_fix.js', 'js/anna_glass_drop.js', 'js/anna_scratch_views.js'].includes(f))
+  if (/\bAnnaShared\./.test(src) && !['js/anna_drop_fix.js', 'js/anna_glass_drop.js', 'js/anna_scratch_views.js', 'js/anna_import_staging.js'].includes(f))
     assert(src.includes("include('anna_shared.js');"), `${f} uses AnnaShared: include('anna_shared.js')`);
 }
 
@@ -93,7 +93,11 @@ for (const f of scripts) {
     RegExp, Error, Symbol, Promise, parseInt, parseFloat, isNaN });
   for (const g of ['window', 'gdi', 'fb', 'plman', 'utils', 'panelsui', 'UIHacks', 'ActiveXObject'])
     c[g] = stub(g);
-  try { vm.runInContext(read('js/' + f), c, { filename: f }); }
+  // Helper modules have no include statements: their panel includes these base modules first.
+  const src = read('js/' + f);
+  if (!/^[ \t]*include\(/m.test(src))
+    for (const base of ['anna_i18n.js', 'anna_shared.js']) if (base !== f) vm.runInContext(read('js/' + base), c);
+  try { vm.runInContext(src, c, { filename: f }); }
   catch (e) { assert.fail(`${f} failed to load: ${e && e.stack ? e.stack.split('\n').slice(0, 3).join(' | ') : e}`); }
 }
 console.log(`PASS shared: origin markers, reserved names, drift guard, ${scripts.length} panel scripts load in a fake host`);

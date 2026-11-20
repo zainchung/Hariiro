@@ -49,10 +49,11 @@ vm.runInContext(slider,seekContext);drawCalls.length=0;seekContext.on_paint(gr);
 assert(drawCalls.some(x=>x.k==='DrawImage'&&x.args[0].path.includes('butterfly')));
 // All three switch scripts share exactly the same active, inactive and knob palette.
 for(const f of ['js/anna_mode_switch.js','js/anna_queue_toggle.js','js/anna_desktop_lyrics.js']){
- const s=read(f);
+ // Phase D2: one AnnaTheme.paintSwitch and AnnaTheme.COLORS, no local copies.
+ const s=read(f),theme=read('js/anna_theme.js');
  for(const value of ['0xff93547d','0xff43334f','0xffffc8e7','0xffd9b2d2',
-                     '0xffffe9f5','0xffd8cbdf'])assert(s.includes(value),f+' '+value);
- assert(s.includes('paintSwitch(gr,w,h,'),f);
+                     '0xffffe9f5','0xffd8cbdf'])assert(theme.includes(value)&&!s.includes(value),f+' '+value);
+ assert(s.includes('AnnaTheme.paintSwitch(gr,w,h,'),f);
 }
 
 // Mock the actual foobar playlist API; deliberately omit utils.MessageBox and

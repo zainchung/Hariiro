@@ -36,7 +36,8 @@ const shapes=[];const gr=new Proxy({}, {get:(_,key)=>(...args)=>{shapes.push({ke
 for(let i=0;i<7;i++){order=i;shapes.length=0;tctx.on_paint(gr);assert(shapes.filter(x=>x.key==='DrawImage').length>=7,`mode ${i} has PNG assets`);}
 // Shared visual palette for QUEUE, DESK and mode switch.
 const queue=read('js/anna_queue_toggle.js'),desk=read('js/anna_desktop_lyrics.js'),toggle=read('js/anna_mode_switch.js');
-for(const src of [queue,desk,toggle])assert(src.includes('0xff93547d'),'active switches share QUEUE highlight');
+for(const src of [queue,desk,toggle])assert(src.includes('AnnaTheme.paintSwitch(gr,w,h,'),'active switches share QUEUE highlight'); // Phase D2
+assert(read('js/anna_theme.js').includes('0xff93547d'));
 // Mock foobar playlists as actual editable entities, not scratch views.
 let rows=[
  {name:'Default Playlist',items:[{Path:'a.mp3',SubSong:0,album:'A',disc:1,track:1}]},

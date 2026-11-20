@@ -50,7 +50,7 @@ const glass=read('js/anna_glass_playlist.js');
 assert(glass.includes("AnnaI18n.t('removeSelected')"));
 assert(glass.includes('plman.RemovePlaylistSelection(p,false)'));
 for(const path of ['anna_mode_switch.js','anna_desktop_lyrics.js','anna_queue_toggle.js']){
- const s=read('js/'+path);
+ const s=read('js/'+path)+read('js/anna_theme.js'); // Phase D2: shared palette lives in AnnaTheme
  for(const color of ['0xff93547d','0xff43334f','0xffffc8e7','0xffd9b2d2','0xffffe9f5','0xffd8cbdf'])
  assert(s.includes(color),`${path} missing ${color}`);
 }

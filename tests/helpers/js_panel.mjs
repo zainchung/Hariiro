@@ -6,7 +6,9 @@ import { fileURLToPath } from 'node:url';
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 export const read = p => readFileSync(resolve(root, p), 'utf8');
 
-const INCLUDE_RE = /include\(\s*['"]([^'"]+)['"]\s*\);?/g;
+// Statements only (at the start of a line or after ';'): "Needs include('x.js') first" in a
+// comment is not one.
+const INCLUDE_RE = /(?<=^|;)[ \t]*include\(\s*['"]([^'"]+)['"]\s*\);?/gm;
 
 // JS Panel's include('x.js') loads js/x.js into the same script context before
 // the rest of the file. Patch vm.runInContext so every include in a script is

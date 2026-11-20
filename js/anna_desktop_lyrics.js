@@ -6,20 +6,7 @@
 include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
-const SWITCH_ACTIVE_BG=0xff93547d;
-const SWITCH_IDLE_BG=0xff43334f;
-const SWITCH_ACTIVE_FRAME=0xffffc8e7;
-const SWITCH_IDLE_FRAME=0xffd9b2d2;
-const SWITCH_ACTIVE_KNOB=0xffffe9f5;
-const SWITCH_IDLE_KNOB=0xffd8cbdf;
-function paintSwitch(gr,w,h,active,hover,disabled){
- const cy=Math.round(h/2),cx=active?w-11:11;
- gr.FillRoundRect(2,2,w-5,h-5,9,9,active?SWITCH_ACTIVE_BG:SWITCH_IDLE_BG);
- gr.DrawRoundRect(2,2,w-5,h-5,9,9,1,active||hover?SWITCH_ACTIVE_FRAME:SWITCH_IDLE_FRAME);
- if(active)gr.DrawRoundRect(1,1,w-3,h-3,10,10,1,0x74ff8fc6);
- gr.FillEllipse(cx-8,cy-8,16,16,active?0x99ffd2eb:0x779ca0b4);
- gr.FillEllipse(cx-7,cy-7,14,14,active?SWITCH_ACTIVE_KNOB:SWITCH_IDLE_KNOB);
-}
+// Pill drawing and colours are shared: AnnaTheme.paintSwitch / AnnaTheme.COLORS.
 
 
 const MENU_PROPERTY='Anna.ESLyric.DesktopMenuCommand.v1';
@@ -110,7 +97,7 @@ function on_paint(gr){
  const w=window.Width,h=window.Height;
  if(w<65||h<19)return;
  const on=installed&&checked,cy=h/2,cx=on?w-11:11;
- paintSwitch(gr,w,h,on,false,!installed);
+ AnnaTheme.paintSwitch(gr,w,h,on,false);
  const label=installed?(on?'Desk ON':'Desk OFF'):'Desk —';
  gr.GdiDrawText(label,gdi.Font('Segoe UI',9,1),installed?0xffffe9f4:COLOR_OFF,
      on?4:20,3,on?w-23:w-23,h-6,DT_CENTER);

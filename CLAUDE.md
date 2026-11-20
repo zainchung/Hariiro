@@ -18,10 +18,13 @@ npm run package               # dist/Anna-Glass-V2.zip, verified
 - Bug fixes: failing test first, then the fix, then `docs/ROUNDxx_REVIEW.md` and a note in
   `docs/release_notes/`. Refactors (Phase D) must not change behaviour.
 - Panel-variable keys: only via `AnnaShared.PVAR` (`js/anna_shared.js`); test_shared rejects literals.
+- Colours used by more than one panel: only via `AnnaTheme.COLORS` / `AnnaTheme.paintSwitch`
+  (`js/anna_theme.js`); test_theme_colors rejects copies.
 - Every `windowless = 0` panel uses `js/anna_dpi.js` (`AnnaDpi.width/height/font/popup/
   doDragDrop/repaintRect/textWidth`, `AnnaDpi.install()` last). Drop targets also install
   `AnnaDropFix` right before it. Why: `docs/ROUND15_REVIEW.md`.
-- Tests load scripts with `tests/helpers/js_panel.mjs` (`installIncludeShim`); new suites should too.
+- Tests load scripts with `tests/helpers/js_panel.mjs` (`installIncludeShim`); new suites build their
+  host with `tests/helpers/fake_host.mjs` (`createHost`, `panelContext`).
 - Offline tests cannot prove OLE / DPI / host behaviour: drag-and-drop or layout changes need a
   Windows check in the real foobar2000.
 
