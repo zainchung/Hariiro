@@ -2,6 +2,7 @@
 // All playback icons, shuffle states and play/pause rings are raster resources.
 'use strict';
 const POS=[25,88,151,214,277,340,403];
+include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
 const ORDER_LABELS=['orderDefault','orderRepeatPlaylist','orderRepeatTrack','orderRandom','orderShuffleTracks','orderShuffleAlbums'];
@@ -108,4 +109,4 @@ function on_playback_starting(){window.Repaint();}
 function on_playback_stop(){window.Repaint();}
 function on_playback_order_changed(){window.Repaint();}
 
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}

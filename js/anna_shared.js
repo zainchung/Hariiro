@@ -11,7 +11,16 @@ var AnnaShared=(function(){
   searchOwned:'anna.search.results.owned',
   searchName:'anna.search.results.name',
   sidebarEditable:'anna.sidebar.editable.name',
-  dropPending:'anna.drop.pending' // Round 15: external drop to redirect (AnnaDropFix)
+  dropPending:'anna.drop.pending', // Round 15: external drop to redirect (AnnaDropFix)
+  // Owned by anna_theme.js / anna_i18n.js (they load standalone and keep the same value).
+  themeHue:'anna.theme.hue',
+  themeAccent:'anna.glass.v2.accent',
+  language:'anna.language',
+  // Skin toggles; main.txt and foo_ui_panels.ini read them by name too.
+  queueOpen:'anna.queue.open',
+  chromeHidden:'anna.chrome.hidden',
+  favoriteCurrent:'anna.favorite.current',
+  playlistExperimental:'anna.playlist.experimental'
  });
  // Playlists created and owned by the skin. Users never drop into these.
  const LIST=Object.freeze({

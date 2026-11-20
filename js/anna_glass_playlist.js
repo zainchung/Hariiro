@@ -526,9 +526,9 @@ function on_mouse_leave(){if(!scrollingThumb){cancelTip();hover=-1;hoverAction='
 function on_mouse_wheel(step){cancelTip();scroll=clamp(scroll-step*ROW_H*3,0,maxScroll());window.Repaint();}
 function removeFromCurrentPlaylist(){
  const p=current(),name=String(p>=0?plman.GetPlaylistName(p):'');
- const editable=String(panelsui.GetVariable('anna.sidebar.editable.name',''));
+ const editable=String(panelsui.GetVariable(AnnaShared.PVAR.sidebarEditable,''));
  if(p<0 || !editable || name!==editable ||
-    String(panelsui.GetVariable('anna.nav.mode','library'))!=='library'||
+    String(panelsui.GetVariable(AnnaShared.PVAR.navMode,'library'))!=='library'||
     plman.IsPlaylistLocked(p))return false;
  const selected=plman.GetPlaylistSelectedItems(p);
  if(!selected||!selected.Count)return false;
@@ -543,12 +543,12 @@ function on_mouse_rbtn_up(x,y){
     try{
         const m=window.CreatePopupMenu();m.AppendMenuItem(0,1,AnnaI18n.t('switchNative'));
         m.AppendMenuItem(0,2,AnnaI18n.t('queueSelected'));
-        if(String(panelsui.GetVariable('anna.sidebar.editable.name',''))===String(plman.GetPlaylistName(p)))
+        if(String(panelsui.GetVariable(AnnaShared.PVAR.sidebarEditable,''))===String(plman.GetPlaylistName(p)))
            m.AppendMenuItem(0,3,AnnaI18n.t('removeSelected'));
         m.AppendMenuSeparator();
         const cm=fb.CreateContextMenuManager();cm.InitContextPlaylist();cm.BuildMenu(m,100,1000);
         const cmd=AnnaDpi.popup(m,x,y);
-        if(cmd===1){panelsui.RunAction('PVAR:TOGGLE:anna.playlist.experimental');}
+        if(cmd===1){panelsui.RunAction('PVAR:TOGGLE:'+AnnaShared.PVAR.playlistExperimental);}
         else if(cmd===2){queueSelected();}
         else if(cmd===3){removeFromCurrentPlaylist();}
         else if(cmd>=100)cm.ExecuteByID(cmd-100);
@@ -629,7 +629,7 @@ miniEqTimer=window.SetInterval(function(){
 },160);
 function on_script_unload(){if(miniEqTimer)window.ClearInterval(miniEqTimer);if(importMessageTimer)window.ClearTimeout(importMessageTimer);if(clearGlassOriginTimer)window.ClearTimeout(clearGlassOriginTimer);}
 
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
 
 AnnaDropFix.install({plan:externalDropPlan});
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).

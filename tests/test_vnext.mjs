@@ -49,7 +49,9 @@ assert(lyrics.includes('esl.RequestLyric(title,artist)'));assert(lyrics.includes
 assert(lyrics.includes('fb.RunMainMenuCommand(path)'));
 const toggle=readFileSync(root+'js/anna_mode_switch.js','utf8');
 assert(toggle.includes("panelsui.PanelName==='SwitchGlass'"));
-assert(toggle.includes('PVAR:TOGGLE:anna.playlist.experimental'));
+// D2: the key lives in AnnaShared.PVAR; main.txt still reads it by this name.
+assert(toggle.includes("'PVAR:TOGGLE:'+AnnaShared.PVAR.playlistExperimental"));
+assert(readFileSync(root+'js/anna_shared.js','utf8').includes("playlistExperimental:'anna.playlist.experimental'"));
 assert(!readFileSync(root+'js/anna_top_chrome.js','utf8').includes('cy+6,cx+7,cy+6'));
 function graphics(){return new Proxy({}, {get(target,key){return (...args)=>{calls.push({method:key,args});};}});}let calls=[];
 function runScript(file,extra={}){

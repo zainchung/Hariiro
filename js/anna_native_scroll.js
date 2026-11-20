@@ -3,6 +3,7 @@
 // Panels UI does not expose its internal scroll pixel offset to a skin script;
 // dragging calls foobar2000's native EnsurePlaylistItemVisible API instead.
 'use strict';
+include('anna_shared.js');
 include('anna_theme.js');
 include('anna_dpi.js');
 const BAR=0x59492d58,THUMB=0xffefafd6,HL=0xffffe2f3;
@@ -52,7 +53,7 @@ function on_size(){window.Repaint();}
 
 function on_mouse_rbtn_up(){return true;}
 
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
 
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
 AnnaDpi.install();

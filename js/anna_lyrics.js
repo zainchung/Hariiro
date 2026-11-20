@@ -1,6 +1,7 @@
 // Anna Glass V2 — read existing ESLyric-saved lyrics; never search online.
 // Transparent display, configurable read-only directories and refresh watcher.
 'use strict';
+include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
 
@@ -725,8 +726,8 @@ function on_script_unload(){
 }
 
 function on_panelsui_variable_changed(name){
- if(name==='anna.language'){reloadLyrics();return;}
- if(name==='anna.theme.hue')window.Repaint();
+ if(name===AnnaShared.PVAR.language){reloadLyrics();return;}
+ if(name===AnnaShared.PVAR.themeHue)window.Repaint();
 }
 
 // Lyrics are display-only. Explicitly reject OLE data so dragged playlist

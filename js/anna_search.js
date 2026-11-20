@@ -2,6 +2,7 @@
 // Enter searches foobar2000's *actual* media library. Results are placed in an
 // owned working playlist, never into a user's saved playlist with the same name.
 'use strict';
+include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
 include('anna_dpi.js');
@@ -30,9 +31,9 @@ function ownedNames(){
 const owned=ownedNames();
 function publishOwnedResults(){
  try{
-  panelsui.SetVariable('anna.search.results.owned',JSON.stringify([...owned]));
+  panelsui.SetVariable(AnnaShared.PVAR.searchOwned,JSON.stringify([...owned]));
   const names=[...owned].filter(n=>plman.FindPlaylist(n)>=0);
-  if(names.length)panelsui.SetVariable('anna.search.results.name',names[names.length-1]);
+  if(names.length)panelsui.SetVariable(AnnaShared.PVAR.searchName,names[names.length-1]);
  }catch(e){console.log('Anna search ownership: '+String(e));}
 }
 publishOwnedResults();
@@ -60,7 +61,7 @@ function pruneSearchCaches(){
    if(p>=0&&p<plman.PlaylistCount)protectedNames.add(plman.GetPlaylistName(p));
   for(const q of plman.GetPlaybackQueueContents())if(q&&q.PlaylistIndex>=0&&q.PlaylistIndex<plman.PlaylistCount)
    protectedNames.add(plman.GetPlaylistName(q.PlaylistIndex));
-  const currentName=String(panelsui.GetVariable('anna.search.results.name','')||'');
+  const currentName=String(panelsui.GetVariable(AnnaShared.PVAR.searchName,'')||'');
   if(currentName)protectedNames.add(currentName);
  }catch(e){return 0;}
  let removed=0;
@@ -108,7 +109,7 @@ function performSearch(){
                 throw new Error(AnnaI18n.t('searchSortFailed'));
         }
         plman.ActivePlaylist=target;
-        try {panelsui.SetVariable('anna.search.results.name',plman.GetPlaylistName(target));}catch(e){}
+        try {panelsui.SetVariable(AnnaShared.PVAR.searchName,plman.GetPlaylistName(target));}catch(e){}
         countLabel=String(result.Count)+' '+AnnaI18n.t('searchResultsCount');
         pruneSearchCaches();
         error='';
@@ -224,8 +225,8 @@ blinkTimer=window.SetInterval(function(){
 },500);
 function on_script_unload(){if(blinkTimer)window.ClearInterval(blinkTimer);}
 
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'){window.Repaint();return;}
-if(name==='anna.language')window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue){window.Repaint();return;}
+if(name===AnnaShared.PVAR.language)window.Repaint();}
 
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
 AnnaDpi.install();

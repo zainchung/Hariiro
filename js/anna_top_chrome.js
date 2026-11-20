@@ -1,5 +1,6 @@
 // Anna Glass titlebar: a single hamburger settings menu, minimize, maximize and exit.
 'use strict';
+include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
 const T=k=>AnnaI18n.t(k);
@@ -18,7 +19,7 @@ function windowAction(kind){
 function chromeFlag(key){try{return String(panelsui.GetVariable(key,'0'))==='1';}catch(e){return false;}}
 function settingsMenu(x,y){
  const menu=window.CreatePopupMenu(),language=window.CreatePopupMenu(),colors=window.CreatePopupMenu();
- const hidden=chromeFlag('anna.chrome.hidden'),mb=chromeFlag('menubar');
+ const hidden=chromeFlag(AnnaShared.PVAR.chromeHidden),mb=chromeFlag('menubar');
  menu.AppendMenuItem(0,11,T(hidden?'showtitle':'hidetitle'));
  menu.AppendMenuItem(0,12,T(mb?'hidemenu':'showmenu'));
  menu.AppendMenuSeparator();
@@ -36,7 +37,7 @@ function settingsMenu(x,y){
  }
  colors.AppendTo(menu,0,T('theme'));
  const cmd=menu.TrackPopupMenu(x,y);
- if(cmd===11)runAction('PVAR:TOGGLE:anna.chrome.hidden');
+ if(cmd===11)runAction('PVAR:TOGGLE:'+AnnaShared.PVAR.chromeHidden);
  else if(cmd===12)runAction('MENUBAR:toggle');
  else if(cmd===13)runAction('PREFERENCES');
  else if(cmd===14)runAction('MENU');
@@ -81,4 +82,4 @@ function select(x,y){const i=hit(x);
 }
 function on_mouse_lbtn_up(x,y){return select(x,y);}
 function on_mouse_rbtn_up(x,y){return hit(x)===0?settingsMenu(x,y):true;}
-function on_panelsui_variable_changed(name){if(['anna.language','anna.chrome.hidden','menubar','anna.theme.hue'].includes(name))window.Repaint();}
+function on_panelsui_variable_changed(name){if([AnnaShared.PVAR.language,AnnaShared.PVAR.chromeHidden,'menubar',AnnaShared.PVAR.themeHue].includes(name))window.Repaint();}

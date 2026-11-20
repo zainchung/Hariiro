@@ -1,5 +1,6 @@
 // Anna Glass — compact QUEUE pill matched to DESK, with explicit open/closed state.
 'use strict';
+include('anna_shared.js');
 include('anna_theme.js');
 const SWITCH_ACTIVE_BG=0xff93547d;
 const SWITCH_IDLE_BG=0xff43334f;
@@ -19,7 +20,7 @@ function paintSwitch(gr,w,h,active,hover,disabled){
 
 const FONT=gdi.Font('Segoe UI',9,1);
 let over=false;
-function opened(){try{return String(panelsui.GetVariable('anna.queue.open','0'))==='1';}catch(e){return false;}}
+function opened(){try{return String(panelsui.GetVariable(AnnaShared.PVAR.queueOpen,'0'))==='1';}catch(e){return false;}}
 function on_paint(gr){
  gr=AnnaTheme.graphics(gr);
  const w=window.Width,h=window.Height,active=opened();
@@ -28,8 +29,8 @@ function on_paint(gr){
 }
 function on_mouse_move(){if(!over){over=true;window.Repaint();}}
 function on_mouse_leave(){over=false;window.Repaint();}
-function on_mouse_lbtn_up(){panelsui.RunAction('PVAR:TOGGLE:anna.queue.open');window.Repaint();}
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'){window.Repaint();return;}
-if(name==='anna.queue.open')window.Repaint();}
+function on_mouse_lbtn_up(){panelsui.RunAction('PVAR:TOGGLE:'+AnnaShared.PVAR.queueOpen);window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue){window.Repaint();return;}
+if(name===AnnaShared.PVAR.queueOpen)window.Repaint();}
 
 function on_mouse_rbtn_up(){return true;}

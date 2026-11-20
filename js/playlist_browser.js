@@ -256,8 +256,8 @@ function updateFavoriteIndicator() {
         const active=h && p>=0 && findFavoriteIndex(plman.GetPlaylistItems(p),h)>=0;
         if(typeof panelsui!=='undefined'){
             const val=active?'1':'0';
-            if(panelsui.GetVariable('anna.favorite.current','0')!==val)
-                panelsui.SetVariable('anna.favorite.current',val);
+            if(panelsui.GetVariable(AnnaShared.PVAR.favoriteCurrent,'0')!==val)
+                panelsui.SetVariable(AnnaShared.PVAR.favoriteCurrent,val);
         }
     } catch(e){console.log('Anna favorite state: '+String(e));}
 }
@@ -319,12 +319,12 @@ function loadArtists() {
 // These three entries are permanent, even when their underlying playlists are empty.
 // A search result may live in a numbered owned scratch slot: never clear it here.
 function searchOwnedNames(){
- try{return new Set(JSON.parse(String(panelsui.GetVariable('anna.search.results.owned','[]')||'[]')));}
+ try{return new Set(JSON.parse(String(panelsui.GetVariable(AnnaShared.PVAR.searchOwned,'[]')||'[]')));}
  catch(e){return new Set();}
 }
 function currentSearchPlaylist(){
  const owned=searchOwnedNames();
- const hint=typeof panelsui!=='undefined'?String(panelsui.GetVariable('anna.search.results.name','')||''):'';
+ const hint=typeof panelsui!=='undefined'?String(panelsui.GetVariable(AnnaShared.PVAR.searchName,'')||''):'';
  if(hint&&owned.has(hint)){
   const p=plman.FindPlaylist(hint);if(p>=0)return p;
  }
@@ -343,7 +343,7 @@ function entries() {
    {kind:'fixedFavorites',name:FAVORITES,index:fav,count:fav>=0?plman.PlaylistItemCount(fav):0},
    {kind:'fixedSearch',name:'Anna - Search Result',index:search,count:search>=0?plman.PlaylistItemCount(search):0}
  ];
- const buffer=typeof panelsui!=='undefined'?String(panelsui.GetVariable('anna.queue.buffer.name','')||''):'';
+ const buffer=typeof panelsui!=='undefined'?String(panelsui.GetVariable(AnnaShared.PVAR.queueBuffer,'')||''):'';
  const searchOwned=searchOwnedNames();
  for(let i=0;i<plman.PlaylistCount;i++){
   const name=plman.GetPlaylistName(i);
@@ -527,7 +527,7 @@ function ordinaryPlaylistForDedup(p){
  if(!Number.isInteger(p)||p<0||p>=plman.PlaylistCount)return false;
  const name=String(plman.GetPlaylistName(p));
  if(name===FAVORITES||name===importStageName||ownedScratch.has(name)||searchOwnedNames().has(name))return false;
- try{if(name===String(panelsui.GetVariable('anna.queue.buffer.name','')||''))return false;}catch(e){}
+ try{if(name===String(panelsui.GetVariable(AnnaShared.PVAR.queueBuffer,'')||''))return false;}catch(e){}
  return true;
 }
 function ordinaryToken(p){
@@ -592,7 +592,7 @@ function deduplicateNewTracks(p){
 function setEditable(p){
  watchIndex=p;watchName=p>=0?plman.GetPlaylistName(p):'';
  knownTracks=keyCounts(p);pendingAdds=[];
- try{panelsui.SetVariable('anna.sidebar.editable.name',watchName);}catch(e){}
+ try{panelsui.SetVariable(AnnaShared.PVAR.sidebarEditable,watchName);}catch(e){}
 }
 // Called by the middle list right before it accepts a drop: make the sidebar's
 // import bookkeeping (post-import sort + reveal) follow the playlist on screen.
@@ -619,7 +619,7 @@ function choose(x,y,doubleClick) {
    const list=fb.CreateHandleList();
    for(const k of item.indices)if(artistHandles[k])list.Add(artistHandles[k]);
    loadSortedView(list,ARTIST_VIEW);
-   panelsui.SetVariable('anna.nav.mode','artists');
+   panelsui.SetVariable(AnnaShared.PVAR.navMode,'artists');
   }else if(item.kind==='library'){
    setEditable(-1);loadSortedView(fb.GetLibraryItems(),SORTED_VIEW);
   }else if(item.kind==='fixedFavorites'){
@@ -637,7 +637,7 @@ function choose(x,y,doubleClick) {
    plman.ActivePlaylist=item.index;
    setEditable(item.index);
   }
-  if(mode==='playlists')panelsui.SetVariable('anna.nav.mode','library');
+  if(mode==='playlists')panelsui.SetVariable(AnnaShared.PVAR.navMode,'library');
  }catch(e){error=AnnaI18n.t('selectionFailed')+': '+String(e);setEditable(-1);}
  window.Repaint();
 }
@@ -881,7 +881,7 @@ function on_library_items_added(){loadArtists();}
 function on_library_items_removed(){loadArtists();}
 function on_library_items_changed(){loadArtists();}
 function on_size(){window.Repaint();}
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
 loadArtists();
 syncOrdinaryBaselines();
 refreshPlayingArtist();
@@ -940,7 +940,7 @@ function on_notify_data(name, info) {
         // Now Playing is momentary: do not make it a latched navigation tab.
         if(action!=='nowplaying'){
             const active=action==='playlists'?'library':action;
-            panelsui.SetVariable('anna.nav.mode',active);
+            panelsui.SetVariable(AnnaShared.PVAR.navMode,active);
             panelsui.RunAction('JSPANEL:NavTabs:'+active);
         }
     }

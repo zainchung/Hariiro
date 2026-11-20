@@ -1,5 +1,6 @@
 // Anna Glass — frameless, vector icon navigation with a restrained rose active glow.
 'use strict';
+include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
 const FONT=gdi.Font('Yu Gothic UI',12,1);
@@ -14,7 +15,7 @@ let active='library';
 let nowPressed=false, pressTimer=0;
 try{const saved=String(window.GetProperty('Anna.NavTabs.LastSelected.v2',''));
  if(['artists','library'].includes(saved))active=saved;
- else {const v=String(panelsui.GetVariable('anna.nav.mode','library'));
+ else {const v=String(panelsui.GetVariable(AnnaShared.PVAR.navMode,'library'));
        if(['artists','library'].includes(v))active=v;}
 }catch(e){}
 function setActive(v){
@@ -73,15 +74,15 @@ function on_mouse_lbtn_up(x,y){
     if(typeof window.SetTimeout==='function')pressTimer=window.SetTimeout(clearNowPress,180);
     // Do not touch the Library/Playlist selection when revealing the playing track.
     panelsui.RunAction('JSPANEL:Playlists:nowplaying');
-  }else{setActive(t.state);panelsui.SetVariable('anna.nav.mode',t.state);panelsui.RunAction('JSPANEL:Playlists:'+t.mode);}
+  }else{setActive(t.state);panelsui.SetVariable(AnnaShared.PVAR.navMode,t.state);panelsui.RunAction('JSPANEL:Playlists:'+t.mode);}
  }
  catch(e){console.log('Anna nav: '+String(e));}
  window.Repaint();
 }
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'){window.Repaint();return;}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue){window.Repaint();return;}
 
- if(name==='anna.language'){window.Repaint();return;}
- if(name!=='anna.nav.mode')return;
+ if(name===AnnaShared.PVAR.language){window.Repaint();return;}
+ if(name!==AnnaShared.PVAR.navMode)return;
  try{const v=String(panelsui.GetVariable(name,active));if(['artists','library'].includes(v))setActive(v);}catch(e){}
 }
 function on_notify_data(name,info){if(name==='NavTabs'){const v=String(info||'');if(['artists','library'].includes(v))setActive(v);}}

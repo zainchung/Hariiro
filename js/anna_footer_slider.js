@@ -1,6 +1,7 @@
 // Stage 3I.3 — seek slider previews position during drag and seeks only on release.
 // The parent skin hosts this SAME script in two different windowless JS Panels.
 'use strict';
+include('anna_shared.js');
 include('anna_theme.js');
 const SEEK = panelsui.PanelName === 'FooterSeek';
 const TRACK = 0xa0443b59;
@@ -157,4 +158,4 @@ function on_script_unload(){if(breathTimer)window.ClearInterval(breathTimer);}
 
 function on_mouse_rbtn_up(){return true;}
 
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}

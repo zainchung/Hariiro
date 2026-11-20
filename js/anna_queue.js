@@ -28,8 +28,8 @@ function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
 function publishBufferName(){
     try {
         if(typeof panelsui!=='undefined' && ownedBufferName &&
-           panelsui.GetVariable('anna.queue.buffer.name','')!==ownedBufferName)
-            panelsui.SetVariable('anna.queue.buffer.name',ownedBufferName);
+           panelsui.GetVariable(AnnaShared.PVAR.queueBuffer,'')!==ownedBufferName)
+            panelsui.SetVariable(AnnaShared.PVAR.queueBuffer,ownedBufferName);
     }catch(e){console.log('Anna queue: cannot publish buffer name '+String(e));}
 }
 function bufferPlaylist(){
@@ -268,7 +268,7 @@ function on_mouse_rbtn_up(x,y){
 function on_size(){refresh();}
 refresh();
 
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
 
 AnnaDropFix.install({plan:externalDropPlan});
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).

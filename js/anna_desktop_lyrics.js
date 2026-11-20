@@ -3,6 +3,7 @@
 // It does not fetch/render desktop lyrics, write ESLyric settings, or assume
 // an absent or localized menu command was successfully executed.
 'use strict';
+include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
 const SWITCH_ACTIVE_BG=0xff93547d;
@@ -158,4 +159,4 @@ refreshTimer=window.SetInterval(function(){
 },1500);
 function on_script_unload(){if(refreshTimer)window.ClearInterval(refreshTimer);}
 
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}

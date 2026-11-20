@@ -2,6 +2,7 @@
 // One paint pass owns all text positioning, avoiding independent TitleFormat
 // rectangles overlapping when a Japanese title or album wraps.
 'use strict';
+include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
 const TITLE=gdi.Font('Yu Gothic UI',15,1);
@@ -81,4 +82,4 @@ function on_size(){window.Repaint();}
 
 function on_mouse_rbtn_up(){return true;}
 
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}

@@ -1,5 +1,6 @@
 // Compact fixed-endpoint GLASS/NATIVE switch. Neither panel can drift.
 'use strict';
+include('anna_shared.js');
 include('anna_theme.js');
 const SWITCH_ACTIVE_BG=0xff93547d;
 const SWITCH_IDLE_BG=0xff43334f;
@@ -29,8 +30,8 @@ function on_paint(gr){
 }
 function on_mouse_move(){if(!over){over=true;window.Repaint();}}
 function on_mouse_leave(){over=false;window.Repaint();}
-function on_mouse_lbtn_up(){panelsui.RunAction('PVAR:TOGGLE:anna.playlist.experimental');}
+function on_mouse_lbtn_up(){panelsui.RunAction('PVAR:TOGGLE:'+AnnaShared.PVAR.playlistExperimental);}
 
 function on_mouse_rbtn_up(){return true;}
 
-function on_panelsui_variable_changed(name){if(name==='anna.theme.hue'||name==='anna.language')window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}

@@ -47,6 +47,25 @@ for (const f of ['js/anna_glass_playlist.js', 'js/playlist_browser.js']) {
   for (const name of Object.values(S.LIST)) assert(!src.includes(`'${name}'`), `${f}: use AnnaShared.LIST for '${name}'`);
 }
 
+// D2: every panel-variable key is defined once, in AnnaShared.PVAR. anna_theme.js and
+// anna_i18n.js own their variable (they load standalone) and must use the same value.
+for (const k of ['themeHue', 'themeAccent', 'language', 'queueOpen', 'chromeHidden', 'favoriteCurrent', 'playlistExperimental'])
+  assert(typeof S.PVAR[k] === 'string' && S.PVAR[k].startsWith('anna.'), `AnnaShared.PVAR.${k}`);
+const OWNED = { 'js/anna_theme.js': [S.PVAR.themeHue, S.PVAR.themeAccent], 'js/anna_i18n.js': [S.PVAR.language] };
+for (const [f, keys] of Object.entries(OWNED)) for (const v of keys) assert(read(f).includes(`'${v}'`), `${f} must use '${v}'`);
+const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+for (const f of fs.readdirSync(root + '/js').filter(n => n.endsWith('.js')).map(n => 'js/' + n)) {
+  if (f === 'js/anna_shared.js') continue;
+  const src = read(f);
+  for (const v of Object.values(S.PVAR)) {
+    if ((OWNED[f] || []).includes(v)) continue;
+    // 'anna.x' as a key, or inside an action string such as 'PVAR:TOGGLE:anna.x'
+    assert(!new RegExp(`['":]${esc(v)}['"]`).test(src), `${f} hard-codes '${v}': use AnnaShared.PVAR`);
+  }
+  if (/\bAnnaShared\./.test(src) && f !== 'js/anna_drop_fix.js')
+    assert(src.includes("include('anna_shared.js');"), `${f} uses AnnaShared: include('anna_shared.js')`);
+}
+
 // Smoke test: every panel script loads in a permissive fake host.
 function stub(name = 'host') {
   const fn = function () {};
