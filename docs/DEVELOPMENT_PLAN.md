@@ -55,12 +55,19 @@ Done 2026-11-20 (no behaviour change, all tests green):
   copies back in those two panels), and a load test of every `js/*.js` in a fake host.
 - PR #1 closed; `main` is the only trunk.
 
+Done after Round 15 (no behaviour change, all tests green; Windows smoke test pending):
+- D1 step 1: the middle list's drop decision moved to `js/anna_glass_drop.js` (`AnnaGlassDrop`);
+  `anna_glass_playlist.js` keeps only its own-drag state and a one-line `evaluateDrop()`.
+  `tests/test_glass_drop.mjs` covers the source/target/decision matrix directly.
+- D2 keys: every panel-variable key is defined once in `AnnaShared.PVAR`; all panels use it
+  (`anna_theme.js`/`anna_i18n.js` own theirs and are checked to match). Drift guard covers all scripts.
+- D3 step: the Round 3-6 and vNext suites use the shared `installIncludeShim` instead of their own
+  hard-coded include lists.
+
 Remaining:
-- D1. Split `playlist_browser.js` (sidebar drag/drop, import + dedup bookkeeping, scratch views) and
-  move `evaluateDrop`/`activeDropTarget` out of `anna_glass_playlist.js`. Larger move: do it one
-  module per round, each followed by a Windows smoke test.
-- D2 (rest). Move the remaining pvar keys (`anna.theme.hue`, `anna.language`, `anna.queue.*`,
-  `anna.search.*`) used by the other panels and colour constants into `AnnaShared`/`anna_theme.js`.
+- D1. Split `playlist_browser.js` (sidebar drag/drop, import + dedup bookkeeping, scratch views).
+  Larger move: one module per round, each followed by a Windows smoke test.
+- D2 (rest). Colour constants into `anna_theme.js`.
 - D3 (rest). Grow `tests/helpers/` into a reusable fake host (plman/fb/window) and migrate the
   per-test mocks to it gradually.
 

@@ -62,7 +62,8 @@ for (const f of fs.readdirSync(root + '/js').filter(n => n.endsWith('.js')).map(
     // 'anna.x' as a key, or inside an action string such as 'PVAR:TOGGLE:anna.x'
     assert(!new RegExp(`['":]${esc(v)}['"]`).test(src), `${f} hard-codes '${v}': use AnnaShared.PVAR`);
   }
-  if (/\bAnnaShared\./.test(src) && f !== 'js/anna_drop_fix.js')
+  // Helper modules whose panels include their dependencies first (used inside functions only).
+  if (/\bAnnaShared\./.test(src) && !['js/anna_drop_fix.js', 'js/anna_glass_drop.js'].includes(f))
     assert(src.includes("include('anna_shared.js');"), `${f} uses AnnaShared: include('anna_shared.js')`);
 }
 

@@ -76,7 +76,7 @@ assert(read('js/anna_i18n.js').includes("['duplicatePlaylist'"));
 
 const glass=read('js/anna_glass_playlist.js');
 assert(glass.includes('localGlassTrackOLE=true'));
-assert(glass.includes("if(src.kind==='glass')return {ok:false,msg:''};")); // Round 14: single evaluateDrop() decision point
+assert(read('js/anna_glass_drop.js').includes("if(src.kind==='glass')return {ok:false,msg:''};")); // Round 14: single decision point (moved to AnnaGlassDrop in D1)
 const glassCtx=vm.createContext({console:{log(){}},gdi:{Font:()=>({})},utils:{},fb:{TitleFormat:()=>({EvalWithMetadbs:a=>a.Convert().map(()=>'')})},plman,
  panelsui:{GetVariable:(k,d)=>variables.get(k)??d},window:{IsVisible:false,Width:630,Height:470,Repaint(){},SetInterval:()=>1,ClearInterval(){}}});
 glassCtx.include=p=>vm.runInContext(read('js/'+p),glassCtx);

@@ -6,6 +6,7 @@
 include('anna_i18n.js');
 include('anna_theme.js');
 include('anna_shared.js');
+include('anna_glass_drop.js');
 include('anna_dpi.js');
 include('anna_drop_fix.js');
 const VK_UP=0x26, VK_DOWN=0x28, VK_RETURN=0x0D, VK_DELETE=0x2e, VK_HOME=0x24, VK_END=0x23;
@@ -61,63 +62,10 @@ function leavingGlassForTarget(x,down){
 }
 let hoverMouseY=0;
 function clearGlassOrigin(){clearGlassOriginTimer=0;AnnaShared.clearOriginIf('glass:');}
-// Who started the current OLE session? Marker format: see AnnaShared.parseOrigin.
-function dragSource(){
- // localGlassTrackOLE is set synchronously around our own DoDragDrop, so it is
- // the one definitive signal; markers can be stale for a few hundred ms.
- if(localGlassTrackOLE)return {kind:'glass'};
- const src=AnnaShared.parseOrigin(AnnaShared.getOrigin());
- if(src.kind==='sidebar')return src;
- if(src.kind==='glass')return {kind:'glass'};
- if(Date.now()<localGlassGuardUntil)return {kind:'glass'}; // stray callback right after our own drag
- return {kind:'external'};
-}
 function clearImportMessage(){if(importMessageTimer){window.ClearTimeout(importMessageTimer);importMessageTimer=0;}importStatus='';}
-const isViewName=AnnaShared.isViewName;
-// The middle list accepts drops ONLY while it shows an ordinary, unlocked playlist.
-// Derived from the playlist actually on screen, never from sidebar bookkeeping:
-// that state is empty after start-up, tab switches and "now playing" jumps, which
-// made valid drops get rejected.
-function activeDropTarget(){
- try{
-  if(String(panelsui.GetVariable(AnnaShared.PVAR.navMode,'library'))!=='library')return -1;
-  const p=plman.ActivePlaylist;
-  if(p<0||p>=plman.PlaylistCount||plman.IsPlaylistLocked(p))return -1;
-  const name=String(plman.GetPlaylistName(p));
-  if(AnnaShared.isReservedName(name))return -1;
-  const buffer=String(panelsui.GetVariable(AnnaShared.PVAR.queueBuffer,'')||'');
-  if(buffer&&name===buffer)return -1;
-  const owned=JSON.parse(String(panelsui.GetVariable(AnnaShared.PVAR.searchOwned,'[]')||'[]'));
-  if(Array.isArray(owned)&&owned.indexOf(name)>=0)return -1;
-  return p;
- }catch(e){return -1;}
-}
-function dropAllowed(){return activeDropTarget()>=0;}
-function denyMessage(){
- let artistView=false;
- try{
-  artistView=String(panelsui.GetVariable(AnnaShared.PVAR.navMode,'library'))==='artists';
-  const p=plman.ActivePlaylist;
-  if(p>=0&&isViewName(String(plman.GetPlaylistName(p)),AnnaShared.LIST.artistView))artistView=true;
- }catch(e){}
- return artistView?AnnaI18n.t('artistHint'):AnnaI18n.t('chooseRegularPlaylist');
-}
-// Single decision point for drag-over and drop, so both always agree.
-//  glass tracks      -> never back onto this panel (no message)
-//  sidebar playlist  -> add to the ordinary playlist shown here (not to itself)
-//  sidebar artist / pinned list -> warning, rejected (they only go to the Queue)
-//  external files    -> add to the ordinary playlist shown here, else warning
-function evaluateDrop(){
- const src=dragSource();
- if(src.kind==='glass')return {ok:false,msg:''};
- if(src.kind==='sidebar'&&src.type!=='playlist')
-  return {ok:false,msg:AnnaI18n.t('sidebarToMiddleDenied')};
- const target=activeDropTarget();
- if(target<0)return {ok:false,msg:denyMessage()};
- if(src.kind==='sidebar'&&src.index===target)
-  return {ok:false,msg:AnnaI18n.t('sameListDenied')};
- return {ok:true,msg:AnnaI18n.t('dropToImport'),target};
-}
+// Drop rules live in anna_glass_drop.js (one decision for drag-over and drop);
+// this panel only supplies its own DoDragDrop state.
+function evaluateDrop(){return AnnaGlassDrop.evaluate({active:localGlassTrackOLE,guardUntil:localGlassGuardUntil});}
 function flashImportStatus(ms){
  if(importMessageTimer)window.ClearTimeout(importMessageTimer);
  importMessageTimer=window.SetTimeout(function(){importMessageTimer=0;importStatus='';window.Repaint();},ms);

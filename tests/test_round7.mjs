@@ -106,5 +106,5 @@ assert.equal(ctx.editableDestination(),-1);
 assert(sidebarCode.includes("plman.SetPlaylistLockedActions(dest,['AddItems'])"),'native artist scratch should reject new files');
 // Glass drag advertises only the real editable selected playlist.
 assert(glassCode.includes('action.Playlist=p;action.Base=plman.PlaylistItemCount(p);action.ToSelect=true;action.Effect=1'));
-assert(glassCode.includes("AnnaI18n.t('artistHint')"));
+assert((glassCode+read('js/anna_glass_drop.js')).includes("AnnaI18n.t('artistHint')")); // drop rules moved to AnnaGlassDrop (D1)
 console.log('PASS round7: equal geometry and transport spacing, iOS mirrored ±5s, same order menu on both clicks, three fixed sidebar rows, real playlist create/delete/reorder with feedback, source import sort/focus, Artist drop safety');
