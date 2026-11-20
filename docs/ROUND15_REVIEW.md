@@ -167,6 +167,17 @@ colour (Sky blue and back to Rose, all panels recolour and the menu tick follows
 middle → sidebar drop, pinned → middle rejection and an external file onto the middle list
 behave as in Round 15. Playlists were restored from a backup afterwards.
 
+D1 step 2 (`AnnaScratchViews`, same day): skin loads with no script errors. Music Library
+and an artist reuse the registered `Anna - Sorted Library View` / `Anna - Artist View`
+(no new lists). Opening another artist while the Artist view is playing creates
+`Anna - Artist View #2` and leaves the playing list untouched. Playlists restored afterwards.
+
+Seen, not changed (same before the move): `#2` is not removed by the cleanup once it is
+no longer active or playing, because the sidebar locks every populated view (`AddItems`,
+Round 13) and the cleanup skips locked lists (Round 11). The copy is reused by the next
+view that needs a free slot, so it does not pile up, but it stays in the playlist list.
+Candidate for Round 16.
+
 ## Known limits
 
 - Text is rendered by GDI at the real size instead of being scaled by the host, so widths

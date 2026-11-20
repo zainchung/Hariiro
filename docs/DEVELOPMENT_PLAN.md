@@ -64,8 +64,14 @@ Done after Round 15 (no behaviour change, all tests green; Windows smoke test pe
 - D3 step: the Round 3-6 and vNext suites use the shared `installIncludeShim` instead of their own
   hard-coded include lists.
 
+Done 2026-11-20, D1 step 2 (no behaviour change, all tests green; Windows smoke test passed,
+see the end of `docs/ROUND15_REVIEW.md`):
+- The sidebar's scratch-view registry (sorted / Artist working playlists: ownership property,
+  slot claiming, cleanup of unreferenced numbered copies) moved to `js/anna_scratch_views.js`
+  (`AnnaScratchViews.isOwned/claim/prune`). `tests/test_scratch_views.mjs` tests it directly.
+
 Remaining:
-- D1. Split `playlist_browser.js` (sidebar drag/drop, import + dedup bookkeeping, scratch views).
+- D1. Split `playlist_browser.js` further (sidebar drag/drop, import + dedup bookkeeping).
   Larger move: one module per round, each followed by a Windows smoke test.
 - D2 (rest). Colour constants into `anna_theme.js`.
 - D3 (rest). Grow `tests/helpers/` into a reusable fake host (plman/fb/window) and migrate the

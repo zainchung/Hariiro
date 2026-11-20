@@ -6,6 +6,7 @@ include('anna_i18n.js');
 include('anna_theme.js');
 include('anna_playlist_dedup.js');
 include('anna_shared.js');
+include('anna_scratch_views.js');
 include('anna_dpi.js');
 include('anna_drop_fix.js');
 
@@ -192,47 +193,8 @@ function dragSidebarScrollbar(y){
 // Both browse modes open a sorted working view, never reorder saved playlists.
 const SORTED_VIEW = AnnaShared.LIST.sortedView;
 const ARTIST_VIEW = AnnaShared.LIST.artistView;
-// Only lists created and registered by this panel can be used as scratch space.
-// A user playlist with an identical name must never be cleared accidentally.
-const SCRATCH_REGISTRY_PROPERTY='Anna.OwnedScratchPlaylists.v1';
-function loadOwnedScratch() {
-    try {
-        const raw=JSON.parse(String(window.GetProperty(SCRATCH_REGISTRY_PROPERTY,'[]')));
-        return new Set(Array.isArray(raw)?raw.filter(x=>typeof x==='string' &&
-            (x===SORTED_VIEW || x===ARTIST_VIEW ||
-             x.startsWith(SORTED_VIEW+' #') || x.startsWith(ARTIST_VIEW+' #'))):[]);
-    }catch(e){return new Set();}
-}
-const ownedScratch=loadOwnedScratch();
-function saveScratchOwnership(){window.SetProperty(SCRATCH_REGISTRY_PROPERTY,JSON.stringify([...ownedScratch]));}
-let pruningScratch=false;
-function pruneScratchViews(){
- if(pruningScratch)return 0;
- pruningScratch=true;
- try{
- // Never touch unregistered, playing, active or queued playlists. foobar2000
- // owns the SQLite backing files; playlist removal is its only safe API.
- if(typeof plman.RemovePlaylist!=='function' || typeof plman.GetPlaybackQueueContents!=='function')return 0;
- const protectedNames=new Set();
- try{
-  for(const p of [plman.ActivePlaylist,plman.PlayingPlaylist])
-   if(p>=0&&p<plman.PlaylistCount)protectedNames.add(plman.GetPlaylistName(p));
-  for(const q of plman.GetPlaybackQueueContents())
-   if(q&&q.PlaylistIndex>=0&&q.PlaylistIndex<plman.PlaylistCount)
-    protectedNames.add(plman.GetPlaylistName(q.PlaylistIndex));
- }catch(e){return 0;}
- let removed=0;
- for(const name of [...ownedScratch]){
-  const idx=plman.FindPlaylist(name);
-  if(idx<0){ownedScratch.delete(name);continue;}
-  const redundant=name.startsWith(SORTED_VIEW+' #')||name.startsWith(ARTIST_VIEW+' #');
-  if(!redundant||protectedNames.has(name)||plman.IsPlaylistLocked(idx))continue;
-  try{if(plman.RemovePlaylist(idx)!==false){ownedScratch.delete(name);removed++;}}
-  catch(e){console.log('Anna scratch cleanup skipped: '+String(e));}
- }
- saveScratchOwnership();return removed;
- }finally{pruningScratch=false;}
-}
+// Scratch-view registry (own, unreferenced copies only): js/anna_scratch_views.js.
+function pruneScratchViews(){return AnnaScratchViews.prune();}
 
 const FAVORITES = AnnaShared.LIST.favorites;
 // Ordinary playlists are real foobar2000 lists; obsolete virtual-folder UI code is removed.
@@ -347,7 +309,7 @@ function entries() {
  const searchOwned=searchOwnedNames();
  for(let i=0;i<plman.PlaylistCount;i++){
   const name=plman.GetPlaylistName(i);
-  if(name===FAVORITES||name===buffer||name===importStageName||ownedScratch.has(name)||searchOwned.has(name))continue;
+  if(name===FAVORITES||name===buffer||name===importStageName||AnnaScratchViews.isOwned(name)||searchOwned.has(name))continue;
   out.push({kind:'playlist',name,index:i,count:plman.PlaylistItemCount(i)});
  }
  return out;
@@ -446,39 +408,6 @@ const TF_ALBUM_SORT=fb.TitleFormat('$if2(%album%,~Singles)');
 const TF_ARTIST_SORT=fb.TitleFormat('$if2(%album artist%,$if2(%artist%,Unknown Artist))');
 const TF_DISC_SORT=fb.TitleFormat('$num(%discnumber%,4)');
 const TF_TRACK_SORT=fb.TitleFormat('$num(%tracknumber%,5)');
-function findSafeView(name) {
-    // Never clear a working playlist used by the playback engine or by a
-    // queued song. Both references may remain alive even after leaving that view.
-    const protectedIds=new Set();
-    if(Number.isInteger(plman.PlayingPlaylist) && plman.PlayingPlaylist>=0)
-        protectedIds.add(plman.PlayingPlaylist);
-    // The queue API is part of the same supported JS Panel version as the UI.
-    // If it fails, fail closed: do not risk deleting referenced tracks.
-    const queued=plman.GetPlaybackQueueContents();
-    for(const q of queued)
-        if(Number.isInteger(q.PlaylistIndex) && q.PlaylistIndex>=0)
-            protectedIds.add(q.PlaylistIndex);
-    for(let n=0;n<64;n++){
-        const candidate=n===0?name:name+' #'+(n+1);
-        const existing=plman.FindPlaylist(candidate);
-        if(existing>=0){
-            // Unregistered same-named playlists belong to the user. Skip them.
-            if(!ownedScratch.has(candidate) || protectedIds.has(existing))continue;
-            // Our own scratch view is AddItems-locked after population to reject
-            // native OLE drops while the Artist tab is active. Unlock only an
-            // ownership-registered view; a foreign component lock fails closed.
-            try{plman.SetPlaylistLockedActions(existing,[]);}catch(e){continue;}
-            return existing;
-        }
-        const dest=plman.FindOrCreatePlaylist(candidate,true);
-        if(dest>=0){
-            ownedScratch.add(candidate);
-            saveScratchOwnership();
-            return dest;
-        }
-    }
-    throw new Error(AnnaI18n.t('viewSlotsFull'));
-}
 function loadSortedView(source,name) {
     if(loadingView) return;
     loadingView=true;
@@ -495,7 +424,7 @@ function loadSortedView(source,name) {
             (Number(tracks[a])||0)-(Number(tracks[b])||0) || a-b);
         const sorted=fb.CreateHandleList();
         for(const i of idx) sorted.Add(handles[i]);
-        const dest=findSafeView(name);
+        const dest=AnnaScratchViews.claim(name);
         plman.ClearPlaylist(dest);
         if(sorted.Count) plman.InsertPlaylistItems(dest,0,sorted);
         // The native classic playlist cannot intercept external file drops. An
@@ -526,7 +455,7 @@ const dedupRemoving = new Set();
 function ordinaryPlaylistForDedup(p){
  if(!Number.isInteger(p)||p<0||p>=plman.PlaylistCount)return false;
  const name=String(plman.GetPlaylistName(p));
- if(name===FAVORITES||name===importStageName||ownedScratch.has(name)||searchOwnedNames().has(name))return false;
+ if(name===FAVORITES||name===importStageName||AnnaScratchViews.isOwned(name)||searchOwnedNames().has(name))return false;
  try{if(name===String(panelsui.GetVariable(AnnaShared.PVAR.queueBuffer,'')||''))return false;}catch(e){}
  return true;
 }
@@ -606,7 +535,7 @@ function syncActiveEditable(){
 function editableDestination(){
  if(mode!=='playlists'||watchIndex<0||watchIndex>=plman.PlaylistCount)return -1;
  if(plman.GetPlaylistName(watchIndex)!==watchName||plman.ActivePlaylist!==watchIndex)return -1;
- if(watchName===FAVORITES||searchOwnedNames().has(watchName)||ownedScratch.has(watchName))return -1;
+ if(watchName===FAVORITES||searchOwnedNames().has(watchName)||AnnaScratchViews.isOwned(watchName))return -1;
  return plman.IsPlaylistLocked(watchIndex)?-1:watchIndex;
 }
 function choose(x,y,doubleClick) {

@@ -63,7 +63,7 @@ for (const f of fs.readdirSync(root + '/js').filter(n => n.endsWith('.js')).map(
     assert(!new RegExp(`['":]${esc(v)}['"]`).test(src), `${f} hard-codes '${v}': use AnnaShared.PVAR`);
   }
   // Helper modules whose panels include their dependencies first (used inside functions only).
-  if (/\bAnnaShared\./.test(src) && !['js/anna_drop_fix.js', 'js/anna_glass_drop.js'].includes(f))
+  if (/\bAnnaShared\./.test(src) && !['js/anna_drop_fix.js', 'js/anna_glass_drop.js', 'js/anna_scratch_views.js'].includes(f))
     assert(src.includes("include('anna_shared.js');"), `${f} uses AnnaShared: include('anna_shared.js')`);
 }
 
