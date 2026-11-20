@@ -6,3 +6,5 @@
 *.SHA256
 .DS_Store
 Thumbs.db
+dist/
+node_modules/

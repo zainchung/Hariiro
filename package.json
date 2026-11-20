@@ -1,0 +1,11 @@
+{
+  "name": "anna-glass-v2",
+  "version": "14.0.0",
+  "private": true,
+  "description": "Anna Glass V2 foobar2000 skin (Panels UI JS panels)",
+  "scripts": {
+    "test": "node tools/run_tests.mjs",
+    "package": "python3 tools/package_skin.py"
+  },
+  "engines": { "node": ">=20" }
+}

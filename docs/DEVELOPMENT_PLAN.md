@@ -7,7 +7,7 @@
 | `main` | Round 14 skin source, tests (`tests/*.mjs`, 14 files, all passing), images, docs. No CI, no `.github/`. |
 | `feature/anna-ui-reference-refresh` (PR #1, Draft) | Same runtime source as `main`, plus extra files `main` lacks (`tools/package_ui_preview.py`, `docs/ROUND2_REVIEW.md`, `UI_REFINEMENT_*.md`, `WINDOWS_UI_ACCEPTANCE.md`). 184 commits and it has diverged from `main`. |
 | `experiment/16x9-freeze` | Independent 16:9 DLL experiment (C++ plugin, geometry tests, CI). Not part of the skin. |
-| Windows acceptance | **Never completed for any round.** Every review ends with "Windows verification required". Offline tests model OLE/IME/GDI but cannot prove them. |
+| Windows acceptance | **Verified by the owner through Round 14** (2026-11-20). Offline tests model OLE/IME/GDI but cannot prove them, so every future round still needs a Windows pass. |
 
 ## 2. Problems found
 
@@ -20,15 +20,15 @@
 
 ## 3. Plan
 
-### Phase A — Housekeeping (1 session, no behaviour change)
+### Phase A — Housekeeping (DONE 2026-11-20, no behaviour change)
 - A1. Decide the integration branch: **`main` is the trunk.** Port the extra PR-only files worth keeping (`WINDOWS_UI_ACCEPTANCE.md`, `UI_REFINEMENT_*.md`, `ROUND2_REVIEW.md`); close PR #1 or retarget it into a small docs-only PR. Do not merge the 184-commit history.
 - A2. Add `tools/run_tests.mjs` (runs every `tests/*.mjs`, prints a summary, non-zero on failure) and a `package.json` `npm test` script.
 - A3. Add GitHub Actions `test.yml` (Node 22, `npm test`) so `main` is checked on every push. Keep it cheap (the 16:9 branch already trimmed Actions minutes).
 - A4. Delete or fix `tools/test_ui_reference.mjs`; rewrite `tools/package_ui_preview.py` to build the current skin ZIP (all `js/`, `main.txt`, `foo_ui_panels.ini`, `images/`, README) and verify the file list.
 - A5. Replace per-round READMEs with one `README.md` (install/backup/rollback, folder map, test command, link to latest `ROUNDxx_REVIEW.md`). Keep review docs as history.
 
-### Phase B — Windows acceptance gate (user-driven, blocks feature work)
-Run `docs/WINDOWS_UI_ACCEPTANCE.md` plus the Round 14 drag matrix on a **backed-up** foobar2000 profile and record pass/fail per row in `docs/ACCEPTANCE_LOG.md`:
+### Phase B — Windows acceptance gate (Round 14 passed; repeat for each later round)
+Round 14 and earlier are accepted. For later rounds, run `docs/WINDOWS_UI_ACCEPTANCE.md` plus the Round 14 drag matrix on a **backed-up** foobar2000 profile and record pass/fail per row in `docs/ACCEPTANCE_LOG.md`:
 - B1. Drag matrix (Round 14 table): sidebar ↔ middle ↔ Queue ↔ external files.
 - B2. Queue reorder/remove, search input (incl. Japanese IME), lyrics location modes.
 - B3. Title-bar controls (double-click, drag, settings menu), footer toggles, transparency at 960–1920 px and 100/125/150 % DPI.
