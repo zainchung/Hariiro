@@ -8,3 +8,6 @@
 Thumbs.db
 dist/
 node_modules/
+
+# Machine-specific Claude notes
+CLAUDE.local.md
