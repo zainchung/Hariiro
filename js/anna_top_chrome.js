@@ -18,9 +18,9 @@ function windowAction(kind){
 }
 // Round 19: wallpaper choice. Images live in <skin>\images\wallpapers\; the value is
 // relative to images\ (main.txt and background.image_pvar in foo_ui_panels.ini read it).
-// Round 21: every image there is a peer, listed by file name. moon.png (Round 22) is only the file
+// Round 21: every image there is a peer, listed by file name. Anna_GLASS_UI_2560x1440.png (Round 22) is only the file
 // main.txt and new installs start with; once deleted it is gone from the menu like any other.
-const DEFAULT_WALLPAPER='wallpapers/moon.png';
+const DEFAULT_WALLPAPER='wallpapers/Anna_GLASS_UI_2560x1440.png';
 const SKIN_NAMES=['Anna_Glass','Anna Glass','Anna-Glass','Anna_Glass_V2','Anna-Glass-V2'];
 const BS='\\';
 function skinFolder(){
@@ -47,7 +47,7 @@ function wallpaperChoices(){
  return out;
 }
 // The saved choice must be an existing image: a deleted file, or wallpaper.jpg saved by
-// builds before Round 21, moves to moon.png if it exists, else to the first image.
+// builds before Round 21, moves to Anna_GLASS_UI_2560x1440.png if it exists, else to the first image.
 // Nothing is written when the folder cannot be read or is empty.
 function ensureWallpaper(choices){
  try{

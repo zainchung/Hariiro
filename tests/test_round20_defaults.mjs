@@ -7,10 +7,10 @@ import { root, read } from './helpers/js_panel.mjs';
 const ini = read('foo_ui_panels.ini'), main = read('main.txt');
 assert.match(ini, /^pvar\.once\.anna\.playlist\.experimental = 1\s*$/m, 'GLASS by default for new installs');
 
-// Files: one place for wallpapers (Round 21 renamed the bundled one to moon.png; the menu
+// Files: one place for wallpapers (Round 21 renamed the bundled one to Anna_GLASS_UI_2560x1440.png; the menu
 // and saved-choice rules are in test_round21_perf).
-assert(fs.existsSync(root + '/images/wallpapers/moon.png'));
+assert(fs.existsSync(root + '/images/wallpapers/Anna_GLASS_UI_2560x1440.png'));
 assert(!fs.existsSync(root + '/images/wallpaper.jpg'), 'no second copy at the old place');
-assert.match(ini, /^pvar\.once\.anna\.glass\.v2\.wallpaper = wallpapers\/moon\.png\s*$/m);
-assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/moon.png))'));
+assert.match(ini, /^pvar\.once\.anna\.glass\.v2\.wallpaper = wallpapers\/Anna_GLASS_UI_2560x1440\.png\s*$/m);
+assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/Anna_GLASS_UI_2560x1440.png))'));
 console.log('test_round20_defaults: ok');

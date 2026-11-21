@@ -25,7 +25,7 @@ Features
 - Menu ☰ → Accent colour: every folder in images\controls, by folder name (six
   bundled). Copy a folder, change its pictures and theme.json, and it appears.
 - Menu ☰ → Wallpaper: every .jpg / .png / .bmp file in images\wallpapers in the
-  skin folder, listed by file name ("moon" and "櫻花樹下的水晶茶韻" are bundled). Delete a file
+  skin folder, listed by file name (two Anna_GLASS_UI pictures are bundled). Delete a file
   and it leaves the menu; if it was in use, another one is chosen.
 - Languages: English, Español, Português, 简体中文, 繁體中文, 日本語, Français,
   Deutsch, Русский (menu ☰ → Skin language; "Auto" follows Windows).

@@ -11,10 +11,10 @@ import { createHost, panelContext, run, runScript, handle } from './helpers/fake
 const ini = read('foo_ui_panels.ini'), main = read('main.txt');
 
 // ---- 1. Wallpapers: all of them are peers ------------------------------------------------
-assert(fs.existsSync(root + '/images/wallpapers/moon.png'), 'bundled wallpaper is an ordinary, named file');
+assert(fs.existsSync(root + '/images/wallpapers/Anna_GLASS_UI_2560x1440.png'), 'bundled wallpaper is an ordinary, named file');
 assert(!fs.existsSync(root + '/images/wallpapers/wallpaper.jpg'));
-assert.match(ini, /^pvar\.once\.anna\.glass\.v2\.wallpaper = wallpapers\/moon\.png\s*$/m);
-assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/moon.png))'));
+assert.match(ini, /^pvar\.once\.anna\.glass\.v2\.wallpaper = wallpapers\/Anna_GLASS_UI_2560x1440\.png\s*$/m);
+assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/Anna_GLASS_UI_2560x1440.png))'));
 assert(!read('js/anna_top_chrome.js').includes('wallpaperDefault'), 'no built-in menu entry');
 
 const SKIN = 'C:\\fb\\profile\\foo_ui_panels-skins\\Anna_Glass\\';
@@ -33,41 +33,41 @@ function chrome(saved, names) {
   const menuItems = () => { appended.length = 0; c.settingsMenu(1, 1); return appended.filter(([id]) => id >= 300).map(([, t]) => t.trim()); };
   return { c, h, wall, menuItems };
 }
-{ // moon.png is listed like any other image, by its file name.
-  const { c, wall, menuItems } = chrome('wallpapers/moon.png', ['moon.png', 'Sea.jpg', 'notes.txt']);
-  assert.deepEqual([...c.wallpaperChoices()].map(w => [w.file, w.label]), [['wallpapers/moon.png', 'moon'], ['wallpapers/Sea.jpg', 'Sea']]);
-  assert.deepEqual(menuItems(), ['✓ moon', 'Sea']);
-  assert.equal(wall(), 'wallpapers/moon.png');
+{ // Anna_GLASS_UI_2560x1440.png is listed like any other image, by its file name.
+  const { c, wall, menuItems } = chrome('wallpapers/Anna_GLASS_UI_2560x1440.png', ['Anna_GLASS_UI_2560x1440.png', 'Sea.jpg', 'notes.txt']);
+  assert.deepEqual([...c.wallpaperChoices()].map(w => [w.file, w.label]), [['wallpapers/Anna_GLASS_UI_2560x1440.png', 'Anna_GLASS_UI_2560x1440'], ['wallpapers/Sea.jpg', 'Sea']]);
+  assert.deepEqual(menuItems(), ['✓ Anna_GLASS_UI_2560x1440', 'Sea']);
+  assert.equal(wall(), 'wallpapers/Anna_GLASS_UI_2560x1440.png');
 }
 { // The bundled file was deleted: it is gone from the menu, and the saved choice moves on.
-  const { c, wall, menuItems } = chrome('wallpapers/moon.png', ['Sea.jpg']);
+  const { c, wall, menuItems } = chrome('wallpapers/Anna_GLASS_UI_2560x1440.png', ['Sea.jpg']);
   assert.deepEqual([...c.wallpaperChoices()].map(w => w.file), ['wallpapers/Sea.jpg']);
   assert.equal(wall(), 'wallpapers/Sea.jpg', 'a missing choice falls back to an existing image');
   assert.deepEqual(menuItems(), ['✓ Sea']);
 }
 { // Choices saved by older builds (wallpaper.jpg at either place) move to an existing image.
   for (const old of ['wallpaper.jpg', 'wallpapers/wallpaper.jpg']) {
-    assert.equal(chrome(old, ['moon.png', 'Sea.jpg']).wall(), 'wallpapers/moon.png', old);
-    assert.equal(chrome(old, ['Sea.jpg']).wall(), 'wallpapers/Sea.jpg', old + ' without moon.png');
+    assert.equal(chrome(old, ['Anna_GLASS_UI_2560x1440.png', 'Sea.jpg']).wall(), 'wallpapers/Anna_GLASS_UI_2560x1440.png', old);
+    assert.equal(chrome(old, ['Sea.jpg']).wall(), 'wallpapers/Sea.jpg', old + ' without Anna_GLASS_UI_2560x1440.png');
   }
 }
-{ // Unset: main.txt's fallback (moon.png) is used while it exists, nothing is written.
-  const a = chrome(undefined, ['moon.png', 'Sea.jpg']);
+{ // Unset: main.txt's fallback (Anna_GLASS_UI_2560x1440.png) is used while it exists, nothing is written.
+  const a = chrome(undefined, ['Anna_GLASS_UI_2560x1440.png', 'Sea.jpg']);
   assert.equal(a.h.state.vars.has('anna.glass.v2.wallpaper'), false);
-  assert.equal(a.c.currentWallpaper(), 'wallpapers/moon.png');
+  assert.equal(a.c.currentWallpaper(), 'wallpapers/Anna_GLASS_UI_2560x1440.png');
   assert.equal(chrome(undefined, ['Sea.jpg']).wall(), 'wallpapers/Sea.jpg');
 }
 { // A file deleted while foobar2000 runs disappears the next time the menu opens.
-  const names = ['moon.png', 'Sea.jpg'];
-  const { wall, menuItems } = chrome('wallpapers/moon.png', names);
+  const names = ['Anna_GLASS_UI_2560x1440.png', 'Sea.jpg'];
+  const { wall, menuItems } = chrome('wallpapers/Anna_GLASS_UI_2560x1440.png', names);
   names.shift();
   assert.deepEqual(menuItems(), ['✓ Sea']);
   assert.equal(wall(), 'wallpapers/Sea.jpg');
 }
 { // Empty folder: only the hint, and the saved value is left alone.
-  const { wall, menuItems } = chrome('wallpapers/moon.png', []);
+  const { wall, menuItems } = chrome('wallpapers/Anna_GLASS_UI_2560x1440.png', []);
   assert.deepEqual(menuItems(), []);
-  assert.equal(wall(), 'wallpapers/moon.png');
+  assert.equal(wall(), 'wallpapers/Anna_GLASS_UI_2560x1440.png');
 }
 
 // ---- 2. CPU: animated panels are child windows ----------------------------------------------

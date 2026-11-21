@@ -10,10 +10,10 @@ const ini = read('foo_ui_panels.ini'), main = read('main.txt');
 
 // ---- 1. wallpapers ------------------------------------------------------------------------------
 const walls = fs.readdirSync(root + '/images/wallpapers').filter(f => !f.endsWith('.md')).sort();
-assert.deepEqual(walls, ['moon.png', '櫻花樹下的水晶茶韻.png']);
-assert.match(ini, /^pvar\.once\.anna\.glass\.v2\.wallpaper = wallpapers\/moon\.png\s*$/m);
-assert(main.includes('$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/moon.png)'));
-assert(read('js/anna_top_chrome.js').includes("const DEFAULT_WALLPAPER='wallpapers/moon.png';"));
+assert.deepEqual(walls, ['Anna_GLASS_UI2_2560x1440.png', 'Anna_GLASS_UI_2560x1440.png']); // Round 22b: owner's renamed files
+assert.match(ini, /^pvar\.once\.anna\.glass\.v2\.wallpaper = wallpapers\/Anna_GLASS_UI_2560x1440\.png\s*$/m);
+assert(main.includes('$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/Anna_GLASS_UI_2560x1440.png)'));
+assert(read('js/anna_top_chrome.js').includes("const DEFAULT_WALLPAPER='wallpapers/Anna_GLASS_UI_2560x1440.png';"));
 
 // ---- 2. bundled colours: folders with theme.json and the corner ornaments --------------------------
 const BUNDLED = { amber: 36, blue: 211, mint: 150, pink: 326, teal: 174, violet: 278 };

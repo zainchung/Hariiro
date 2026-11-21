@@ -13,7 +13,7 @@ $drawrect(0,0,%_width%,%_height%,brushcolor-24-25-30 pencolor-null)
 // The registered wallpaper lets supported native panels re-use the same canvas snapshot.
 // Round 19: the file is the anna.glass.v2.wallpaper variable (settings menu → Wallpaper),
 // relative to images/, as for background.image_pvar in foo_ui_panels.ini.
-$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/moon.png))
+$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/Anna_GLASS_UI_2560x1440.png))
 // Round 22: colours that follow the accent read anna.tc.<base r-g-b> (published by TopChrome,
 // AnnaTheme.LAYOUT_COLORS); the base colour is the fallback.
 // Light-touch navy tint keeps the wallpaper luminous; each transparent row adds its own contrast.

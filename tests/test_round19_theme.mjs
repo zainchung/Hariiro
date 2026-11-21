@@ -70,7 +70,7 @@ assert.equal(h2.state.vars.get('anna.glass.v2.wallpaper'), 'wallpapers/Night Sky
 assert.equal(chrome.setWallpaper('wallpapers/wallpaper.jpg'), false); // Round 21: not in this folder
 assert.equal(chrome.setWallpaper('wallpapers/dawn.PNG'), true);
 // main.txt draws the chosen file, falling back to the bundled one.
-assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/moon.png))'));
+assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/Anna_GLASS_UI_2560x1440.png))'));
 assert(fs.existsSync(root + '/images/wallpapers/README.md'), 'folder exists in the package with a note');
 // The menu hint names the folder with its separator (Windows check found "imageswallpapers").
 for (const lang of ['en', 'zh-CN', 'zh-TW', 'ja'])

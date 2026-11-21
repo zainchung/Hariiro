@@ -10,8 +10,14 @@ ornaments into the pink colour and give every other colour its own.
 `櫻花樹下的水晶茶韻.png` (1672 × 941, copied from the installed skin, unchanged; `Anna.jpg`
 removed). `moon.png` is the default (`pvar.once` in the ini, `main.txt` fallback,
 `DEFAULT_WALLPAPER`); the Round 21 rules (peers, fallback when deleted) are unchanged.
-`moon.png` carries a small leftover overlay in its top-left corner (an icon and "000 | Co")
-from its source; it is the owner's artwork and was not edited.
+`moon.png` carried a small leftover overlay in its top-left corner (an icon and "000 | Co").
+
+**Update (after commit 47ac3e2):** the owner replaced both pictures in the installed skin;
+the repo now ships those files unchanged: `Anna_GLASS_UI_2560x1440.png` (the night lake at
+2560 × 1440, without the overlay; **default**) and `Anna_GLASS_UI2_2560x1440.png` (byte-for-byte
+the former `櫻花樹下的水晶茶韻.png`, 1672 × 941 despite its name). Defaults in the ini,
+`main.txt` and `DEFAULT_WALLPAPER` follow; a saved `moon.png` falls back to the default by the
+Round 21 rule. Windows check: the Wallpaper submenu lists both, the first one ticked.
 
 ## Accent colours are folders
 
