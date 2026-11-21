@@ -13,9 +13,9 @@ const KNOB = 0xffffe0e8;
 // Image-backed seek butterfly and volume grip. Glass rails are still painted dynamically.
 let BUTTERFLY=null,VOLUME_THUMB=null,loadedTheme='';
 function loadAssets(){
- const id=AnnaTheme.selected();if(id===loadedTheme)return;
+ const id=AnnaTheme.folder();if(id===loadedTheme)return;
  loadedTheme=id;
- const folder='../images/controls/'+(id==='rose'?'pink/':id+'/');
+ const folder='../images/controls/'+id+'/'; // Round 22: the colour's own folder
  try{BUTTERFLY=gdi.Image(folder+'butterfly.png');}catch(e){BUTTERFLY=null;}
  try{VOLUME_THUMB=gdi.Image(folder+'volume_thumb.png');}catch(e){VOLUME_THUMB=null;}
 }

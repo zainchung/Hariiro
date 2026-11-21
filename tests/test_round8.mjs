@@ -23,12 +23,13 @@ for(const c of controls){
  assert.equal(data.toString('hex',0,8),'89504e470d0a1a0a');
  assert.equal(data[25],6,'PNG must be RGBA for a theme-ready transparent asset: '+c);
 }
-assert.equal(readdirSync(root+'/images/controls/pink').filter(x=>x.endsWith('.png')).length,controls.length);
+// Round 22: the folder also holds the four corner ornaments of this colour.
+assert.equal(readdirSync(root+'/images/controls/pink').filter(x=>x.endsWith('.png')&&!x.startsWith('corner_')).length,controls.length);
 assert(!/function mainControl|function fiveSeconds|function outputDeviceIcon|function trackArrow/.test(transport));
 assert(transport.includes("gdi.Image(folder+name+'.png')"));
 assert(slider.includes("gdi.Image(folder+'butterfly.png')"));
 assert(slider.includes("gdi.Image(folder+'volume_thumb.png')"));
-assert(footer.includes('images/controls/pink/speaker.png'));
+assert(footer.includes('/speaker.png)')) /* Round 22: colour folder */;
 assert(footer.includes('$eval(%_width% * 23 / 100 - 48)'),'elapsed time label shifted closer');
 // DrawImage actually paints each asset: no vector-only placeholder fallback.
 const paths=[],drawCalls=[];let orderIndex=0;

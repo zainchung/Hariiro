@@ -23,7 +23,7 @@ assert(main.includes('$panel(NativeScroll,JS Panel,'));
 assert.match(ini,/panel.NativeScroll.script = js\/anna_native_scroll.js/);
 assert.match(native,/EnsurePlaylistItemVisible\(active\(\),estimated\)/);
 assert.match(ini,/panel.NativeScroll.windowless = 0/);
-assert(ini.includes('color.playlist.highlight = 233 119 181'));
+// Round 22: no highlight colour; the native playlist uses the accent (test_round22_native_colours).
 assert(!ini.includes('color.playlist.highlight = 205 145 92'));
 assert(main.includes('$panel(TopChrome,JS Panel'));
 assert(ini.includes('panel.TopChrome.script = js/anna_top_chrome.js'));

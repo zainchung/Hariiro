@@ -97,7 +97,7 @@ assert.equal(plman.FindPlaylist('Anna - Artist View #2'),-1);
 assert(plman.FindPlaylist('Anna - Artist View #3')>=0);
 assert(plman.FindPlaylist('Anna - Artist View #4')>=0);
 // Both new hue and manual language choices are shared between panels.
-const chrome=makePanel('TopChrome',{window:{Width:183,Height:31,Repaint(){},NotifyOthers(){},CreatePopupMenu(){return{AppendMenuItem(){},AppendMenuSeparator(){},AppendTo(){},TrackPopupMenu(){return 231;}}}}});
+const chrome=makePanel('TopChrome',{window:{Width:183,Height:31,Repaint(){},NotifyOthers(){},CreatePopupMenu(){return{AppendMenuItem(){},AppendMenuSeparator(){},AppendTo(){},TrackPopupMenu(){return 235;}}}}});
 vm.runInContext(read('js/anna_top_chrome.js'),chrome);
 chrome.on_mouse_lbtn_up(15,16);
 assert.equal(variables.get('anna.theme.hue'),'violet');

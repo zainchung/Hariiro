@@ -60,7 +60,7 @@ assert(!trans.includes('order_shuffle_folders'));
 assert(!gen.includes("write('order_shuffle_folders'"));
 assert(!existsSync(root+'/images/controls/pink/order_shuffle_folders.png'));
 assert(gen.includes('>5s</text>'));
-assert.equal(readdirSync(root+'/images/controls/pink').filter(x=>x.endsWith('.png')).length,16);
+assert.equal(readdirSync(root+'/images/controls/pink').filter(x=>x.endsWith('.png')).length,20); // 16 controls + 4 corners (Round 22)
 assert(/on_mouse_rbtn_up\(x,y\)/.test(trans));
 assert(read('js/anna_top_chrome.js').includes('on_mouse_rbtn_up(x,y)'));
 console.log('PASS Round9: 5 locale modes, common i18n menu, dedicated settings click and context menu, no duplicate SYS/MB, direct playlist delete, centre-only track removal, solid unified switch colours, hidden native folder shuffle, 16 controls and 5s assets');

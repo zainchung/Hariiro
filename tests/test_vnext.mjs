@@ -18,9 +18,9 @@ assert(!main.includes('images/controls/play_ring.png'));
 assert.match(main,/\$panel\(Cover,Album Art,/);assert(!ini.includes('panel.Cover.script'));
 assert(!ini.includes('window.aspect_lock'));assert(!ini.includes('window.size = 1280 720'));
 assert(!main.includes('ROTATEFLIP-'));
-for(const c of ['tl','tr','bl','br'])assert(main.includes('images/ornaments/corner_'+c+'.png'));
+for(const c of ['tl','tr','bl','br'])assert(main.includes('/corner_'+c+'.png)')); // Round 22: in the colour folder
 assert.match(main,/SwitchGlass,JS Panel/);assert.match(main,/SwitchNative,JS Panel/);
-assert(main.includes('images/controls/pink/speaker.png'));
+assert(main.includes('/speaker.png)'));
 const widths=[960,1280,1536,1920];
 for(const w of widths){const h=Math.round(w*9/16);const navEnd=16+350,searchStart=w-522,searchEnd=searchStart+304,chromeStart=w-199,chromeEnd=chromeStart+183;
  assert(navEnd+10<searchStart);assert.equal(searchEnd+19,chromeStart);assert.equal(chromeEnd,w-16);

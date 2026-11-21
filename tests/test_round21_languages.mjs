@@ -16,7 +16,7 @@ const intl = locale => ({ DateTimeFormat: () => ({ resolvedOptions: () => ({ loc
   const ctx = panelContext(host);
   run(ctx, "include('anna_i18n.js');");
   const I = ctx.AnnaI18n, keys = Object.keys(I.dict.en);
-  assert(keys.length > 150);
+  assert(keys.length > 140);
   assert.deepEqual([...I.LANGS], LANGS);
   for (const l of LANGS) for (const k of keys)
     assert(typeof I.dict[l][k] === 'string' && I.dict[l][k].trim(), `${l}.${k} missing`);

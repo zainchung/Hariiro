@@ -51,7 +51,7 @@ for (const f of ['js/anna_glass_playlist.js', 'js/playlist_browser.js']) {
 // anna_i18n.js own their variable (they load standalone) and must use the same value.
 for (const k of ['themeHue', 'themeAccent', 'language', 'queueOpen', 'chromeHidden', 'favoriteCurrent', 'playlistExperimental'])
   assert(typeof S.PVAR[k] === 'string' && S.PVAR[k].startsWith('anna.'), `AnnaShared.PVAR.${k}`);
-const OWNED = { 'js/anna_theme.js': [S.PVAR.themeHue, S.PVAR.themeAccent], 'js/anna_i18n.js': [S.PVAR.language] };
+const OWNED = { 'js/anna_theme.js': [S.PVAR.themeHue, S.PVAR.themeAccent, S.PVAR.themeDegree], 'js/anna_i18n.js': [S.PVAR.language] };
 for (const [f, keys] of Object.entries(OWNED)) for (const v of keys) assert(read(f).includes(`'${v}'`), `${f} must use '${v}'`);
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 for (const f of fs.readdirSync(root + '/js').filter(n => n.endsWith('.js')).map(n => 'js/' + n)) {

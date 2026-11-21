@@ -6,7 +6,7 @@ Usage:
     python tools/package_skin.py --output C:\\Temp\\Anna-Glass-V2.zip
 
 The archive holds exactly what foobar2000 needs at runtime:
-    main.txt, foo_ui_panels.ini, js/*.js, images/** (png/jpg)
+    main.txt, foo_ui_panels.ini, js/*.js, images/** (png/jpg, and theme.json of each colour)
 plus docs/USER_README.txt as Anna-Glass-V2-README.txt (end-user notes).
 Other docs, tests and tools are not included. Extract into a *backed-up* copy
 of the skin folder. Before writing, the script checks that
@@ -14,6 +14,7 @@ of the skin folder. Before writing, the script checks that
   * every $panel / js reference in main.txt / foo_ui_panels.ini exists,
   * every images/... path used by the sources exists,
   * image files carry a valid PNG/JPEG signature,
+  * every theme.json (colour folder, Round 22) has a numeric hue,
   * the user README names the version from package.json.
 """
 from __future__ import annotations
@@ -37,7 +38,7 @@ def collect() -> list[str]:
     files += sorted(
         p.relative_to(ROOT).as_posix()
         for p in (ROOT / "images").rglob("*")
-        if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg"}
+        if p.is_file() and (p.suffix.lower() in {".png", ".jpg", ".jpeg"} or p.name == "theme.json")
     )
     return files
 
@@ -54,6 +55,13 @@ def verify(files: list[str]) -> None:
             problems.append(f"invalid PNG: {rel}")
         if low.endswith((".jpg", ".jpeg")) and not data.startswith(JPG):
             problems.append(f"invalid JPEG: {rel}")
+        if low.endswith("theme.json"):
+            try:
+                hue = json.loads(data.decode("utf-8"))["hue"]
+                if not isinstance(hue, (int, float)):
+                    raise ValueError("hue is not a number")
+            except Exception as error:  # noqa: BLE001 - reported, not raised
+                problems.append(f"invalid {rel}: {error}")
 
     texts = {rel: (ROOT / rel).read_text(encoding="utf-8", errors="replace")
              for rel in files if rel.endswith((".js", ".txt", ".ini"))}

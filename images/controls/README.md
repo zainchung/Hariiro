@@ -20,10 +20,38 @@ The native foobar2000 **Shuffle (folders)** playback order is intentionally not 
 
 The ±5-second PNGs contain an explicit **5s** label. The extra note and disc badges are enlarged in the two shuffle assets.
 
-## Anna Glass accent palettes
+## Accent colours (Round 22)
 
-Default Rose pink assets are now in `pink/`; `violet/`, `blue/`, and `teal/`
-subfolders contain alpha-preserving variants with matching filenames.
-The setting changes vector accent colors and footer icons, **not** the
-illustrated wallpaper or the native foobar2000/ESLyric menus.
-To create custom palettes, keep filenames and transparency unchanged.
+Every folder in `images/controls/` that contains `play.png` is an accent colour; the menu
+(☰ → Accent colour) lists them by **folder name**. Bundled: `amber`, `blue`, `mint`, `pink`,
+`teal`, `violet`. A folder holds the 16 control PNGs above plus the four corner ornaments
+`corner_tl.png`, `corner_tr.png`, `corner_bl.png`, `corner_br.png` (28×28, drawn by `main.txt`
+at the card corners), and `theme.json`:
+
+```json
+{"hue": 326, "accent": "249-165-210"}
+```
+
+How a colour decides the rest of the interface:
+
+- **Pictures** (transport icons, butterfly, volume thumb, corner ornaments) are simply the
+  PNGs in the folder — draw them in any colour.
+- **Everything the skin draws itself** (card outlines, header line, row frames, glows,
+  pills, labels, also the frames `main.txt` draws) is written in the pink palette and
+  recoloured with `hue` (0–359):
+  - pink / rose / violet / purple tints (hue 255–360, dark, pale or vivid) move to `hue`,
+    keeping 30 % of their distance from pink (326), so they stay close to `hue`;
+  - warm peach / gold frames (hue 0–50) take `hue` directly, keeping their brightness;
+  - greys, whites and the dark navy glass stay as they are.
+  `tools/make_accent_palette.py <folder> <hue>` applies exactly this rule to the pink pictures.
+  The `pink` folder is the base and draws the original design unchanged.
+- **`accent`** (`r-g-b`) is foobar2000's / Panels UI's accent: native spectrum and the NATIVE
+  playlist's selected rows (its other colours in `foo_ui_panels.ini` are neutral).
+- Without `theme.json`, both come from `play.png`: its most frequent clearly coloured colour
+  gives `hue` and `accent`. Add `theme.json` to choose them yourself.
+
+To add a colour: copy a folder, give it a new name, replace the pictures (keep file names
+and transparency) and edit `theme.json`. `python tools/make_accent_palette.py <name> <hue>`
+builds a full set from `pink/` by the same hue rule. The illustrated wallpaper and the native
+foobar2000/ESLyric menus are not recoloured. If the chosen folder is deleted, the skin
+switches to `pink` (or the first folder).

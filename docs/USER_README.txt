@@ -22,9 +22,10 @@ Features
 - Playback Queue panel; Undo for a deleted playlist or a cleared Queue (8 seconds).
 - Lyrics from files saved by ESLyric or from tags; right-click the lyrics to move
   them 0.5 s earlier or later for the current track.
-- Menu ☰ → Accent colour: pink, blue, teal, violet, amber, mint.
+- Menu ☰ → Accent colour: every folder in images\controls, by folder name (six
+  bundled). Copy a folder, change its pictures and theme.json, and it appears.
 - Menu ☰ → Wallpaper: every .jpg / .png / .bmp file in images\wallpapers in the
-  skin folder, listed by file name ("Anna" is the bundled picture). Delete a file
+  skin folder, listed by file name ("moon" and "櫻花樹下的水晶茶韻" are bundled). Delete a file
   and it leaves the menu; if it was in use, another one is chosen.
 - Languages: English, Español, Português, 简体中文, 繁體中文, 日本語, Français,
   Deutsch, Русский (menu ☰ → Skin language; "Auto" follows Windows).

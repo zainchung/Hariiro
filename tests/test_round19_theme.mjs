@@ -9,34 +9,30 @@ import { createHost, panelContext, run, runScript } from './helpers/fake_host.mj
 const host = createHost(), ctx = panelContext(host);
 run(ctx, "include('anna_i18n.js');include('anna_theme.js');");
 const T = ctx.AnnaTheme, ids = [...T.PRESETS.map(p => p.id)];
-assert.deepEqual(ids, ['rose', 'violet', 'blue', 'teal', 'amber', 'mint'], 'old presets keep their order');
-for (const p of T.PRESETS) {
-  for (const lang of ['en', 'zh-CN', 'zh-TW', 'ja']) assert(ctx.AnnaI18n.dict[lang][p.label], `${p.label} in ${lang}`);
-  assert.match(p.accent, /^\d{1,3}-\d{1,3}-\d{1,3}$/);
-}
+// Round 22: presets are the bundled colour folders, by name (labels are folder names).
+assert.deepEqual(ids, ['amber', 'blue', 'mint', 'pink', 'teal', 'violet']);
+for (const p of T.PRESETS) { assert.equal(p.label, p.id); assert.match(p.accent, /^\d{1,3}-\d{1,3}-\d{1,3}$/); }
 // Rose pink is turned into the preset's hue.
 const hueOf = argb => { const r = (argb >>> 16) & 255, g = (argb >>> 8) & 255, b = argb & 255, mx = Math.max(r, g, b), d = mx - Math.min(r, g, b);
   let h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return h * 60; };
 for (const [id, hue] of [['amber', 36], ['mint', 150]]) {
   assert(T.set(id)); assert.equal(T.selected(), id);
-  // 0xffff90c7 has hue ~330; rose (326) maps to the preset's hue, so it lands ~4° above it.
-  assert(Math.abs(hueOf(T.recolor(0xffff90c7)) - (hue + hueOf(0xffff90c7) - 326)) < 1.5, `${id} hue`);
+  // 0xffff90c7 has hue ~330; Round 22: it moves to the preset hue keeping 30 % of its 4° offset.
+  assert(Math.abs(hueOf(T.recolor(0xffff90c7)) - (hue + (hueOf(0xffff90c7) - 326) * 0.3)) < 1.5, `${id} hue`);
 }
 
 // ---- Control images for every preset ----------------------------------------------------
 const NAMES = fs.readdirSync(root + '/images/controls/pink').filter(f => f.endsWith('.png')).sort();
-assert.equal(NAMES.length, 16);
+assert.equal(NAMES.length, 20); // 16 controls + 4 corners (Round 22)
 const isRgbaPng = file => { const b = fs.readFileSync(file); return b.readUInt32BE(0) === 0x89504e47 && b.toString('ascii', 12, 16) === 'IHDR' && b[25] === 6; };
 for (const p of T.PRESETS) {
-  const dir = root + '/images/controls/' + (p.id === 'rose' ? 'pink' : p.id);
+  const dir = root + '/images/controls/' + p.id;
   assert.deepEqual(fs.readdirSync(dir).filter(f => f.endsWith('.png')).sort(), NAMES, dir);
   for (const n of NAMES) assert(isRgbaPng(dir + '/' + n), dir + '/' + n + ' must keep its alpha channel');
 }
 assert(fs.existsSync(root + '/tools/make_accent_palette.py'), 'the variants can be regenerated');
-// The footer volume icon in main.txt follows every preset.
+// The footer volume icon in main.txt follows the colour folder (test_round22_themes).
 const main = read('main.txt');
-for (const id of ['violet', 'blue', 'teal', 'amber', 'mint'])
-  assert(main.includes(`$strcmp($getpvar(anna.theme.hue),${id})`) && main.includes(`images/controls/${id}/speaker.png`), id);
 
 // ---- Wallpaper choice -------------------------------------------------------------------
 const SKIN = 'C:\\fb\\profile\\foo_ui_panels-skins\\Anna_Glass\\';
@@ -74,7 +70,7 @@ assert.equal(h2.state.vars.get('anna.glass.v2.wallpaper'), 'wallpapers/Night Sky
 assert.equal(chrome.setWallpaper('wallpapers/wallpaper.jpg'), false); // Round 21: not in this folder
 assert.equal(chrome.setWallpaper('wallpapers/dawn.PNG'), true);
 // main.txt draws the chosen file, falling back to the bundled one.
-assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/Anna.jpg))'));
+assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/moon.png))'));
 assert(fs.existsSync(root + '/images/wallpapers/README.md'), 'folder exists in the package with a note');
 // The menu hint names the folder with its separator (Windows check found "imageswallpapers").
 for (const lang of ['en', 'zh-CN', 'zh-TW', 'ja'])

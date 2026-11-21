@@ -18,9 +18,9 @@ function windowAction(kind){
 }
 // Round 19: wallpaper choice. Images live in <skin>\images\wallpapers\; the value is
 // relative to images\ (main.txt and background.image_pvar in foo_ui_panels.ini read it).
-// Round 21: every image there is a peer, listed by file name. Anna.jpg is only the file
+// Round 21: every image there is a peer, listed by file name. moon.png (Round 22) is only the file
 // main.txt and new installs start with; once deleted it is gone from the menu like any other.
-const DEFAULT_WALLPAPER='wallpapers/Anna.jpg';
+const DEFAULT_WALLPAPER='wallpapers/moon.png';
 const SKIN_NAMES=['Anna_Glass','Anna Glass','Anna-Glass','Anna_Glass_V2','Anna-Glass-V2'];
 const BS='\\';
 function skinFolder(){
@@ -47,7 +47,7 @@ function wallpaperChoices(){
  return out;
 }
 // The saved choice must be an existing image: a deleted file, or wallpaper.jpg saved by
-// builds before Round 21, moves to Anna.jpg if it exists, else to the first image.
+// builds before Round 21, moves to moon.png if it exists, else to the first image.
 // Nothing is written when the folder cannot be read or is empty.
 function ensureWallpaper(choices){
  try{
@@ -67,6 +67,32 @@ function publishLanguage(){
  }catch(e){console.log('Anna language: '+String(e));}
 }
 publishLanguage();
+// Round 22: accent colours are the folders in images\controls (AnnaTheme.scan). The saved one
+// must exist, and its hue / accent are published for the other panels and main.txt.
+function colourChoices(){const list=AnnaTheme.scan(skinFolder());return list.length?list:[...AnnaTheme.PRESETS];}
+function ensureTheme(list){
+ try{
+  if(!list.length)return;
+  const now=AnnaTheme.selected().toLowerCase();
+  const pick=list.find(t=>t.id.toLowerCase()===now)||list.find(t=>t.id===AnnaTheme.BASE)||list[0];
+  const saved=String(panelsui.GetVariable(AnnaShared.PVAR.themeHue,''));
+  const stale=saved!==pick.id||String(panelsui.GetVariable(AnnaShared.PVAR.themeDegree,''))!==String(pick.hue)||
+   String(panelsui.GetVariable(AnnaShared.PVAR.themeAccent,''))!==pick.accent;
+  if(stale&&AnnaTheme.set(pick)){try{window.NotifyOthers('Anna.ThemeChanged',pick.id);}catch(e){}}
+ }catch(e){console.log('Anna theme: '+String(e));}
+ publishLayoutColors();
+}
+// Round 22: main.txt draws frames, lines and labels itself; it reads each colour recoloured
+// for the accent from anna.tc.<base r-g-b>. Only changed values are written.
+function publishLayoutColors(){
+ try{
+  for(const c of AnnaTheme.LAYOUT_COLORS){
+   const key=AnnaShared.PVAR.themeColorPrefix+c,value=AnnaTheme.layoutColor(c);
+   if(String(panelsui.GetVariable(key,''))!==value)panelsui.SetVariable(key,value);
+  }
+ }catch(e){console.log('Anna layout colours: '+String(e));}
+}
+ensureTheme(colourChoices());
 function currentWallpaper(){
  try{return String(panelsui.GetVariable(AnnaShared.PVAR.wallpaper,DEFAULT_WALLPAPER)||DEFAULT_WALLPAPER);}
  catch(e){return DEFAULT_WALLPAPER;}
@@ -92,11 +118,13 @@ function settingsMenu(x,y){
  for(let i=0;i<langs.length;i++)language.AppendMenuItem(0,200+i,(chosen===langs[i]?'✓ ':'   ')+
   (langs[i]==='auto'?T('auto'):AnnaI18n.nativeName(langs[i])));
  language.AppendTo(menu,0,T('language'));
- const activeHue=AnnaTheme.selected();
- for(let i=0;i<AnnaTheme.PRESETS.length;i++){
-  const item=AnnaTheme.PRESETS[i];
-  colors.AppendMenuItem(0,230+i,(activeHue===item.id?'✓ ':'   ')+T(item.label));
- }
+ const colours=colourChoices();
+ ensureTheme(colours); // folders may have been added or deleted while foobar2000 runs
+ const activeHue=AnnaTheme.selected().toLowerCase();
+ for(let i=0;i<colours.length&&i<60;i++)
+  colors.AppendMenuItem(0,230+i,(activeHue===colours[i].id.toLowerCase()?'✓ ':'   ')+colours[i].label);
+ colors.AppendMenuSeparator();
+ colors.AppendMenuItem(1,290,T('themeHint')); // MF_GRAYED: a hint, not a command
  colors.AppendTo(menu,0,T('theme'));
  const wallpapers=wallpaperChoices();
  ensureWallpaper(wallpapers); // files may have been deleted while foobar2000 runs
@@ -113,8 +141,9 @@ function settingsMenu(x,y){
  else if(cmd===14)runAction('MENU');
  else if(cmd>=200&&cmd<200+langs.length){AnnaI18n.change(langs[cmd-200]);publishLanguage();}
  else if(cmd>=300&&cmd<300+wallpapers.length)setWallpaper(wallpapers[cmd-300].file);
- else if(cmd>=230&&cmd<230+AnnaTheme.PRESETS.length){
-  if(AnnaTheme.set(AnnaTheme.PRESETS[cmd-230].id)){
+ else if(cmd>=230&&cmd<230+Math.min(60,colours.length)){
+  if(AnnaTheme.set(colours[cmd-230])){
+   publishLayoutColors();
    try{window.NotifyOthers('Anna.ThemeChanged',AnnaTheme.selected());}catch(e){}
   }
  }

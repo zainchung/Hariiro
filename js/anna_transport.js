@@ -14,9 +14,9 @@ const IMG_NAMES=[...ORDER_IMAGES,'seek_backward_5','seek_forward_5','previous','
 const PNG={};
 let loadedTheme='';
 function loadIcons(){
- const id=AnnaTheme.selected();if(id===loadedTheme)return;
+ const id=AnnaTheme.folder();if(id===loadedTheme)return;
  loadedTheme=id;
- const folder='../images/controls/'+(id==='rose'?'pink/':id+'/');
+ const folder='../images/controls/'+id+'/'; // Round 22: the colour's own folder
  for(const key of Object.keys(PNG))delete PNG[key];
  for(const name of IMG_NAMES){
   try{PNG[name]=gdi.Image(folder+name+'.png');}

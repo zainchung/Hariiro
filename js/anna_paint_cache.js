@@ -18,7 +18,7 @@ var AnnaPaintCache=(function(){
  const MAX_SHAPES=96;
  function dispose(img){try{if(img&&typeof img.Dispose==='function')img.Dispose();}catch(e){}}
  function scale(){try{return typeof AnnaDpi!=='undefined'?AnnaDpi.scale():1;}catch(e){return 1;}}
- function accent(){try{return typeof AnnaTheme!=='undefined'?AnnaTheme.selected():'';}catch(e){return '';}}
+ function accent(){try{return typeof AnnaTheme!=='undefined'?AnnaTheme.key():'';}catch(e){return '';}} // folder@hue
 
  const resized=new WeakMap();
  function icon(img,w,h,factor){

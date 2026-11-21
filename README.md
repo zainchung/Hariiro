@@ -3,7 +3,7 @@
 A transparent "glass" skin for foobar2000 built on **Panels UI (reborn)** and JS Panels:
 Glass playlist with album art and reflections, Artist/Library/Playlist navigation,
 playback Queue with undo, local lyrics (ESLyric-saved files and tags, per-track offset),
-image-based transport controls, six accent palettes (pink, blue, teal, violet, amber, mint),
+image-based transport controls, accent colours as folders in `images/controls/` (six bundled; add your own),
 a wallpaper selector (`images/wallpapers/`) and nine UI languages
 (English, Español, Português, 简体中文, 繁體中文, 日本語, Français, Deutsch, Русский). New installs start in GLASS mode.
 
@@ -38,7 +38,7 @@ Rollback: restore the backed-up skin folder (and profile if you tested playlist 
 |---|---|
 | `main.txt`, `foo_ui_panels.ini` | Panels UI skin layout and panel registration |
 | `js/` | One JS Panel per file (`anna_*.js`) plus `playlist_browser.js` (sidebar). Shared modules: `anna_i18n.js`, `anna_theme.js` (accents, shared colours, pill switch), `anna_shared.js` (pvar keys, reserved playlist names, drag-origin markers), `anna_playlist_dedup.js`, `anna_dpi.js`, `anna_drop_fix.js`. Logic split out of the two lists: `anna_glass_drop.js`, `anna_sidebar_drop.js`, `anna_scratch_views.js`, `anna_dedup_tracker.js`, `anna_import_staging.js` |
-| `images/` | Wallpapers (`images/wallpapers/`), ornaments, and control PNGs per palette (`images/controls/README.md`) |
+| `images/` | Wallpapers (`images/wallpapers/`) and one folder per accent colour with its control and corner PNGs and `theme.json` (`images/controls/README.md`) |
 | `tests/` | Offline regression tests, one file per round (`test_roundNN*.mjs`), `test_shared.mjs`, helpers in `tests/helpers/` (`js_panel.mjs` include shim, `fake_host.mjs` fake foobar2000 host) |
 | `tools/` | `run_tests.mjs`, `package_skin.py`, `fb_test.ps1` (Windows checks), `generate_controls.py`, `make_accent_palette.py`, `audit_playlist_databases.py` |
 | `docs/` | Review per round (`ROUNDnn_REVIEW.md`), acceptance matrix, `DEVELOPMENT_PLAN.md`, `NATIVE_VS_GLASS.md`, `USER_README.txt` (packaged as `Anna-Glass-V2-README.txt`), `release_notes/` |

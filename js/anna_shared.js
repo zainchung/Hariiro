@@ -15,6 +15,8 @@ var AnnaShared=(function(){
   // Owned by anna_theme.js / anna_i18n.js (they load standalone and keep the same value).
   themeHue:'anna.theme.hue',
   themeAccent:'anna.glass.v2.accent',
+  themeDegree:'anna.theme.degree', // Round 22: hue of the chosen colour folder
+  themeColorPrefix:'anna.tc.', // Round 22: + base 'r-g-b' of a main.txt colour = recoloured value
   language:'anna.language',
   // Round 21: the language actually shown ("auto" resolved); written by the title-bar
   // panel, read by main.txt.
