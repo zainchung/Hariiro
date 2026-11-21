@@ -53,7 +53,7 @@ old name, so `fb_test.ps1 -SkinFolder`), then `deploy -Images`: skin vs repo ide
 log and Panels UI log without errors or missing images after the start. The configuration
 now holds the `hariiro.*` defaults written by `pvar.once`: accent pink, `theme.hue=pink`
 (colour folder found), GLASS mode, language Auto (shown as Japanese, the Windows language),
-wallpaper `wallpapers/Hariiro_UI_2560x1440.png`. The old `anna.*` values stay unused in the
+wallpaper `wallpapers/Hariiro_UI_2560x1440.png`. The values saved under the old prefix stay unused in the
 configuration. No `Hariiro - …` playlist was created at start (they are created on first
 use); the playlist index is identical to the backup, so no restore was needed.
 
