@@ -1,4 +1,5 @@
 // Hariiro - Stage 3I.4: reversible immersive system chrome.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // The Hariiro settings button controls Windows title bar and menu bar visibility.
 // The top-right three-line button opens Hariiro settings and foobar2000 commands.
 // Build includes runtime assets only; Stage 3G layout and transport preserved.

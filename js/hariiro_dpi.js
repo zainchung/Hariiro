@@ -1,4 +1,5 @@
 // Hariiro: DPI adapter for real child-window JS Panels.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // Windowless panels are drawn by Panels UI in layout units and scaled by the
 // host. A child window (windowless = 0, needed for correct OLE drop routing)
 // gets PHYSICAL pixels instead, so at 200% everything would draw at half size.

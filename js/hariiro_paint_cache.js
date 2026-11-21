@@ -1,4 +1,5 @@
 // Hariiro: cached drawing for the hot paint paths (Round 21).
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // While music plays, Panels UI redraws the whole layout twice a second and every JS panel
 // paints again. Measured on Windows: an antialiased FillRoundRect / DrawRoundRect costs
 // 0.3-0.5 ms and drawing a 192 px PNG at 39 px 0.6 ms, while blitting a ready bitmap costs

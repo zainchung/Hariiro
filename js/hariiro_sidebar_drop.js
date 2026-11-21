@@ -1,4 +1,5 @@
 // Hariiro: drop decision for the sidebar (Round 14 drag matrix, Round 15 external
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // files). Moved out of playlist_browser.js in Phase D1: on_drag_over, on_drag_drop and the
 // external-file plan used three copies of these rules. Needs include('hariiro_i18n.js') first.
 'use strict';

@@ -1,4 +1,5 @@
 // Hariiro — single translucent library search with live Unicode input.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // Enter searches foobar2000's *actual* media library. Results are placed in an
 // owned working playlist, never into a user's saved playlist with the same name.
 'use strict';

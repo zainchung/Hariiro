@@ -1,4 +1,5 @@
 // Hariiro: physical-file identity for ordinary playlist imports.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // One canonical full path = one file, regardless of title tags or SubSong.
 // Existing duplicates are grandfathered in; only newly imported extras go.
 'use strict';

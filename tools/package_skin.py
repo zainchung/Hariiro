@@ -7,7 +7,7 @@ Usage:
 
 The archive holds exactly what foobar2000 needs at runtime:
     main.txt, foo_ui_panels.ini, js/*.js, images/** (png/jpg, and theme.json of each colour)
-plus docs/USER_README.txt as Hariiro-README.txt (end-user notes).
+plus docs/USER_README.txt as Hariiro-README.txt (end-user notes) and LICENSE (MIT).
 Other docs, tests and tools are not included. Extract into a *backed-up* copy
 of the skin folder. Before writing, the script checks that
   * every include('x.js') resolves to a file in js/,
@@ -28,7 +28,7 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 ROOT = Path(__file__).resolve().parents[1]
 PNG = b"\x89PNG\r\n\x1a\n"
 JPG = b"\xff\xd8\xff"
-TOP_LEVEL = ("main.txt", "foo_ui_panels.ini")
+TOP_LEVEL = ("main.txt", "foo_ui_panels.ini", "LICENSE")
 USER_README = ("Hariiro-README.txt", "docs/USER_README.txt")  # (zip path, source)
 
 

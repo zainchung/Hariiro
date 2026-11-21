@@ -1,4 +1,5 @@
 // Hariiro, Stage 3I.1 - synchronized selection/playing palette in transparent navigator.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // This panel intentionally paints NO opaque background.
 // It requires Panels UI (reborn) + JS Panel 1.7.0 (transparent child window, scaled by HariiroDpi).
 'use strict';

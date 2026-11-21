@@ -19,6 +19,14 @@ middle-list behaviour, the undo notice's 8-second expiry, and the GLASS default 
 run. Known limits: ESLyric cannot be embedded in a Panels UI panel (the skin reads saved
 lyrics only), and NATIVE list rules are decided by the host (`docs/NATIVE_VS_GLASS.md`).
 
+## License
+
+Released under the [MIT License](LICENSE), Copyright (c) 2026 zainchung. This covers the
+scripts, layout, documentation and all bundled images (controls, corners and the two
+wallpapers). The licence grants no right to the name "Hariiro" for modified versions.
+Third-party components are not included: foobar2000, Panels UI (reborn) and foo_js_panel
+(both MIT) and ESLyric are installed separately under their own licences.
+
 ## Install
 
 1. **Back up** your foobar2000 profile (especially `playlists-v2.0`) and your current skin folder.

@@ -1,4 +1,5 @@
 // Hariiro: drop decision for the middle (Glass) list. Moved out of
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // hariiro_glass_playlist.js in Phase D1; the rules are the Round 14 drag matrix.
 // Needs include('hariiro_i18n.js') and include('hariiro_shared.js') first.
 // ownDrag = {active, guardUntil}: the panel's own DoDragDrop state.

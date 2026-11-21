@@ -1,4 +1,5 @@
 // Hariiro — read existing ESLyric-saved lyrics; never search online.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // Transparent display, configurable read-only directories and refresh watcher.
 'use strict';
 include('hariiro_shared.js');

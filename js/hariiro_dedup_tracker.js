@@ -1,4 +1,5 @@
 // Hariiro: per-playlist path baselines that let the sidebar remove the duplicate
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // copies an import just added (Round 13.2). Moved out of playlist_browser.js in Phase D1;
 // rules unchanged. The including panel loads hariiro_playlist_dedup.js first.
 // create(isOrdinary): isOrdinary(p) says which playlists are the user's own lists.

@@ -1,4 +1,5 @@
 // Hariiro: names and drag-origin helpers shared by several JS Panels.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // One definition for panel-variable keys, reserved playlist names and the
 // OLE origin marker format, so the sidebar and the Glass list cannot drift.
 'use strict';

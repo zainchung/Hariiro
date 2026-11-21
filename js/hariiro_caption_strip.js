@@ -1,4 +1,5 @@
 // Transparent interaction slot over empty Hariiro header space only.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 'use strict';
 function on_paint(){}
 // JS Panel pseudo-caption uses ROOT-window client coordinates. The ordinary

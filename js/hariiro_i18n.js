@@ -1,4 +1,5 @@
 // Hariiro: shared language dictionary for skin-owned labels and popup menus.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // Native foobar2000/ESLyric/JS Panel menu strings are controlled by their hosts.
 'use strict';
 var HariiroI18n=(function(){

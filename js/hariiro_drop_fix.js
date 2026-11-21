@@ -1,4 +1,5 @@
 // Hariiro: redirect for files dropped from OTHER programs (File Explorer).
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // Windows check (Round 15, foo_js_panel 1.9.0 + Panels UI, child or windowless
 // panels alike): for an external drop the panel gets on_drag_enter/over and then
 // on_drag_leave at release - never on_drag_drop - and foobar2000 appends the files

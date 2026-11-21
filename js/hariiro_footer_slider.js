@@ -1,4 +1,5 @@
 // Stage 3I.3 — seek slider previews position during drag and seeks only on release.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // The parent skin hosts this SAME script in two JS Panels: FooterVolume (windowless) and,
 // since Round 21, FooterSeek as a child window, so its animation does not redraw the layout.
 'use strict';

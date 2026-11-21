@@ -1,4 +1,5 @@
 // Compact fixed-endpoint GLASS/NATIVE switch. Neither panel can drift.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 'use strict';
 include('hariiro_shared.js');
 include('hariiro_theme.js');

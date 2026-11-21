@@ -1,4 +1,5 @@
 // Hariiro titlebar: a single hamburger settings menu, minimize, maximize and exit.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 'use strict';
 include('hariiro_shared.js');
 include('hariiro_i18n.js');

@@ -1,4 +1,5 @@
 // Hariiro accent palette. Controls use the same saved Panels UI variable.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // Round 22: an accent colour is a folder in <skin>\images\controls\ (with play.png), named
 // by the folder, like wallpapers. It holds the control and corner images; theme.json gives
 // {"hue": 0-359, "accent": "r-g-b"}. Without theme.json the colour is taken from play.png.

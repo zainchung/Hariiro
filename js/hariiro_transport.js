@@ -1,4 +1,5 @@
 // Hariiro V2 — transport graphics are transparent PNGs in ../images/controls.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // All playback icons, shuffle states and play/pause rings are raster resources.
 'use strict';
 const POS=[25,88,151,214,277,340,403];

@@ -1,4 +1,5 @@
 // Hariiro — optional ESLyric desktop-lyrics integration.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // This panel only triggers ESLyric's own foobar2000 main-menu commands.
 // It does not fetch/render desktop lyrics, write ESLyric settings, or assume
 // an absent or localized menu command was successfully executed.

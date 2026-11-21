@@ -1,4 +1,5 @@
 // Hariiro — unified artwork-side metadata flow.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // One paint pass owns all text positioning, avoiding independent TitleFormat
 // rectangles overlapping when a Japanese title or album wraps.
 'use strict';

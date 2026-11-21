@@ -1,4 +1,5 @@
 // Hariiro: registry of the sidebar's scratch views (the sorted / Artist working
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // playlists). Moved out of playlist_browser.js in Phase D1; rules unchanged.
 // Needs include('hariiro_i18n.js') and include('hariiro_shared.js') first. The registry is a
 // window property of the including panel (the sidebar), loaded once at include time.

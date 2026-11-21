@@ -1,4 +1,5 @@
 // Native playlist helper: draggable seek-to-track strip, not a replacement list.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // The original Single Column Playlist receives all normal mouse/keyboard/wheel input.
 // Panels UI does not expose its internal scroll pixel offset to a skin script;
 // dragging calls foobar2000's native EnsurePlaylistItemVisible API instead.

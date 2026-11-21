@@ -2,6 +2,7 @@
   "name": "hariiro",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "description": "Hariiro foobar2000 skin (Panels UI JS panels)",
   "scripts": {
     "test": "node tools/run_tests.mjs",

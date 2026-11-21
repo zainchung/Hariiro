@@ -1,4 +1,5 @@
 // Hariiro — compact QUEUE pill matched to DESK, with explicit open/closed state.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 'use strict';
 include('hariiro_shared.js');
 include('hariiro_theme.js');

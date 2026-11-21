@@ -1,4 +1,5 @@
 // Hariiro Stage 3J: long-title hover preview and distinct playing/selected states.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // Source interaction model: official foo_js_panel Playlist sample, adapted to grouped rows.
 // This file NEVER changes/overwrites user's native playlist or saved playlists.
 // MODE: GLASS is the current-mode label; click to toggle back to MODE: NATIVE.

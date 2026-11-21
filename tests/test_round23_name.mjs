@@ -15,6 +15,7 @@ const LOCAL_ONLY = new Set(['CLAUDE.local.md']); // machine notes, not committed
 
 function* walk(dir) {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
+    if (e.name === '.git') continue; // a directory, or a file pointing to it in a git worktree
     if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name)) yield* walk(join(dir, e.name)); }
     else yield join(dir, e.name);
   }

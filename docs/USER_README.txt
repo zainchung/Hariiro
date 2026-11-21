@@ -2,6 +2,9 @@ Hariiro — version 1.0.0 (Round 23, 2026-11-21)
 
 A transparent "glass" skin for foobar2000.
 
+License: MIT License (see LICENSE in this package). Copyright (c) 2026 zainchung.
+Covers the scripts, layout and all bundled images, including the wallpapers.
+
 Requirements
 - foobar2000 v2 (tested with 2.26.2)
 - Panels UI (reborn)

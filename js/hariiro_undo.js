@@ -1,4 +1,5 @@
 // Hariiro: a short "undo" notice for destructive actions (Round 17, Phase E2).
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // One pending action per panel; a newer one replaces it; it expires after DURATION ms.
 // The panel draws it at its bottom edge and routes clicks to hit() / undo().
 // create(repaint) uses window.SetTimeout / ClearTimeout of the including panel.

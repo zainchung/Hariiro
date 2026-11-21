@@ -1,4 +1,5 @@
 // Hariiro — frameless, vector icon navigation with a restrained rose active glow.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 'use strict';
 include('hariiro_shared.js');
 include('hariiro_i18n.js');

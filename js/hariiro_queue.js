@@ -1,4 +1,5 @@
 // Hariiro — real playback queue, transparent child-window JS Panel.
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // Requires JS Panel 1.6+ for queue APIs. A real child window receives its own
 // OLE drops (Round 15); HariiroDpi keeps it at the right size. No fake drag affordances.
 // The buffer playlist keeps queue references valid after the drop.

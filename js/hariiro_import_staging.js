@@ -1,4 +1,5 @@
 // Hariiro: the hidden staging playlist that receives files dropped on blank sidebar
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // space (Round 13). Moved out of playlist_browser.js in Phase D1; rules unchanged.
 // Needs include('hariiro_shared.js') first. The name is a window property of the including
 // panel (the sidebar), read once at include time.

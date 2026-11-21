@@ -1,4 +1,5 @@
 // Hariiro: lyric helpers without panel state (Round 18, Phase E1).
+// SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 //  - fileNames(): the file names ESLyric can be configured to save under.
 //  - singSeconds(): how long a line takes to sing, for LRC files with line stamps only.
 //  - createOffsets(): per-track timing offsets, kept in a window property of the panel.
