@@ -1,16 +1,16 @@
-// Anna Glass V2 — read existing ESLyric-saved lyrics; never search online.
+// Hariiro — read existing ESLyric-saved lyrics; never search online.
 // Transparent display, configurable read-only directories and refresh watcher.
 'use strict';
-include('anna_shared.js');
-include('anna_i18n.js');
-include('anna_theme.js');
-include('anna_lyric_tools.js');
-include('anna_dpi.js'); // Round 21: a child window (windowless = 0), see foo_ui_panels.ini
+include('hariiro_shared.js');
+include('hariiro_i18n.js');
+include('hariiro_theme.js');
+include('hariiro_lyric_tools.js');
+include('hariiro_dpi.js'); // Round 21: a child window (windowless = 0), see foo_ui_panels.ini
 
-const F_MAIN = AnnaDpi.font('Yu Gothic UI', 16, 0);
-const F_ACTIVE = AnnaDpi.font('Yu Gothic UI', 17, 1);
-const F_SMALL = AnnaDpi.font('Segoe UI', 11, 0);
-const F_HINT = AnnaDpi.font('Yu Gothic UI', 13, 0);
+const F_MAIN = HariiroDpi.font('Yu Gothic UI', 16, 0);
+const F_ACTIVE = HariiroDpi.font('Yu Gothic UI', 17, 1);
+const F_SMALL = HariiroDpi.font('Segoe UI', 11, 0);
+const F_HINT = HariiroDpi.font('Yu Gothic UI', 13, 0);
 // Enhanced LRC files may emit the SAME full lyric on many nearby timestamps.
 // Merge only adjacent, near-in-time identical lyrics; preserve distant repeats.
 const NEAR_DUP_SECONDS = 3.0;
@@ -24,7 +24,7 @@ const ACTIVE = 0xffffedf6;
 const PLAYED_NEAR = 0xffec85bb, PLAYED_FAR = 0xffb869a6;
 const FUTURE_NEAR = 0xffdce3f3, FUTURE_FAR = 0xffb6c3d9;
 
-let state = { kind: 'empty', lines: [], source: '', message: AnnaI18n.t('noLyrics') };
+let state = { kind: 'empty', lines: [], source: '', message: HariiroI18n.t('noLyrics') };
 let plainScroll = 0;
 let lastTrack = '';
 let lastDrawnCue = -2; // sentinel: initial paint not yet synchronized
@@ -38,7 +38,7 @@ let karaokeTimer=0;
 let smoothFocus=null, lastAnimTime=0, lastKaraokePaint=0;
 let searchPollTimer=0, searchPollRemaining=0;
 const SEARCH_POLL_INTERVAL_MS=900, SEARCH_POLL_MAX=85;
-const ESL_RELOAD_MENU_KEY='Anna.ESLyric.ReloadMenu.v1';
+const ESL_RELOAD_MENU_KEY='Hariiro.ESLyric.ReloadMenu.v1';
 const WATCH_INTERVAL_MS=4000;
 const TF_WEB_ARTIST=fb.TitleFormat('$if2(%artist%,$if2(%album artist%,))');
 const TF_WEB_TITLE=fb.TitleFormat('$if2(%title%,)');
@@ -46,7 +46,7 @@ const TF_ALBUM=fb.TitleFormat('[$meta(album)]');
 const TF_ALBUM_ARTIST=fb.TitleFormat('[$meta(album artist)]');
 const TF_TRACK=fb.TitleFormat('[$num(%tracknumber%,2)]');
 // Round 18: per-track timing offset (+ = lyrics earlier), set from the context menu.
-const trackOffsets=AnnaLyricTools.createOffsets('Anna.Lyrics.TrackOffsets.v1');
+const trackOffsets=HariiroLyricTools.createOffsets('Hariiro.Lyrics.TrackOffsets.v1');
 function lyricOffset(){return trackOffsets.get(lastTrack);}
 // Playback time on the lyrics' clock.
 function lyricNow(){return (Number(fb.PlaybackTime)||0)+lyricOffset();}
@@ -112,7 +112,7 @@ function parseLrc(src) {
             lastRawTime = cue.time;
         }
         if (timed.length !== lines.length)
-            console.log('Anna lyrics: merged nearby repeated cues ' + timed.length + ' -> ' + lines.length);
+            console.log('Hariiro lyrics: merged nearby repeated cues ' + timed.length + ' -> ' + lines.length);
         return { kind: 'synced', lines: lines.slice(0, 3000), rawCount: timed.length };
     }
     if (plain.length) return { kind: 'plain', lines: plain.slice(0, 3000) };
@@ -139,11 +139,11 @@ function embeddedLyrics(handle) {
             const p = parseLrc(v);
             if (p.kind !== 'empty') return { ...p, source: 'Embedded · lyrics' };
         }
-    } catch (e) { console.log('Anna lyrics: embedded metadata unavailable: ' + String(e)); }
+    } catch (e) { console.log('Hariiro lyrics: embedded metadata unavailable: ' + String(e)); }
     return null;
 }
 // Local file path of a track ('' for streams). Handles portable file-relative:// paths.
-function trackFilePath(path){return AnnaLyricTools.localPath(path,fb.FoobarPath);}
+function trackFilePath(path){return HariiroLyricTools.localPath(path,fb.FoobarPath);}
 function sidecars(trackPath) {
     const p = trackFilePath(trackPath);
     if (!p) return [];
@@ -155,8 +155,8 @@ function sidecars(trackPath) {
     if (folder) out.push(folder + 'lyrics.lrc', folder + 'lyrics.txt');
     return [...new Set(out)];
 }
-const EXTRA_FOLDERS_KEY='Anna.Lyrics.ExtraFolders.v1';
-const SAVE_LOCATION_KEY='Anna.Lyrics.SaveLocation.v1';
+const EXTRA_FOLDERS_KEY='Hariiro.Lyrics.ExtraFolders.v1';
+const SAVE_LOCATION_KEY='Hariiro.Lyrics.SaveLocation.v1';
 const SAVE_LOCATIONS=['tags','config','track','browse'];
 function lyricLocationMode(){
     const stored=norm(window.GetProperty(SAVE_LOCATION_KEY,'')).toLowerCase();
@@ -199,7 +199,7 @@ function extraLyricSidecars(handle) {
     const track=cleanLyricFilename(TF_TRACK.EvalWithMetadb(handle));
     // ESLyric's Filename field is independently configurable, so search the
     // common %title%, %artist% - %title%, audio stem, numbered and nested schemes.
-    const names=AnnaLyricTools.fileNames({artist,albumArtist,album,title,track,stem});
+    const names=HariiroLyricTools.fileNames({artist,albumArtist,album,title,track,stem});
     const files=[];
     for(const dir of savedLyricFolders(handle)){
         const root=dir.replace(/[\\/]+$/,'')+'\\';
@@ -208,13 +208,13 @@ function extraLyricSidecars(handle) {
     return [...new Set(files)].slice(0,200);
 }
 function readLyrics(handle) {
-    if (!handle) return { kind: 'empty', lines: [], source: '', message: AnnaI18n.t('lyricsNoPlaying') };
+    if (!handle) return { kind: 'empty', lines: [], source: '', message: HariiroI18n.t('lyricsNoPlaying') };
     const path = norm(handle.Path);
     // Follow the same four location modes shown by ESLyric, not a mixture
     // of every folder. Tags means audio metadata, not a disk directory.
     const mode=lyricLocationMode();
     if(mode==='tags')return embeddedLyrics(handle) ||
-        {kind:'empty',lines:[],source:'',message:AnnaI18n.t('lyricsNoTags')};
+        {kind:'empty',lines:[],source:'',message:HariiroI18n.t('lyricsNoTags')};
     const candidates=mode==='track'?
         [...sidecars(path),...extraLyricSidecars(handle)]:
         extraLyricSidecars(handle);
@@ -224,11 +224,11 @@ function readLyrics(handle) {
             const parsed = parseLrc(utils.ReadTextFile(candidate));
             if (parsed.kind !== 'empty') return { ...parsed,
                 source: candidate.toLowerCase().endsWith('.txt')?'Saved lyrics · TXT':'Saved lyrics · LRC', filePath: candidate };
-        } catch (e) { console.log('Anna lyrics: cannot read sidecar: ' + String(e)); }
+        } catch (e) { console.log('Hariiro lyrics: cannot read sidecar: ' + String(e)); }
     }
     const embedded = embeddedLyrics(handle);
     if (embedded) return embedded;
-    return { kind: 'empty', lines: [], source: '', message: AnnaI18n.t('lyricsNoLocal') };
+    return { kind: 'empty', lines: [], source: '', message: HariiroI18n.t('lyricsNoLocal') };
 }
 function lyricsFingerprint(result){
     if(!result)return '';
@@ -244,9 +244,9 @@ function reloadLyrics(){
         lastFingerprint=lyricsFingerprint(state);
         plainScroll=0;lastDrawnCue=-2;smoothFocus=null;lastAnimTime=0;
     }catch(e){
-        state={kind:'empty',lines:[],source:'',message:AnnaI18n.t('lyricsReadError')};
+        state={kind:'empty',lines:[],source:'',message:HariiroI18n.t('lyricsReadError')};
         lastFingerprint=lyricsFingerprint(state);
-        console.log('Anna lyrics: local read '+String(e));
+        console.log('Hariiro lyrics: local read '+String(e));
     }
     window.Repaint();
 }
@@ -267,7 +267,7 @@ function watchSavedLyrics(){
             // Only try ESLyric's non-toggle Reload command after an actual saved-file change.
             if(searchPollTimer){reloadESLyricDisplay(false);stopSearchPoll();}
         }
-    }catch(e){console.log('Anna lyrics watch: '+String(e));}
+    }catch(e){console.log('Hariiro lyrics watch: '+String(e));}
 }
 function currentIndex() {
     const lines = state.lines;
@@ -353,14 +353,14 @@ function paintKaraokeLine(gr,cue,index,x,y,w,h){
 }
 // Plain LRC has only [mm:ss] line-start stamps. The progress below is
 // deliberately an ESTIMATE, not exact karaoke timing. Round 18: it runs over the time
-// the line takes to sing (AnnaLyricTools.singSeconds), so a short line before a long
+// the line takes to sing (HariiroLyricTools.singSeconds), so a short line before a long
 // instrumental gap is not stretched over the gap; all glyphs are still revealed by the
 // next real timestamp.
 function paintEstimatedLine(gr,cue,index,x,y,w,h){
   const next=state.lines[index+1];
   const songEnd=Number(fb.PlaybackLength)||cue.time+6;
   const lineEnd=next&&Number.isFinite(next.time)?next.time:Math.max(cue.time+3,songEnd);
-  const finish=Math.min(lineEnd,cue.time+AnnaLyricTools.singSeconds(cue.text));
+  const finish=Math.min(lineEnd,cue.time+HariiroLyricTools.singSeconds(cue.text));
   const duration=Math.max(.1,finish-cue.time),now=lyricNow();
   const fraction=Math.max(0,Math.min(1,(now-cue.time)/duration));
   const font=F_ACTIVE,chars=Array.from(cue.text),groups=[[]];let width=0;
@@ -411,16 +411,16 @@ function shownFocus(){
  return smoothFocus;
 }
 function currentViewportStart(){
- const v=lyricViewport(AnnaDpi.height());
+ const v=lyricViewport(HariiroDpi.height());
  return Math.floor(shownFocus()-(v.centerY-v.top)/v.lineH);
 }
 function cueAtY(y){
- const v=lyricViewport(AnnaDpi.height());
+ const v=lyricViewport(HariiroDpi.height());
  return Math.max(0,Math.min(state.lines.length-1,
      Math.round(shownFocus()+(y-v.centerY)/v.lineH)));
 }
 function on_mouse_lbtn_down(x,y){
- const {top,bottom}=lyricViewport(AnnaDpi.height());
+ const {top,bottom}=lyricViewport(HariiroDpi.height());
  if(state.kind!=='synced'||y<top||y>=bottom||!fb.PlaybackLength)return;
  lyricDrag={y,first:cueAtY(y),moved:false};previewCue=-1;
 }
@@ -429,7 +429,7 @@ function on_mouse_move(x,y,mask){
  const delta=lyricDrag.y-y;
  if(Math.abs(delta)>DRAG_THRESHOLD_PX)lyricDrag.moved=true;
  if(!lyricDrag.moved)return;
- const {lineH}=lyricViewport(AnnaDpi.height());
+ const {lineH}=lyricViewport(HariiroDpi.height());
  const next=Math.max(0,Math.min(state.lines.length-1,
        lyricDrag.first+Math.round(delta/lineH)));
  if(next!==previewCue){previewCue=next;window.Repaint();}
@@ -479,15 +479,15 @@ function paintCue(gr,cue,index,focus,y,lineH,W,dragging){
             color,12,y+2,Math.max(1,W-24),lineH-5);
 }
 function on_paint(gr){
- gr=AnnaTheme.graphics(gr);
- const W=AnnaDpi.width(),H=AnnaDpi.height();
+ gr=HariiroTheme.graphics(gr);
+ const W=HariiroDpi.width(),H=HariiroDpi.height();
  if(W<4||H<4)return;
  if(state.kind==='empty'){
    lastDrawnCue=-1;
    gr.GdiDrawText(state.message,F_HINT,LIGHT,6,Math.max(36,H/2-26),W-12,32,DT_CENTER_SINGLE);
    if(fb.GetNowPlaying()){
-     gr.GdiDrawText(AnnaI18n.t('saveESLyric'),F_SMALL,MUTED,6,Math.max(63,H/2+12),W-12,23,DT_CENTER_SINGLE);
-     gr.GdiDrawText(AnnaI18n.t('lyricRightClickHint'),F_SMALL,MUTED,6,Math.max(85,H/2+35),W-12,23,DT_CENTER_SINGLE);
+     gr.GdiDrawText(HariiroI18n.t('saveESLyric'),F_SMALL,MUTED,6,Math.max(63,H/2+12),W-12,23,DT_CENTER_SINGLE);
+     gr.GdiDrawText(HariiroI18n.t('lyricRightClickHint'),F_SMALL,MUTED,6,Math.max(85,H/2+35),W-12,23,DT_CENTER_SINGLE);
    }
    return;
  }
@@ -500,7 +500,7 @@ function on_paint(gr){
    return;
  }
  const offset=lyricOffset();
- if(offset)gr.GdiDrawText(AnnaI18n.t('lyricOffset')+' '+offsetLabel(offset),F_SMALL,MUTED,6,6,W-12,20,0x8026);
+ if(offset)gr.GdiDrawText(HariiroI18n.t('lyricOffset')+' '+offsetLabel(offset),F_SMALL,MUTED,6,6,W-12,20,0x8026);
  syncSmoothFocus(false);
  const focus=previewCue>=0?previewCue:Math.max(0,currentIndex());
  const display=shownFocus();
@@ -518,7 +518,7 @@ function on_paint(gr){
    gr.DrawLine(10,y,W-10,y,1.8,0xffffcfe9);
    gr.FillRoundRect(8,H-37,W-16,28,8,8,0xbd41264e);
    gr.DrawRoundRect(8,H-37,W-16,28,8,8,1,0xfff4b9d8);
-   gr.GdiDrawText('↕ '+cueTime(state.lines[previewCue].time)+'  ·  '+AnnaI18n.t('lyricReleaseJump'),
+   gr.GdiDrawText('↕ '+cueTime(state.lines[previewCue].time)+'  ·  '+HariiroI18n.t('lyricReleaseJump'),
       F_SMALL,0xffffe6f4,13,H-34,W-26,22,DT_CENTER_SINGLE);
  }
 }
@@ -531,7 +531,7 @@ function selectLocationMode(mode){
 // ESLyric documents RequestLyric(title,artist) via its optional external JS COM API.
 // Some JS hosts implement ActiveXObject('ESLyric') as a compatibility stub; in that
 // case try a registered main-menu command, never claim search succeeded if absent.
-const ESL_SEARCH_MENU_KEY='Anna.ESLyric.LyricSearchMenu.v1';
+const ESL_SEARCH_MENU_KEY='Hariiro.ESLyric.LyricSearchMenu.v1';
 function stopSearchPoll(){
  if(searchPollTimer){window.ClearInterval(searchPollTimer);searchPollTimer=0;}
  searchPollRemaining=0;
@@ -543,19 +543,19 @@ function reloadESLyricDisplay(showError){
   'View/ESLyric/Panels/Reload lyric','View/ESLyric/Panels/Reload lyrics'];
  for(const path of [...new Set(commands.filter(Boolean))]){
    try{if(fb.RunMainMenuCommand(path)===true){
-     console.log('Anna lyrics: ESLyric refresh via '+path);return true;
-   }}catch(e){console.log('Anna lyrics: refresh failed '+path+' '+String(e));}
+     console.log('Hariiro lyrics: ESLyric refresh via '+path);return true;
+   }}catch(e){console.log('Hariiro lyrics: refresh failed '+path+' '+String(e));}
  }
- if(showError)fb.ShowPopupMessage(AnnaI18n.t('lyricsReloadMissing'),'Anna Lyrics');
+ if(showError)fb.ShowPopupMessage(HariiroI18n.t('lyricsReloadMissing'),'Hariiro Lyrics');
  return false;
 }
 function configureReloadMenu(){
  try{const old=norm(window.GetProperty(ESL_RELOAD_MENU_KEY,''));
-   const v=utils.InputBox(window.ID,AnnaI18n.t('lyricsReloadPrompt'),'ESLyric refresh path',old||'View/ESLyric/Reload lyric',true);
+   const v=utils.InputBox(window.ID,HariiroI18n.t('lyricsReloadPrompt'),'ESLyric refresh path',old||'View/ESLyric/Reload lyric',true);
    if(v!==null&&v!==undefined){const val=norm(v).trim();
      if(!val||/^View\/ESLyric\/[^\r\n]{3,180}$/i.test(val))window.SetProperty(ESL_RELOAD_MENU_KEY,val);
    }
- }catch(e){console.log('Anna lyrics: refresh menu configure '+String(e));}
+ }catch(e){console.log('Hariiro lyrics: refresh menu configure '+String(e));}
 }
 function startSearchPoll(){
  stopSearchPoll();searchPollRemaining=SEARCH_POLL_MAX;
@@ -568,7 +568,7 @@ function startSearchPoll(){
 
 function esLyricSearch(){
  if(!utils.CheckComponent('foo_uie_eslyric')){
-    fb.ShowPopupMessage(AnnaI18n.t('missingESLyric'),'Anna Lyrics');return false;
+    fb.ShowPopupMessage(HariiroI18n.t('missingESLyric'),'Hariiro Lyrics');return false;
  }
  // This exact static main-menu path opens the real Lyric Search WINDOW.
  // RequestLyric() only launches background retrieval and is not equivalent.
@@ -581,11 +581,11 @@ function esLyricSearch(){
          // Manual selection in ESLyric's own window does not notify JS Panel.
          // Watch saved local lyrics promptly, without claiming the desktop overlay is updated.
          startSearchPoll();
-         console.log('Anna lyrics: opened ESLyric search via '+path);return true;
+         console.log('Hariiro lyrics: opened ESLyric search via '+path);return true;
       }
-   }catch(e){console.log('Anna lyrics: search menu failed '+path+': '+String(e));}
+   }catch(e){console.log('Hariiro lyrics: search menu failed '+path+': '+String(e));}
  }
- fb.ShowPopupMessage(AnnaI18n.t('lyricsSearchWindowFailed'), 'Anna Lyrics');
+ fb.ShowPopupMessage(HariiroI18n.t('lyricsSearchWindowFailed'), 'Hariiro Lyrics');
  return false;
 }
 function requestLyricInBackground(){
@@ -597,30 +597,30 @@ function requestLyricInBackground(){
   const artist=norm(TF_WEB_ARTIST.EvalWithMetadb(playing)).trim();
   esl.RequestLyric(title,artist);
   return true;
- }catch(e){console.log('Anna lyrics: background request unavailable: '+String(e));return false;}
+ }catch(e){console.log('Hariiro lyrics: background request unavailable: '+String(e));return false;}
 }
 function configureSearchMenu(){
     try{
         const old=norm(window.GetProperty(ESL_SEARCH_MENU_KEY,''));
-        const v=utils.InputBox(window.ID,AnnaI18n.t('lyricsSearchPrompt'),'ESLyric lyric search',old||'View/ESLyric/Search...',true);
+        const v=utils.InputBox(window.ID,HariiroI18n.t('lyricsSearchPrompt'),'ESLyric lyric search',old||'View/ESLyric/Search...',true);
         if(v!==null&&v!==undefined){
             const cmd=norm(v).trim();
-            if(cmd&&!/^View\/ESLyric\/[^\r\n]{3,180}$/i.test(cmd)){fb.ShowPopupMessage(AnnaI18n.t('lyricsInvalidMenu'),'Anna Lyrics');return;}
+            if(cmd&&!/^View\/ESLyric\/[^\r\n]{3,180}$/i.test(cmd)){fb.ShowPopupMessage(HariiroI18n.t('lyricsInvalidMenu'),'Hariiro Lyrics');return;}
             window.SetProperty(ESL_SEARCH_MENU_KEY,cmd);
         }
-    }catch(e){console.log('Anna lyrics: search-menu input '+String(e));}
+    }catch(e){console.log('Hariiro lyrics: search-menu input '+String(e));}
 }
 // Reveal the actual file that supplied the currently visible lyrics.
 // Embedded tag lyrics have no separate file and are reported as such.
 function openCurrentLyricsLocation(){
   const path=norm(state.filePath||'');
   if(!path){
-    fb.ShowPopupMessage(state.kind==='empty'?AnnaI18n.t('lyricsMissing'):AnnaI18n.t('lyricsEmbedded'),'Anna Lyrics');
+    fb.ShowPopupMessage(state.kind==='empty'?HariiroI18n.t('lyricsMissing'):HariiroI18n.t('lyricsEmbedded'),'Hariiro Lyrics');
     return false;
   }
   // Never pass an unvalidated shell command or path to explorer.
   if(!/^(?:[A-Za-z]:[\\/]|\\\\)/.test(path)||/["\r\n]/.test(path)){
-    fb.ShowPopupMessage(AnnaI18n.t('lyricsPathInvalid'),'Anna Lyrics');
+    fb.ShowPopupMessage(HariiroI18n.t('lyricsPathInvalid'),'Hariiro Lyrics');
     return false;
   }
   try{
@@ -628,52 +628,52 @@ function openCurrentLyricsLocation(){
     const check=typeof utils.IsFile==='function'?utils.IsFile(path):
         typeof utils.FileTest==='function'?!!utils.FileTest(path,'e'):
         typeof utils.FileExists==='function'?utils.FileExists(path):true;
-    if(!check){fb.ShowPopupMessage(AnnaI18n.t('lyricsNoFiles'),'Anna Lyrics');return false;}
+    if(!check){fb.ShowPopupMessage(HariiroI18n.t('lyricsNoFiles'),'Hariiro Lyrics');return false;}
     let launched=false;
     if(typeof utils.Run==='function')launched=utils.Run('explorer.exe','/select,"'+path+'"')!==false;
     else if(typeof ActiveXObject==='function'){
        const shell=new ActiveXObject('WScript.Shell');
        shell.Run('explorer.exe /select,"'+path+'"',1,false);launched=true;
     }
-    if(!launched)throw new Error(AnnaI18n.t('lyricsExplorerUnsupported'));
+    if(!launched)throw new Error(HariiroI18n.t('lyricsExplorerUnsupported'));
     return true;
   }catch(e){
-    console.log('Anna lyrics: reveal failed '+String(e));
-    fb.ShowPopupMessage(AnnaI18n.t('lyricsExplorerFailed')+'：'+String(e),'Anna Lyrics');
+    console.log('Hariiro lyrics: reveal failed '+String(e));
+    fb.ShowPopupMessage(HariiroI18n.t('lyricsExplorerFailed')+'：'+String(e),'Hariiro Lyrics');
     return false;
   }
 }
 function on_mouse_rbtn_up(x,y) {
     const m=window.CreatePopupMenu();
-    m.AppendMenuItem(0,1,AnnaI18n.t('lyricReload'));
-    m.AppendMenuItem(0,7,AnnaI18n.t('lyricLocate'));
-    m.AppendMenuItem(0,2,AnnaI18n.t('lyricSearch'));
-    m.AppendMenuItem(0,3,AnnaI18n.t('lyricSearchConfig'));
-    m.AppendMenuItem(0,4,AnnaI18n.t('lyricRequest'));
-    m.AppendMenuItem(0,5,AnnaI18n.t('lyricRefresh'));
-    m.AppendMenuItem(0,6,AnnaI18n.t('lyricRefreshConfig'));
+    m.AppendMenuItem(0,1,HariiroI18n.t('lyricReload'));
+    m.AppendMenuItem(0,7,HariiroI18n.t('lyricLocate'));
+    m.AppendMenuItem(0,2,HariiroI18n.t('lyricSearch'));
+    m.AppendMenuItem(0,3,HariiroI18n.t('lyricSearchConfig'));
+    m.AppendMenuItem(0,4,HariiroI18n.t('lyricRequest'));
+    m.AppendMenuItem(0,5,HariiroI18n.t('lyricRefresh'));
+    m.AppendMenuItem(0,6,HariiroI18n.t('lyricRefreshConfig'));
     m.AppendMenuSeparator();
     // Round 18: timing offset for this track (only meaningful for timed lyrics).
     const offsetFlags=state.kind==='synced'&&lastTrack?0:1; // MF_GRAYED
-    m.AppendMenuItem(offsetFlags,30,AnnaI18n.t('lyricEarlier'));
-    m.AppendMenuItem(offsetFlags,31,AnnaI18n.t('lyricLater'));
-    m.AppendMenuItem(offsetFlags,32,AnnaI18n.t('lyricOffsetReset')+' ('+offsetLabel(lyricOffset())+')');
+    m.AppendMenuItem(offsetFlags,30,HariiroI18n.t('lyricEarlier'));
+    m.AppendMenuItem(offsetFlags,31,HariiroI18n.t('lyricLater'));
+    m.AppendMenuItem(offsetFlags,32,HariiroI18n.t('lyricOffsetReset')+' ('+offsetLabel(lyricOffset())+')');
     m.AppendMenuSeparator();
     const selected=lyricLocationMode();
     const labels=[
-        AnnaI18n.t('lyricTags'),
-        AnnaI18n.t('lyricConfig'),
-        AnnaI18n.t('lyricTrack'),
-        AnnaI18n.t('lyricBrowse') 
+        HariiroI18n.t('lyricTags'),
+        HariiroI18n.t('lyricConfig'),
+        HariiroI18n.t('lyricTrack'),
+        HariiroI18n.t('lyricBrowse') 
     ];
     for(let i=0;i<labels.length;i++)
         m.AppendMenuItem(0,20+i,(selected===SAVE_LOCATIONS[i]?'✓ ':'   ')+labels[i]);
-    const cmd=AnnaDpi.popup(m,x,y);
+    const cmd=HariiroDpi.popup(m,x,y);
     if(cmd===1){reloadLyrics();return true;}
     if(cmd===7){openCurrentLyricsLocation();return true;}
     if(cmd===2){esLyricSearch();return true;}
     if(cmd===3){configureSearchMenu();return true;}
-    if(cmd===4){if(!requestLyricInBackground())fb.ShowPopupMessage(AnnaI18n.t('lyricsNoBackground'),'Anna Lyrics');return true;}
+    if(cmd===4){if(!requestLyricInBackground())fb.ShowPopupMessage(HariiroI18n.t('lyricsNoBackground'),'Hariiro Lyrics');return true;}
     if(cmd===5){reloadESLyricDisplay(true);reloadLyrics();return true;}
     if(cmd===6){configureReloadMenu();return true;}
     if(cmd>=20&&cmd<=22)return selectLocationMode(SAVE_LOCATIONS[cmd-20]);
@@ -687,24 +687,24 @@ function on_mouse_rbtn_up(x,y) {
         try{
             const previous=norm(window.GetProperty(EXTRA_FOLDERS_KEY,''));
             const chosen=utils.InputBox(window.ID,
-                AnnaI18n.t('lyricsFolderPrompt'),
-                AnnaI18n.t('lyricsFolderTitle'),previous,true);
+                HariiroI18n.t('lyricsFolderPrompt'),
+                HariiroI18n.t('lyricsFolderTitle'),previous,true);
             if(chosen!==null&&chosen!==undefined){
                 const value=norm(chosen).trim().slice(0,3000);
                 const dirs=value.split(/[;\r\n]+/).map(v=>v.trim()).filter(Boolean);
                 if(dirs.length&&dirs.every(d=>/^(?:[A-Za-z]:[\\/]|\\\\)/.test(d))){
                     window.SetProperty(EXTRA_FOLDERS_KEY,value);
                     selectLocationMode('browse');
-                }else console.log('Anna lyrics: an absolute lyric save folder is required');
+                }else console.log('Hariiro lyrics: an absolute lyric save folder is required');
             }
-        }catch(e){console.log('Anna lyrics: Browse input '+String(e));}
+        }catch(e){console.log('Hariiro lyrics: Browse input '+String(e));}
         return true;
     }
     return true;
 }
 function on_mouse_wheel(step){
     if(state.kind!=='plain')return;
-    const {visible}=lyricViewport(AnnaDpi.height());
+    const {visible}=lyricViewport(HariiroDpi.height());
     plainScroll=Math.max(0,Math.min(Math.max(0,state.lines.length-visible),plainScroll-step*2));
     window.Repaint();
 }
@@ -740,8 +740,8 @@ function on_script_unload(){
 }
 
 function on_panelsui_variable_changed(name){
- if(name===AnnaShared.PVAR.language){reloadLyrics();return;}
- if(name===AnnaShared.PVAR.themeHue)window.Repaint();
+ if(name===HariiroShared.PVAR.language){reloadLyrics();return;}
+ if(name===HariiroShared.PVAR.themeHue)window.Repaint();
 }
 
 // Lyrics are display-only. Explicitly reject OLE data so dragged playlist
@@ -752,4 +752,4 @@ function on_drag_drop(action){action.Effect=0;}
 function on_drag_leave(){}
 
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
-AnnaDpi.install();
+HariiroDpi.install();

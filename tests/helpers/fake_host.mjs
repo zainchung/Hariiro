@@ -6,7 +6,7 @@
 //
 //   const host = createHost({ playlists: [{ name: 'A', items: [h('a.flac')] }] });
 //   const ctx = panelContext(host);                 // vm context with the include shim
-//   run(ctx, "include('anna_shared.js');");          // or runScript(ctx, 'js/x.js')
+//   run(ctx, "include('hariiro_shared.js');");          // or runScript(ctx, 'js/x.js')
 //   host.state.playlists[0].items                    // inspect / change state directly
 import vm from 'node:vm';
 import { read, installIncludeShim } from './js_panel.mjs';

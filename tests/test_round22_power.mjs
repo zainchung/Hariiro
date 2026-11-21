@@ -13,7 +13,7 @@ const host = createHost({ overrides: {
   gdi: { CreateImage: image },
   window: { Width: 183, Height: 31, NotifyOthers() {} } } });
 const ctx = panelContext(host);
-runScript(ctx, 'js/anna_top_chrome.js');
+runScript(ctx, 'js/hariiro_top_chrome.js');
 const paint = () => { const calls = []; ctx.on_paint(recorder(calls)); return calls; };
 
 const first = paint();

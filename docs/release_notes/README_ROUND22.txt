@@ -1,7 +1,7 @@
-Anna Glass V2 — Round 22 (2026-11-21)
+Hariiro — Round 22 (2026-11-21)
 
-- New bundled wallpapers: "Anna_GLASS_UI_2560x1440" (night lake, 2560x1440,
-  default) and "Anna_GLASS_UI2_2560x1440" (cherry-blossom tea terrace).
+- New bundled wallpapers: "Hariiro_UI_2560x1440" (night lake, 2560x1440,
+  default) and "Hariiro_UI2_2560x1440" (cherry-blossom tea terrace).
 - Accent colours work like wallpapers: every folder in images\controls is a
   colour, listed by its folder name. Copy a folder, change its pictures and
   theme.json, and it appears in menu ☰ → Accent colour.

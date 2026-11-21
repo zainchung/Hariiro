@@ -7,8 +7,8 @@ import { createHost, panelContext, run, runScript } from './helpers/fake_host.mj
 
 // ---- Accent presets ---------------------------------------------------------------------
 const host = createHost(), ctx = panelContext(host);
-run(ctx, "include('anna_i18n.js');include('anna_theme.js');");
-const T = ctx.AnnaTheme, ids = [...T.PRESETS.map(p => p.id)];
+run(ctx, "include('hariiro_i18n.js');include('hariiro_theme.js');");
+const T = ctx.HariiroTheme, ids = [...T.PRESETS.map(p => p.id)];
 // Round 22: presets are the bundled colour folders, by name (labels are folder names).
 assert.deepEqual(ids, ['amber', 'blue', 'mint', 'pink', 'teal', 'violet']);
 for (const p of T.PRESETS) { assert.equal(p.label, p.id); assert.match(p.accent, /^\d{1,3}-\d{1,3}-\d{1,3}$/); }
@@ -35,7 +35,7 @@ assert(fs.existsSync(root + '/tools/make_accent_palette.py'), 'the variants can 
 const main = read('main.txt');
 
 // ---- Wallpaper choice -------------------------------------------------------------------
-const SKIN = 'C:\\fb\\profile\\foo_ui_panels-skins\\Anna_Glass\\';
+const SKIN = 'C:\\fb\\profile\\foo_ui_panels-skins\\Hariiro\\';
 const globs = [];
 const files = {
   'C:\\fb\\profile\\foo_ui_panels-skins\\*': ['C:\\fb\\profile\\foo_ui_panels-skins\\Other', SKIN.slice(0, -1)],
@@ -44,14 +44,14 @@ const files = {
 let menuPick = 0;
 const appended = [];
 const menu = () => ({ AppendMenuItem: (f, id, text) => appended.push([id, text, f]), AppendMenuSeparator() {}, AppendTo() {}, TrackPopupMenu: () => menuPick });
-const h2 = createHost({ vars: { 'anna.glass.v2.wallpaper': 'wallpapers/wallpaper.jpg' }, overrides: {
+const h2 = createHost({ vars: { 'hariiro.wallpaper': 'wallpapers/wallpaper.jpg' }, overrides: {
   fb: { ProfilePath: 'C:\\fb\\profile\\' },
   utils: { Glob: p => { globs.push(p); return (files[p] || []).slice(); },
-    IsFile: p => p === SKIN + 'js\\anna_top_chrome.js' },
+    IsFile: p => p === SKIN + 'js\\hariiro_top_chrome.js' },
   window: { Width: 183, Height: 31, CreatePopupMenu: menu, NotifyOthers() {} },
 } });
 const chrome = panelContext(h2);
-runScript(chrome, 'js/anna_top_chrome.js');
+runScript(chrome, 'js/hariiro_top_chrome.js');
 const list = [...chrome.wallpaperChoices()];
 // Round 21: no built-in entry; images by name. The saved wallpaper.jpg no longer exists here,
 // so the first image was chosen on load (see test_round21_perf).
@@ -62,17 +62,17 @@ chrome.settingsMenu(10, 10);
 const night = appended.find(([, text]) => text.includes('Night Sky'));
 assert(night, 'wallpaper submenu lists the images'); assert(appended.some(([, t]) => t.startsWith('✓') && t.includes('dawn')));
 menuPick = night[0]; chrome.settingsMenu(10, 10);
-assert.equal(h2.state.vars.get('anna.glass.v2.wallpaper'), 'wallpapers/Night Sky.jpg');
+assert.equal(h2.state.vars.get('hariiro.wallpaper'), 'wallpapers/Night Sky.jpg');
 // Only names from the list are accepted.
 assert.equal(chrome.setWallpaper('..\\..\\evil.jpg'), false);
 assert.equal(chrome.setWallpaper('wallpapers/missing.jpg'), false);
-assert.equal(h2.state.vars.get('anna.glass.v2.wallpaper'), 'wallpapers/Night Sky.jpg');
+assert.equal(h2.state.vars.get('hariiro.wallpaper'), 'wallpapers/Night Sky.jpg');
 assert.equal(chrome.setWallpaper('wallpapers/wallpaper.jpg'), false); // Round 21: not in this folder
 assert.equal(chrome.setWallpaper('wallpapers/dawn.PNG'), true);
 // main.txt draws the chosen file, falling back to the bundled one.
-assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/Anna_GLASS_UI_2560x1440.png))'));
+assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(hariiro.wallpaper),wallpapers/Hariiro_UI_2560x1440.png))'));
 assert(fs.existsSync(root + '/images/wallpapers/README.md'), 'folder exists in the package with a note');
 // The menu hint names the folder with its separator (Windows check found "imageswallpapers").
 for (const lang of ['en', 'zh-CN', 'zh-TW', 'ja'])
-  assert(ctx.AnnaI18n.dict[lang].wallpaperHint.includes('images\\wallpapers'), lang);
+  assert(ctx.HariiroI18n.dict[lang].wallpaperHint.includes('images\\wallpapers'), lang);
 console.log('test_round19_theme: ok');

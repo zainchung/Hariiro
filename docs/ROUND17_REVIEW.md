@@ -14,7 +14,7 @@ bottom edge with an **Undo** button for 8 seconds. A newer action replaces the o
   them (foobar2000's API can only append to the queue).
 - Switching the sidebar to the Artists tab drops the notice.
 
-New module `js/anna_undo.js` (`AnnaUndo.create(repaint)`): one pending action per panel,
+New module `js/hariiro_undo.js` (`HariiroUndo.create(repaint)`): one pending action per panel,
 notice/button layout, hit test, painting.
 
 ## Tests

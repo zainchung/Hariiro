@@ -10,11 +10,11 @@ const library=[{Path:'artist1.flac'},{Path:'artist2.mp3'}];
 const records=[
  {name:'User A',items:[{Path:'a.flac'},{Path:'b.flac'}]},
  {name:'User B',items:[{Path:'c.flac'}]},
- {name:'Anna - Favorites',items:[{Path:'fav.flac'}]},
- {name:'Anna - Search Results',items:[{Path:'search.flac'}]}
+ {name:'Hariiro - Favorites',items:[{Path:'fav.flac'}]},
+ {name:'Hariiro - Search Results',items:[{Path:'search.flac'}]}
 ];
-const vars=new Map([['anna.nav.mode','library'],['anna.sidebar.editable.name','User A'],
- ['anna.search.results.name','Anna - Search Results'],['anna.search.results.owned','["Anna - Search Results"]'],['anna.theme.hue','rose']]);
+const vars=new Map([['hariiro.nav.mode','library'],['hariiro.sidebar.editable.name','User A'],
+ ['hariiro.search.results.name','Hariiro - Search Results'],['hariiro.search.results.owned','["Hariiro - Search Results"]'],['hariiro.theme.hue','rose']]);
 let active=0,selected=[0,1],imports=[],queue=[],createCount=0,moveCount=0,dragStarts=0;
 const callbacks=[]; const panels=new Map();
 const plman={
@@ -35,7 +35,7 @@ const plman={
 let sourceTarget=null,sourceDropOn=null;
 function doNativeDrop(_id,handles){
  dragStarts++;
- const target=panels.get(sourceTarget||'AnnaQueue');
+ const target=panels.get(sourceTarget||'HariiroQueue');
  const loc=sourceDropOn||{x:15,y:75};
  const a={Effect:1};target.on_drag_enter(a,loc.x,loc.y);target.on_drag_over(a,loc.x,loc.y);
  if(a.Effect===0)return;
@@ -53,7 +53,7 @@ const fb={TitleFormat(){return {EvalWithMetadb:()=>'',EvalWithMetadbs:hs=>hs.Con
  ShowPopupMessage(){throw Error('unexpected popup')},RunMainMenuCommand(){return true}};
 let timeCounter=0;const timers=new Map();const props=new Map(),captionAreas=[];
 function makePanel(name,extras={}){
- const w=name==='Playlists'?196:name==='GlassPlaylist'?620:name==='AnnaQueue'?330:420;
+ const w=name==='Playlists'?196:name==='GlassPlaylist'?620:name==='HariiroQueue'?330:420;
  const win={ID:name,Width:w,Height:450,IsVisible:true,Repaint(){},
   GetProperty:(key,def)=>props.get(name+':'+key)??def,SetProperty:(key,v)=>props.set(name+':'+key,v),
   SetTimeout(fn){const id=++timeCounter;timers.set(id,fn);return id},ClearTimeout(id){timers.delete(id)},
@@ -65,16 +65,16 @@ function makePanel(name,extras={}){
  ctx.include=file=>vm.runInContext(source('js/'+file),ctx);panels.set(name,ctx);return ctx;
 }
 const sidebar=makePanel('Playlists');vm.runInContext(source('js/playlist_browser.js'),sidebar);
-const glass=makePanel('GlassPlaylist');vm.runInContext(source('js/anna_glass_playlist.js'),glass);
-const q=makePanel('AnnaQueue');vm.runInContext(source('js/anna_queue.js'),q);
+const glass=makePanel('GlassPlaylist');vm.runInContext(source('js/hariiro_glass_playlist.js'),glass);
+const q=makePanel('HariiroQueue');vm.runInContext(source('js/hariiro_queue.js'),q);
 const yOf=(name)=>{const i=sidebar.entries().findIndex(r=>r.name===name);assert(i>=0,name);return 8+30*i+14};
 const startLeft=(name,from=50)=>{const y=yOf(name);sidebar.on_mouse_lbtn_down(from,y);sidebar.on_mouse_move(from+64,y,1)};
 // 1. Pinned rows are read-only targets, but can export their tracks to Queue.
-sourceTarget='AnnaQueue';sourceDropOn={x:25,y:110};
+sourceTarget='HariiroQueue';sourceDropOn={x:25,y:110};
 for(const [name,expected] of [
  ['Music Library',['artist1.flac','artist2.mp3']],
- ['Anna - Favorites',['fav.flac']],
- ['Anna - Search Result',['search.flac']]
+ ['Hariiro - Favorites',['fav.flac']],
+ ['Hariiro - Search Result',['search.flac']]
 ]){
  const old=dragStarts,oldQueue=queue.length;
  startLeft(name);
@@ -84,15 +84,15 @@ for(const [name,expected] of [
 }
 const pinnedDragCount=dragStarts;
 // A pinned source with no tracks must not open a native drag session.
-const favRecord=records[plman.FindPlaylist('Anna - Favorites')];
+const favRecord=records[plman.FindPlaylist('Hariiro - Favorites')];
 const originalFavorites=favRecord.items.slice();favRecord.items.length=0;
-startLeft('Anna - Favorites');assert.equal(dragStarts,pinnedDragCount);
+startLeft('Hariiro - Favorites');assert.equal(dragStarts,pinnedDragCount);
 favRecord.items.push(...originalFavorites);
 // A pinned source cannot be reordered within the sidebar.
 const moveBefore=moveCount;
-sidebar.on_mouse_lbtn_down(55,yOf('Anna - Favorites'));
-sidebar.on_mouse_move(55,yOf('Anna - Favorites')+35,1);
-sidebar.on_mouse_lbtn_up(55,yOf('Anna - Favorites')+35);
+sidebar.on_mouse_lbtn_down(55,yOf('Hariiro - Favorites'));
+sidebar.on_mouse_move(55,yOf('Hariiro - Favorites')+35,1);
+sidebar.on_mouse_lbtn_up(55,yOf('Hariiro - Favorites')+35);
 assert.equal(moveCount,moveBefore);assert.equal(dragStarts,pinnedDragCount);
 // Fixed-row clicks can activate a sorted media-library view; disregard that
 // legitimate scratch-view refresh when counting unsolicited drag insertions.
@@ -103,7 +103,7 @@ startLeft('User A');assert.equal(imports.length,importBaseline);assert.equal(dra
 sourceTarget='GlassPlaylist';sourceDropOn={x:44,y:190};
 startLeft('User A');assert.equal(imports.length,importBaseline);assert.equal(dragStarts,pinnedDragCount+2);
 // Left regular -> queue adds *all* tracks, with no user-list mutation.
-sourceTarget='AnnaQueue';sourceDropOn={x:25,y:110};
+sourceTarget='HariiroQueue';sourceDropOn={x:25,y:110};
 startLeft('User A');assert.deepEqual(queue.slice(-2).map(x=>x.Path),['a.flac','b.flac']);
 assert.equal(records[0].items.length,2);
 // Artist sources can still add all tracks to Queue.
@@ -117,7 +117,7 @@ sidebar.on_mouse_lbtn_down(55,ypos);sidebar.on_mouse_move(55,ypos+30,1);sidebar.
 assert.equal(dragStarts,n);assert.equal(imports.length,importBaseline+2); // two Queue drops beyond baseline
 // 2. Glass selected track batch -> normal sidebar (valid); pinned & artist reject.
 sourceTarget='Playlists';sourceDropOn={x:35,y:yOf('User B')};
-selected=[0,1];active=plman.FindPlaylist('User A');vars.set('anna.sidebar.editable.name','User A');vars.set('anna.drag.origin','');
+selected=[0,1];active=plman.FindPlaylist('User A');vars.set('hariiro.sidebar.editable.name','User A');vars.set('hariiro.drag.origin','');
 vm.runInContext('downAt={x:250,y:180,i:0,deferred:false};',glass);
 glass.on_mouse_move(305,180,1);
 assert.deepEqual(records[1].items.map(x=>x.Path),['c.flac','a.flac','b.flac']);
@@ -126,7 +126,7 @@ const before=imports.length;sourceTarget='GlassPlaylist';sourceDropOn={x:190,y:2
 vm.runInContext('downAt={x:250,y:180,i:0,deferred:false};',glass);
 glass.on_mouse_move(300,180,1);assert.equal(imports.length,before);
 // Pinned and Artist targets reject; no new playlist created.
-sourceTarget='Playlists';sourceDropOn={x:40,y:yOf('Anna - Favorites')};
+sourceTarget='Playlists';sourceDropOn={x:40,y:yOf('Hariiro - Favorites')};
 vm.runInContext('downAt={x:250,y:180,i:0,deferred:false};',glass);glass.on_mouse_move(300,180,1);
 assert.equal(imports.length,before);
 vm.runInContext("mode='artists';artists=[{name:'Artist 1',indices:[0,1]}];",sidebar);
@@ -135,7 +135,7 @@ vm.runInContext('downAt={x:250,y:180,i:0,deferred:false};',glass);glass.on_mouse
 assert.equal(imports.length,before);
 // 3. External files target ordinary, fixed prohibited, Artist prohibited.
 vm.runInContext("mode='playlists'",sidebar);
-vars.set('anna.drag.origin','');
+vars.set('hariiro.drag.origin','');
 const fixed={Effect:1};sidebar.on_drag_over(fixed,40,yOf('Music Library'));assert.equal(fixed.Effect,0);
 const artistMode={Effect:1};vm.runInContext("mode='artists'",sidebar);sidebar.on_drag_over(artistMode,40,22);assert.equal(artistMode.Effect,0);
 vm.runInContext("mode='playlists'",sidebar);
@@ -146,24 +146,24 @@ const createdBefore=createCount;const empty={Effect:0};sidebar.on_drag_drop(empt
 assert.equal(empty.Effect,1);assert.equal(createCount,createdBefore+1);
 assert.equal(sidebar.entries().some(r=>r.name.includes('Import Staging')),false);
 // The playlist name is localised (host locale may be ja/zh), so compare with the i18n string.
-const importedTracksName=sidebar.AnnaI18n.t('importedPlaylistName');
+const importedTracksName=sidebar.HariiroI18n.t('importedPlaylistName');
 assert.equal(sidebar.entries().some(r=>r.name.startsWith(importedTracksName)),false);
 // Stage receives audio: once idle, a normal playlist is created and focused.
 plman.InsertPlaylistItems(empty.Playlist,0,mkHandles([{Path:'imported.flac'}]));sidebar.on_playlist_items_added(empty.Playlist);
 for(const [k,fn] of [...timers]){timers.delete(k);if(typeof fn==='function')fn();}
 assert.equal(sidebar.entries().some(r=>r.name.startsWith(importedTracksName)),true);
-assert.equal(records[plman.FindPlaylist('Anna - Import Staging')].items.length,0);
+assert.equal(records[plman.FindPlaylist('Hariiro - Import Staging')].items.length,0);
 // Centre mode: only a regular playlist allows file/dir imports.
-vars.set('anna.nav.mode','library');vars.set('anna.sidebar.editable.name','User A');active=plman.FindPlaylist('User A');vm.runInContext('localGlassGuardUntil=0;',glass);
+vars.set('hariiro.nav.mode','library');vars.set('hariiro.sidebar.editable.name','User A');active=plman.FindPlaylist('User A');vm.runInContext('localGlassGuardUntil=0;',glass);
 let a={Effect:0};glass.on_drag_over(a,40,120);assert.equal(a.Effect,1);
-vars.set('anna.nav.mode','artists');a={Effect:1};glass.on_drag_over(a,40,120);assert.equal(a.Effect,0);
-vars.set('anna.nav.mode','library');vars.set('anna.sidebar.editable.name','Anna - Favorites');active=plman.FindPlaylist('Anna - Favorites');a={Effect:1};glass.on_drag_over(a,40,120);assert.equal(a.Effect,0);
+vars.set('hariiro.nav.mode','artists');a={Effect:1};glass.on_drag_over(a,40,120);assert.equal(a.Effect,0);
+vars.set('hariiro.nav.mode','library');vars.set('hariiro.sidebar.editable.name','Hariiro - Favorites');active=plman.FindPlaylist('Hariiro - Favorites');a={Effect:1};glass.on_drag_over(a,40,120);assert.equal(a.Effect,0);
 // 4. Host routing/caption/assets/paint stacking.
 // Round 15 reversed Round 13's windowless routing: Panels UI misrouted drops.
-for(const name of ['Playlists','GlassPlaylist','AnnaQueue'])
+for(const name of ['Playlists','GlassPlaylist','HariiroQueue'])
  assert(source('foo_ui_panels.ini').includes(`panel.${name}.windowless = 0`));
 assert(captionAreas.length===0);
-const cap=makePanel('CaptionStrip',{Width:398});vm.runInContext(source('js/anna_caption_strip.js'),cap);
+const cap=makePanel('CaptionStrip',{Width:398});vm.runInContext(source('js/hariiro_caption_strip.js'),cap);
 assert.deepEqual(captionAreas.at(-1),[367,4,398,37]);
 const main=source('main.txt');assert(main.indexOf('$panel(DesktopLyrics,JS Panel')>main.indexOf('$drawrect(16,$eval(%_height% - 113)'));
 assert(main.indexOf('$panel(DesktopLyrics,JS Panel')<main.indexOf('$panel(FooterQueueToggle,JS Panel'));

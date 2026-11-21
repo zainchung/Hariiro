@@ -1,10 +1,10 @@
-// Anna Glass V2 — unified artwork-side metadata flow.
+// Hariiro — unified artwork-side metadata flow.
 // One paint pass owns all text positioning, avoiding independent TitleFormat
 // rectangles overlapping when a Japanese title or album wraps.
 'use strict';
-include('anna_shared.js');
-include('anna_i18n.js');
-include('anna_theme.js');
+include('hariiro_shared.js');
+include('hariiro_i18n.js');
+include('hariiro_theme.js');
 const TITLE=gdi.Font('Yu Gothic UI',15,1);
 const ARTIST=gdi.Font('Yu Gothic UI',12,1);
 const OTHER=gdi.Font('Yu Gothic UI',11,0);
@@ -47,10 +47,10 @@ function wrapLines(gr,text,font,width,limit){
     return lines.slice(0,limit);
 }
 function on_paint(gr){
- gr=AnnaTheme.graphics(gr);
+ gr=HariiroTheme.graphics(gr);
     const w=window.Width,h=window.Height;if(w<30||h<30)return;
     const handle=fb.GetNowPlaying();
-    if(!handle){gr.GdiDrawText(AnnaI18n.t('notPlaying'),TITLE,COLOR_TITLE,1,1,w-2,35,DT);return;}
+    if(!handle){gr.GdiDrawText(HariiroI18n.t('notPlaying'),TITLE,COLOR_TITLE,1,1,w-2,35,DT);return;}
     let y=2;
     function write(text,font,color,cap,rowH,limit=1){
         if(!text)return;
@@ -82,4 +82,4 @@ function on_size(){window.Repaint();}
 
 function on_mouse_rbtn_up(){return true;}
 
-function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}

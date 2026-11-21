@@ -3,13 +3,13 @@
 // host misroutes a drop - the target panel gets on_drag_leave instead of
 // on_drag_drop and foobar2000 inserts the tracks into the ACTIVE playlist.
 // Real child windows (windowless = 0) receive on_drag_drop, but get physical
-// pixels, so the panels draw at half size at 200% DPI. AnnaDpi scales them.
+// pixels, so the panels draw at half size at 200% DPI. HariiroDpi scales them.
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { read, installIncludeShim } from './helpers/js_panel.mjs';
 
 installIncludeShim(vm);
-const PANELS = { Playlists: 'js/playlist_browser.js', GlassPlaylist: 'js/anna_glass_playlist.js', AnnaQueue: 'js/anna_queue.js' };
+const PANELS = { Playlists: 'js/playlist_browser.js', GlassPlaylist: 'js/hariiro_glass_playlist.js', HariiroQueue: 'js/hariiro_queue.js' };
 
 // ---------------------------------------------------------------- 1. layout
 const ini = read('foo_ui_panels.ini');
@@ -18,24 +18,24 @@ for (const name of Object.keys(PANELS)) {
   assert(!ini.includes(`panel.${name}.windowless = 1`), `${name}: windowless routing misdirects drops`);
 }
 // Every child-window JS panel (windowless = 0) gets physical pixels, so all of
-// them go through AnnaDpi - the three drop targets plus the search box and the
+// them go through HariiroDpi - the three drop targets plus the search box and the
 // NATIVE-mode scroll strip, which were child windows already.
 // Round 21: the lyrics card and the seek bar animate; as child windows their repaints stay local.
-const CHILD = { ...PANELS, GlassSearch: 'js/anna_search.js', NativeScroll: 'js/anna_native_scroll.js',
-  AnnaLyrics: 'js/anna_lyrics.js', FooterSeek: 'js/anna_footer_slider.js' };
+const CHILD = { ...PANELS, GlassSearch: 'js/hariiro_search.js', NativeScroll: 'js/hariiro_native_scroll.js',
+  HariiroLyrics: 'js/hariiro_lyrics.js', FooterSeek: 'js/hariiro_footer_slider.js' };
 for (const name of ['GlassSearch', 'NativeScroll']) assert(ini.includes(`panel.${name}.windowless = 0`), name);
 for (const m of ini.matchAll(/^panel\.(\w+)\.windowless = 0$/gm))
-  assert(CHILD[m[1]], `${m[1]} is a child window but is not covered by AnnaDpi`);
+  assert(CHILD[m[1]], `${m[1]} is a child window but is not covered by HariiroDpi`);
 for (const [name, file] of Object.entries(CHILD)) {
   const src = read(file);
-  assert(!/window\.RepaintRect\(/.test(src), `${file}: use AnnaDpi.repaintRect()`);
-  assert(!/gdi\.CalcTextWidth\(/.test(src), `${file}: use AnnaDpi.textWidth()`);
-  assert(src.includes("include('anna_dpi.js');"), `${file}: include anna_dpi.js`);
-  assert(/AnnaDpi\.install\(\);\s*$/.test(src), `${file}: AnnaDpi.install() must be the last statement`);
-  assert(!/window\.(Width|Height)\b/.test(src), `${file}: use AnnaDpi.width()/height() (layout units)`);
-  assert(!/gdi\.Font\(/.test(src), `${file}: use AnnaDpi.font() so text scales`);
-  assert(!/\.TrackPopupMenu\(/.test(src), `${file}: use AnnaDpi.popup() so menus open under the pointer`);
-  assert(!/fb\.DoDragDrop\(/.test(src), `${file}: use AnnaDpi.doDragDrop() so nested host callbacks are converted`);
+  assert(!/window\.RepaintRect\(/.test(src), `${file}: use HariiroDpi.repaintRect()`);
+  assert(!/gdi\.CalcTextWidth\(/.test(src), `${file}: use HariiroDpi.textWidth()`);
+  assert(src.includes("include('hariiro_dpi.js');"), `${file}: include hariiro_dpi.js`);
+  assert(/HariiroDpi\.install\(\);\s*$/.test(src), `${file}: HariiroDpi.install() must be the last statement`);
+  assert(!/window\.(Width|Height)\b/.test(src), `${file}: use HariiroDpi.width()/height() (layout units)`);
+  assert(!/gdi\.Font\(/.test(src), `${file}: use HariiroDpi.font() so text scales`);
+  assert(!/\.TrackPopupMenu\(/.test(src), `${file}: use HariiroDpi.popup() so menus open under the pointer`);
+  assert(!/fb\.DoDragDrop\(/.test(src), `${file}: use HariiroDpi.doDragDrop() so nested host callbacks are converted`);
 }
 
 // ------------------------------------------------------- 2. adapter (unit)
@@ -48,8 +48,8 @@ function adapter({ width, height, rect }) {
       CalcTextWidth: (text, f) => text.length * f.Size / 2 },
     panelsui: { GetPanelRect: () => rect },
   });
-  vm.runInContext(read('js/anna_dpi.js'), ctx);
-  return { ctx, win, fonts, D: ctx.AnnaDpi };
+  vm.runInContext(read('js/hariiro_dpi.js'), ctx);
+  return { ctx, win, fonts, D: ctx.HariiroDpi };
 }
 function recorder() {
   const calls = [];
@@ -154,13 +154,13 @@ function recorder() {
   vm.runInContext(`
     var seen=[];
     function on_paint(gr){seen.push(['paint',typeof gr.FillSolidRect]);}
-    function on_size(){seen.push(['size',AnnaDpi.scale()]);}
+    function on_size(){seen.push(['size',HariiroDpi.scale()]);}
     function on_mouse_move(x,y,m){seen.push(['move',x,y,m]);}
     function on_mouse_rbtn_up(x,y){seen.push(['rup',x,y]);return true;}
     function on_drag_enter(a,x,y){on_drag_over(a,x,y);}
     function on_drag_over(a,x,y){seen.push(['over',x,y]);a.Effect=1;}
     function on_drag_drop(a,x,y){seen.push(['drop',x,y]);}
-    AnnaDpi.install();`, ctx);
+    HariiroDpi.install();`, ctx);
   ctx.on_size();
   ctx.on_mouse_move(100, 60, 1);
   assert.equal(ctx.on_mouse_rbtn_up(40, 20), true);
@@ -182,14 +182,14 @@ function recorder() {
   ctx.fb = { DoDragDrop: (...args) => { ctx.hostDrag(); return 'dd:' + args.length; } };
   vm.runInContext(`
     var seen=[];
-    var F=AnnaDpi.font('Yu Gothic UI',12,0);
+    var F=HariiroDpi.font('Yu Gothic UI',12,0);
     function on_paint(gr){gr.GdiDrawText('x',F,0,1,2,3,4,0);}
     function on_drag_enter(a,x,y){on_drag_over(a,x,y);}
     function on_drag_over(a,x,y){seen.push(['over',x,y]);}
-    function on_mouse_move(x,y){seen.push(['move',x,y]);seen.push(['dd',AnnaDpi.doDragDrop(1,'handles',1,{})]);}
+    function on_mouse_move(x,y){seen.push(['move',x,y]);seen.push(['dd',HariiroDpi.doDragDrop(1,'handles',1,{})]);}
     function on_mouse_lbtn_up(x,y){on_mouse_rbtn_up(x,y);}
-    function on_mouse_rbtn_up(x,y){seen.push(['rup',x,y]);AnnaDpi.popup({TrackPopupMenu(px,py){seen.push(['menu',px,py]);on_mouse_move(px,py);return 0;}},x,y);}
-    AnnaDpi.install();`, ctx);
+    function on_mouse_rbtn_up(x,y){seen.push(['rup',x,y]);HariiroDpi.popup({TrackPopupMenu(px,py){seen.push(['menu',px,py]);on_mouse_move(px,py);return 0;}},x,y);}
+    HariiroDpi.install();`, ctx);
   const drawn = [];
   ctx.hostDrag = () => { ctx.on_drag_enter({}, 300, 100); ctx.on_paint({ GdiDrawText: (...a) => drawn.push(a) }); };
   ctx.on_mouse_move(40, 20);
@@ -208,8 +208,8 @@ function recorder() {
   const mk = (a = []) => ({ get Count() { return a.length; }, Convert: () => [...a], Item: i => a[i], Add(h) { a.push(h); }, AddRange(o) { a.push(...o.Convert()); } });
   const records = [
     { name: 'User A', items: [{ Path: 'a.flac' }] }, { name: 'User B', items: [{ Path: 'b.flac' }] },
-    { name: 'Anna - Favorites', items: [{ Path: 'fav.flac' }] }];
-  const vars = new Map([['anna.nav.mode', 'library'], ['anna.drag.origin', 'glass:0'], ['anna.theme.hue', 'rose']]);
+    { name: 'Hariiro - Favorites', items: [{ Path: 'fav.flac' }] }];
+  const vars = new Map([['hariiro.nav.mode', 'library'], ['hariiro.drag.origin', 'glass:0'], ['hariiro.theme.hue', 'rose']]);
   let active = 0; const fontSizes = []; const drawn = [];
   const plman = {
     get PlaylistCount() { return records.length; }, get ActivePlaylist() { return active; }, set ActivePlaylist(v) { active = v; },
@@ -231,7 +231,7 @@ function recorder() {
   ctx.include = f => vm.runInContext(read('js/' + f), ctx);
   vm.runInContext(read('js/playlist_browser.js'), ctx);
   ctx.on_size();
-  assert.equal(ctx.AnnaDpi.scale(), 2);
+  assert.equal(ctx.HariiroDpi.scale(), 2);
   // Sidebar rows are 30 layout px from y=8: find "User B" and drop on it in PHYSICAL pixels.
   const row = ctx.entries().findIndex(r => r.name === 'User B');
   assert(row >= 0);
@@ -261,16 +261,16 @@ function recorder() {
     GetProperty: (k, d) => props.get(k) ?? d, SetProperty: (k, v) => props.set(k, v), SetCursor() {},
     SetInterval: fn => { win.tick = fn; return 1; }, ClearInterval() {},
     CreatePopupMenu: () => ({ AppendMenuItem() {}, TrackPopupMenu: () => 0 }) };
-  props.set('Anna.Search.LastQuery.v1', 'abcd');
+  props.set('Hariiro.Search.LastQuery.v1', 'abcd');
   const ctx = vm.createContext({ console: { log() {} }, window: win,
     plman: { PlaylistCount: 0, ActivePlaylist: -1, PlayingPlaylist: -1, FindPlaylist: () => -1, GetPlaybackQueueContents: () => [] },
     panelsui: { GetVariable: (_k, d) => d, SetVariable() {}, GetPanelRect: () => ({ X: 369, Y: 6, Width: 304, Height: 31 }) },
     utils: { IsKeyPressed: () => false },
     gdi: { Font: (n, s, st) => ({ Name: n, Size: s, Style: st }), CalcTextWidth: (t, f) => t.length * f.Size / 2 } });
   ctx.include = f => vm.runInContext(read('js/' + f), ctx);
-  vm.runInContext(read('js/anna_search.js'), ctx);
+  vm.runInContext(read('js/hariiro_search.js'), ctx);
   ctx.on_size && ctx.on_size();
-  assert.equal(ctx.AnnaDpi.scale(), 2);
+  assert.equal(ctx.HariiroDpi.scale(), 2);
   // FONT is 11 layout px -> 5.5 layout px per char in this fake. Click just after "ab"
   // (38 + 2*5.5 = 49 layout px) in PHYSICAL pixels: caret lands after 2 characters.
   ctx.on_mouse_lbtn_down(50 * 2, 15 * 2);

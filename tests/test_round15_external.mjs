@@ -2,7 +2,7 @@
 // Windows check (foo_js_panel 1.9.0 + Panels UI, child or windowless panels alike):
 // the panel gets on_drag_enter/over, then on_drag_leave at release - never
 // on_drag_drop - and foobar2000 appends the files to the ACTIVE playlist and
-// selects them. AnnaDropFix arms on that "leave with the button up" and moves the
+// selects them. HariiroDropFix arms on that "leave with the button up" and moves the
 // just-appended, selected entries to where the panel would have dropped them.
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -19,10 +19,10 @@ function reset() {
   records = [
     { name: 'User A', items: [H('a.flac')] },
     { name: 'User B', items: [H('b.flac'), H('b2.flac')] },
-    { name: 'Anna - Favorites', items: [H('fav.flac')] }];
+    { name: 'Hariiro - Favorites', items: [H('fav.flac')] }];
   sel = records.map(() => new Set());
   active = 0; queue = []; now = 1000; lbutton = false;
-  vars = new Map([['anna.nav.mode', 'library'], ['anna.theme.hue', 'rose'], ['anna.drag.origin', '']]);
+  vars = new Map([['hariiro.nav.mode', 'library'], ['hariiro.theme.hue', 'rose'], ['hariiro.drag.origin', '']]);
 }
 reset();
 const plman = {
@@ -63,8 +63,8 @@ function panel(name, file, width) {
 }
 // Panels UI calls the panels in layout order: sidebar first.
 const sidebar = panel('Playlists', 'js/playlist_browser.js', 196);
-const glass = panel('GlassPlaylist', 'js/anna_glass_playlist.js', 364);
-const q = panel('AnnaQueue', 'js/anna_queue.js', 229);
+const glass = panel('GlassPlaylist', 'js/hariiro_glass_playlist.js', 364);
+const q = panel('HariiroQueue', 'js/hariiro_queue.js', 229);
 const rowY = name => { const i = sidebar.entries().findIndex(r => r.name === name); assert(i >= 0, name); return 8 + 30 * i + 14; };
 
 // What foobar2000 does after the misrouted drop: append to the ACTIVE playlist, select the new entries.
@@ -86,11 +86,11 @@ function externalDropOn(ctx, x, y) {
 const paths = p => records[p].items.map(h => h.Path);
 
 // ---------------------------------------------------------------- source rules
-for (const f of ['js/playlist_browser.js', 'js/anna_glass_playlist.js', 'js/anna_queue.js']) {
+for (const f of ['js/playlist_browser.js', 'js/hariiro_glass_playlist.js', 'js/hariiro_queue.js']) {
   const src = read(f);
-  assert(src.includes("include('anna_drop_fix.js');"), f);
-  assert(/AnnaDropFix\.install\([^)]*\);[\s\S]*AnnaDpi\.install\(\);\s*$/.test(src),
-    `${f}: AnnaDropFix.install() must come right before AnnaDpi.install() (it needs layout units)`);
+  assert(src.includes("include('hariiro_drop_fix.js');"), f);
+  assert(/HariiroDropFix\.install\([^)]*\);[\s\S]*HariiroDpi\.install\(\);\s*$/.test(src),
+    `${f}: HariiroDropFix.install() must come right before HariiroDpi.install() (it needs layout units)`);
 }
 
 // 1. Sidebar row: middle shows User A, file dropped on "User B" row -> goes to User B, not User A.
@@ -100,11 +100,11 @@ hostFallbackDrop(['new.flac']);
 assert.deepEqual(paths(0), ['a.flac'], 'removed from the active playlist');
 assert.deepEqual(paths(1), ['b.flac', 'b2.flac', 'new.flac'], 'appended to the row under the pointer');
 assert.equal(active, 1, 'the target becomes the active playlist, like a real sidebar drop');
-assert.equal(vars.get('anna.drop.pending'), '', 'pending redirect is consumed');
+assert.equal(vars.get('hariiro.drop.pending'), '', 'pending redirect is consumed');
 
 // 2. Sidebar pinned row (Favorites) is read-only: the files are taken back out again.
 reset();
-externalDropOn(sidebar, 80, rowY('Anna - Favorites'));
+externalDropOn(sidebar, 80, rowY('Hariiro - Favorites'));
 hostFallbackDrop(['x.flac', 'y.flac']);
 assert.deepEqual(paths(0), ['a.flac']);
 assert.deepEqual(paths(2), ['fav.flac']);
@@ -114,14 +114,14 @@ reset();
 externalDropOn(sidebar, 80, 400);
 hostFallbackDrop(['n1.flac', 'n2.flac']);
 assert.deepEqual(paths(0), ['a.flac']);
-const staging = records.findIndex(r => r.name.startsWith('Anna - Import Staging'));
+const staging = records.findIndex(r => r.name.startsWith('Hariiro - Import Staging'));
 assert(staging >= 0, 'staging playlist used');
 assert.deepEqual(paths(staging), ['n1.flac', 'n2.flac'], 'staged; the sidebar turns it into a playlist when idle');
 
 // 4. Middle list showing an ordinary playlist: the files are already where they belong.
 reset();
 externalDropOn(glass, 100, 100);
-assert.equal(vars.get('anna.drop.pending') || '', '', 'nothing to redirect');
+assert.equal(vars.get('hariiro.drop.pending') || '', '', 'nothing to redirect');
 hostFallbackDrop(['m.flac']);
 assert.deepEqual(paths(0), ['a.flac', 'm.flac']);
 
@@ -142,14 +142,14 @@ assert.deepEqual(queue, ['q1.flac', 'q2.flac']);
 reset();
 lbutton = true;
 { const a = { Effect: 0, Playlist: -1 }; sidebar.on_drag_enter(a, 80, rowY('User B')); sidebar.on_drag_leave(); }
-assert.equal(vars.get('anna.drop.pending') || '', '');
+assert.equal(vars.get('hariiro.drop.pending') || '', '');
 hostFallbackDrop(['gap.flac']); // e.g. later dropped on a gap: host default stays
 assert.deepEqual(paths(0), ['a.flac', 'gap.flac']);
 
 // 8. Internal drags (origin marker set) reach on_drag_drop on child windows: never redirected.
-reset(); vars.set('anna.drag.origin', 'glass:0');
+reset(); vars.set('hariiro.drag.origin', 'glass:0');
 externalDropOn(sidebar, 80, rowY('User B'));
-assert.equal(vars.get('anna.drop.pending') || '', '');
+assert.equal(vars.get('hariiro.drop.pending') || '', '');
 
 // 9. Stale or foreign additions are left alone: expired after 15 s, other playlist, unselected rows.
 reset();

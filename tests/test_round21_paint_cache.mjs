@@ -1,6 +1,6 @@
 // Round 21 (2): Panels UI redraws the whole layout twice a second while playing, and every
 // JS panel paints again. Measured on Windows, antialiased round rects (0.3-0.5 ms each) and
-// scaling 192 px PNGs (0.6 ms each) made up most of that time. js/anna_paint_cache.js draws
+// scaling 192 px PNGs (0.6 ms each) made up most of that time. js/hariiro_paint_cache.js draws
 // each once into a cached bitmap; panels then only blit it (0.03-0.1 ms).
 import assert from 'node:assert/strict';
 import { read } from './helpers/js_panel.mjs';
@@ -27,8 +27,8 @@ function recorder(calls) {
   const g = fakeGdi();
   const host = createHost({ overrides: { gdi: { CreateImage: g.CreateImage } } });
   const ctx = panelContext(host);
-  run(ctx, "include('anna_theme.js');include('anna_paint_cache.js');");
-  const C = ctx.AnnaPaintCache;
+  run(ctx, "include('hariiro_theme.js');include('hariiro_paint_cache.js');");
+  const C = ctx.HariiroPaintCache;
   assert(Object.isFrozen(C));
 
   // icon(): resized once per drawn size, never upscaled
@@ -58,32 +58,32 @@ function recorder(calls) {
   C.shape(recorder(out), 'row|b', 5, 50, 100, 30, 3, paint);
   C.shape(recorder(out), 'row|a', 5, 50, 120, 30, 3, paint);
   assert.equal(painted, 3, 'another look or size is another bitmap');
-  // Accent colours: the bitmap is drawn through AnnaTheme.graphics and keyed by the accent.
-  ctx.AnnaTheme.set('blue');
+  // Accent colours: the bitmap is drawn through HariiroTheme.graphics and keyed by the accent.
+  ctx.HariiroTheme.set('blue');
   C.shape(recorder(out), 'row|a', 5, 50, 100, 30, 3, paint);
   assert.equal(painted, 4, 'accent change repaints the bitmap');
   const blue = out[out.length - 1][1];
-  assert.notEqual(ctx.AnnaTheme.recolor(0xffffafda), 0xffffafda, 'precondition: blue recolours this frame');
-  assert.equal(blue.calls[1][8], ctx.AnnaTheme.recolor(0xffffafda), 'colours recoloured for the accent');
+  assert.notEqual(ctx.HariiroTheme.recolor(0xffffafda), 0xffffafda, 'precondition: blue recolours this frame');
+  assert.equal(blue.calls[1][8], ctx.HariiroTheme.recolor(0xffffafda), 'colours recoloured for the accent');
   // Bounded: old bitmaps are released.
   for (let i = 0; i < 300; i++) C.shape(recorder([]), 'k' + i, 0, 0, 10, 10, 0, paint);
   assert(g.made.filter(m => m.disposed).length >= 150, 'least recently used bitmaps are disposed');
   // A host without CreateImage still paints directly.
   const host2 = createHost({ overrides: { gdi: { CreateImage: () => { throw new Error('no'); } } } });
   const ctx2 = panelContext(host2);
-  run(ctx2, "include('anna_theme.js');include('anna_paint_cache.js');");
+  run(ctx2, "include('hariiro_theme.js');include('hariiro_paint_cache.js');");
   const direct = [];
-  ctx2.AnnaPaintCache.shape(recorder(direct), 'x', 5, 6, 10, 10, 2, paint);
+  ctx2.HariiroPaintCache.shape(recorder(direct), 'x', 5, 6, 10, 10, 2, paint);
   assert.deepEqual(direct.map(c => c[0]), ['FillRoundRect', 'DrawRoundRect']);
   assert.deepEqual(direct[0].slice(1, 3), [5, 6]);
 }
 
 // ---- 2. the hot panels use it --------------------------------------------------------------
-for (const f of ['js/anna_glass_playlist.js', 'js/playlist_browser.js', 'js/anna_transport.js', 'js/anna_footer_slider.js'])
-  assert(read(f).includes("include('anna_paint_cache.js');"), f);
-const transport = read('js/anna_transport.js'), slider = read('js/anna_footer_slider.js');
-assert(/AnnaPaintCache\.drawIcon\(/.test(transport) && !/gr\.DrawImage\(/.test(transport), 'transport icons from the cache');
-assert(/AnnaPaintCache\.drawIcon\(/.test(slider) && !/gr\.DrawImage\(/.test(slider), 'seek/volume thumbs from the cache');
+for (const f of ['js/hariiro_glass_playlist.js', 'js/playlist_browser.js', 'js/hariiro_transport.js', 'js/hariiro_footer_slider.js'])
+  assert(read(f).includes("include('hariiro_paint_cache.js');"), f);
+const transport = read('js/hariiro_transport.js'), slider = read('js/hariiro_footer_slider.js');
+assert(/HariiroPaintCache\.drawIcon\(/.test(transport) && !/gr\.DrawImage\(/.test(transport), 'transport icons from the cache');
+assert(/HariiroPaintCache\.drawIcon\(/.test(slider) && !/gr\.DrawImage\(/.test(slider), 'seek/volume thumbs from the cache');
 
 // GLASS list: rows and album boxes reach the panel as blits, not as round rects.
 {
@@ -95,7 +95,7 @@ assert(/AnnaPaintCache\.drawIcon\(/.test(slider) && !/gr\.DrawImage\(/.test(slid
     window: { Width: 600, Height: 400, SetCursor() {} },
   } });
   const ctx = panelContext(host);
-  runScript(ctx, 'js/anna_glass_playlist.js');
+  runScript(ctx, 'js/hariiro_glass_playlist.js');
   const paintOnce = () => { const calls = []; ctx.on_paint(recorder(calls)); return calls; };
   const first = paintOnce(), second = paintOnce();
   for (const calls of [first, second]) {
@@ -114,6 +114,6 @@ assert(/AnnaPaintCache\.drawIcon\(/.test(slider) && !/gr\.DrawImage\(/.test(slid
 {
   const src = read('js/playlist_browser.js');
   const paint = src.slice(src.indexOf('function on_paint(gr)'), src.indexOf('function on_paint(gr)') + 2500);
-  assert(paint.includes('AnnaPaintCache.shape('), 'sidebar rows from the cache');
+  assert(paint.includes('HariiroPaintCache.shape('), 'sidebar rows from the cache');
 }
 console.log('test_round21_paint_cache: ok');

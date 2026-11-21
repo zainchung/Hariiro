@@ -6,17 +6,17 @@
    Teal. Like the others they recolour the JS-drawn accents and the footer control images.
    The images are in `images/controls/amber/` and `images/controls/mint/`, made with the new
    `tools/make_accent_palette.py <id> <hue>` (Pillow only). It uses the same rule as
-   `AnnaTheme.recolor`, and it reproduces the bundled teal set to within rounding.
-2. **Wallpaper** (☰ → Wallpaper): *Default (Anna)* plus every `.jpg` / `.png` / `.bmp` in
+   `HariiroTheme.recolor`, and it reproduces the bundled teal set to within rounding.
+2. **Wallpaper** (☰ → Wallpaper): *Default (Hariiro)* plus every `.jpg` / `.png` / `.bmp` in
    `images/wallpapers/` of the installed skin, by file name. The choice is the Panels UI
-   variable `anna.glass.v2.wallpaper` (relative to `images/`); `main.txt` now draws
-   `images/$if2($getpvar(anna.glass.v2.wallpaper),wallpaper.jpg)`, and
+   variable `hariiro.wallpaper` (relative to `images/`); `main.txt` now draws
+   `images/$if2($getpvar(hariiro.wallpaper),wallpaper.jpg)`, and
    `background.image_pvar` in `foo_ui_panels.ini` already used the same variable for native
    panels. Only names from the list are accepted.
    The skin folder is found under `fb.ProfilePath\foo_ui_panels-skins\` (any folder that
-   contains `js\anna_top_chrome.js`).
+   contains `js\hariiro_top_chrome.js`).
 
-`AnnaShared.PVAR.wallpaper` added. The package does not include an empty `wallpapers`
+`HariiroShared.PVAR.wallpaper` added. The package does not include an empty `wallpapers`
 folder (zip of files only); create `images\wallpapers` in the skin folder to add images.
 
 ## Tests

@@ -1,4 +1,4 @@
-# Anna Glass V2 — notes for Claude
+# Hariiro — notes for Claude
 
 foobar2000 skin: Panels UI (reborn) layout (`main.txt`, `foo_ui_panels.ini`) + foo_js_panel
 scripts (`js/*.js`) + `images/`. `main` is the only trunk. Plan and history: `README.md`,
@@ -10,19 +10,19 @@ scripts (`js/*.js`) + `images/`. `main` is the only trunk. Plan and history: `RE
 ```
 npm test                      # all offline tests; prints one PASS/FAIL line per file
 node tools/run_tests.mjs 15   # only test files whose name contains "15"
-npm run package               # dist/Anna-Glass-V2.zip, verified
+npm run package               # dist/Hariiro.zip, verified
 ```
 
 ## Rules that are easy to break
 
 - Bug fixes: failing test first, then the fix, then `docs/ROUNDxx_REVIEW.md` and a note in
   `docs/release_notes/`. Refactors (Phase D) must not change behaviour.
-- Panel-variable keys: only via `AnnaShared.PVAR` (`js/anna_shared.js`); test_shared rejects literals.
-- Colours used by more than one panel: only via `AnnaTheme.COLORS` / `AnnaTheme.paintSwitch`
-  (`js/anna_theme.js`); test_theme_colors rejects copies.
-- Every `windowless = 0` panel uses `js/anna_dpi.js` (`AnnaDpi.width/height/font/popup/
-  doDragDrop/repaintRect/textWidth`, `AnnaDpi.install()` last). Drop targets also install
-  `AnnaDropFix` right before it. Why: `docs/ROUND15_REVIEW.md`.
+- Panel-variable keys: only via `HariiroShared.PVAR` (`js/hariiro_shared.js`); test_shared rejects literals.
+- Colours used by more than one panel: only via `HariiroTheme.COLORS` / `HariiroTheme.paintSwitch`
+  (`js/hariiro_theme.js`); test_theme_colors rejects copies.
+- Every `windowless = 0` panel uses `js/hariiro_dpi.js` (`HariiroDpi.width/height/font/popup/
+  doDragDrop/repaintRect/textWidth`, `HariiroDpi.install()` last). Drop targets also install
+  `HariiroDropFix` right before it. Why: `docs/ROUND15_REVIEW.md`.
 - Tests load scripts with `tests/helpers/js_panel.mjs` (`installIncludeShim`); new suites build their
   host with `tests/helpers/fake_host.mjs` (`createHost`, `panelContext`).
 - Offline tests cannot prove OLE / DPI / host behaviour: drag-and-drop or layout changes need a

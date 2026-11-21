@@ -1,4 +1,4 @@
-# Anna Glass V2 — Round 15 review (2026-11-20)
+# Hariiro — Round 15 review (2026-11-20)
 
 ## Bug (found in the Windows smoke test of `b466b2c`)
 
@@ -6,7 +6,7 @@ Drops onto the sidebar or the middle list did not do what the on-screen hint sai
 
 | Drag | Hint shown | Actual result |
 |---|---|---|
-| Middle track → sidebar ordinary playlist | "拖入：Default Playlist" | Track appended to the playlist **open in the middle list** (e.g. Anna - Favorites) |
+| Middle track → sidebar ordinary playlist | "拖入：Default Playlist" | Track appended to the playlist **open in the middle list** (e.g. Hariiro - Favorites) |
 | Sidebar pinned list (Favorites) → middle list | read-only warning | All of Favorites appended to the open playlist anyway |
 | Middle track → sidebar ordinary playlist, middle showing an ordinary list | "拖入：…" | Nothing visible: the track went into the open list and the Round 13.2 dedup removed it again |
 
@@ -24,7 +24,7 @@ synthetic and the owner's own mouse drags:
 [SIDEBAR] items_added p=<active> ...     <- ~100 ms later, host inserts into the ACTIVE playlist
 ```
 
-Since Round 13, `Playlists`, `GlassPlaylist` and `AnnaQueue` were `windowless = 1`.
+Since Round 13, `Playlists`, `GlassPlaylist` and `HariiroQueue` were `windowless = 1`.
 Windowless panels have no OLE drop target of their own; Panels UI routes drag events to
 them by hit-testing. At release it routes the drop away from the panel under the pointer,
 sends `on_drag_leave`, and its root drop target falls back to foobar2000's default:
@@ -38,28 +38,28 @@ drop target per window and the sidebar received a real `on_drag_drop` (verified)
 
 ## Fix
 
-1. `foo_ui_panels.ini`: `Playlists`, `GlassPlaylist`, `AnnaQueue` → `windowless = 0`.
+1. `foo_ui_panels.ini`: `Playlists`, `GlassPlaylist`, `HariiroQueue` → `windowless = 0`.
 2. Child windows get **physical pixels** (at 200 % DPI the sidebar is 392 px wide for a
    196 px layout box) and drew at half size. JS Panel's `window.DPI` is a fixed 96 shim,
-   so new `js/anna_dpi.js` (`AnnaDpi`) derives the scale from
+   so new `js/hariiro_dpi.js` (`HariiroDpi`) derives the scale from
    `window.Width / panelsui.GetPanelRect().Width` (1 for windowless panels and tests):
    - `on_paint` receives a `gr` proxy that multiplies coordinates, sizes and pen widths,
      scales polygon points, keeps image *source* rectangles, uses scaled real fonts, and
      returns `CalcTextWidth` / `MeasureString` / `EstimateLineWrap` in layout units.
-   - `AnnaDpi.font()` replaces `gdi.Font()`; real fonts are created per scale on first use.
+   - `HariiroDpi.font()` replaces `gdi.Font()`; real fonts are created per scale on first use.
    - Mouse and drag callbacks get `x, y` divided by the scale. Script-to-script forwarding
      (`on_drag_enter → on_drag_over`, `on_mouse_lbtn_up → on_mouse_rbtn_up`) is not
-     converted twice; host modal loops (`AnnaDpi.doDragDrop`, `AnnaDpi.popup`) clear that
+     converted twice; host modal loops (`HariiroDpi.doDragDrop`, `HariiroDpi.popup`) clear that
      guard, because the host calls `on_paint` / `on_drag_*` of the same panel from inside
      `fb.DoDragDrop` with physical pixels. (A first build crashed there with
      "argument 2 is not a gdi.Font".)
-   - `AnnaDpi.width()/height()` replace `window.Width/Height`; `AnnaDpi.install()` is the
+   - `HariiroDpi.width()/height()` replace `window.Width/Height`; `HariiroDpi.install()` is the
      last statement of each of the three scripts.
 3. Sidebar row names get 6 more layout px (`w-80`): real 24 px GDI text is a few percent
-   wider than the host's scaled 12 px text, which had truncated "Anna - Search Result".
+   wider than the host's scaled 12 px text, which had truncated "Hariiro - Search Result".
 4. The two panels that were child windows already — `GlassSearch` (search box) and
-   `NativeScroll` (NATIVE-mode scroll strip) — drew at half size too and now use `AnnaDpi`
-   as well (`AnnaDpi.repaintRect` for the caret blink, `AnnaDpi.textWidth` for click-to-caret).
+   `NativeScroll` (NATIVE-mode scroll strip) — drew at half size too and now use `HariiroDpi`
+   as well (`HariiroDpi.repaintRect` for the caret blink, `HariiroDpi.textWidth` for click-to-caret).
 
 ## External files (File Explorer) — second bug
 
@@ -77,14 +77,14 @@ foo_js_panel's own drop target has no such fallback (it inserts only when `on_dr
 sets `action.Playlist >= 0`), so another window — foobar2000's main window — takes the
 external drop and appends the files to the **active** playlist, selecting exactly them.
 
-Fix: `js/anna_drop_fix.js` (`AnnaDropFix`), installed in the sidebar, middle list and Queue
-right before `AnnaDpi.install()`:
+Fix: `js/hariiro_drop_fix.js` (`HariiroDropFix`), installed in the sidebar, middle list and Queue
+right before `HariiroDpi.install()`:
 
 - remembers the last pointer position of an **external** drag (no origin marker);
 - on `on_drag_leave` with the left button already **up** (`utils.IsKeyPressed(VK_LBUTTON)`:
   `true` when the pointer merely leaves a panel, `false` at release), asks the panel's
   `externalDropPlan(x, y)` what its `on_drag_drop` would have done and stores it with the
-  active playlist's name and count in `anna.drop.pending` (expires after 15 s);
+  active playlist's name and count in `hariiro.drop.pending` (expires after 15 s);
 - in the first `on_playlist_items_added` for that playlist, takes the entries past the old
   count **that are selected** (what the host just dropped), removes them, and then inserts
   them into the target (activating it like a sidebar drop), queues them, or — for a
@@ -110,15 +110,15 @@ be redirected. A drop on a gap that is not a panel keeps the host's default (act
   scaling of every used `gr` call, fonts, measurements, popups; callback conversion
   without double scaling; host-nested `on_paint` / `on_drag_*` during `DoDragDrop`; the
   real sidebar as a 200 % child window drops onto the row under the physical pointer.
-  Also: every `windowless = 0` panel must use `AnnaDpi`; 125 % / 150 % scales; a DPI change
+  Also: every `windowless = 0` panel must use `HariiroDpi`; 125 % / 150 % scales; a DPI change
   between paints (moving to another monitor) re-creates fonts; the search box at 200 %.
 - New `tests/test_round15_external.mjs`: real sidebar / middle / Queue scripts in one fake
   host; external drop on an ordinary row, pinned row, blank space, middle (ordinary and
   pinned), Queue; plus leave-with-button-held, internal origin, 15 s expiry and unselected
   additions are left alone.
 - Updated: `test_round13` (now expects `windowless = 0`), `test_round3` (extracted
-  functions get an `AnnaDpi` stub), `test_round5` (include shim knows `anna_dpi.js`),
-  `test_vnext` (`AnnaDpi.doDragDrop`).
+  functions get an `HariiroDpi` stub), `test_round5` (include shim knows `hariiro_dpi.js`),
+  `test_vnext` (`HariiroDpi.doDragDrop`).
 - `npm test`: 17/17 files pass.
 
 ## Windows check (2026-11-20, 200 % DPI, foo_js_panel 1.9.0)
@@ -130,7 +130,7 @@ be redirected. A drop on a gap that is not a panel keeps the host's default (act
 | Middle track → Queue | ✅ QUEUE · 1 |
 | Sidebar Default Playlist → Queue | ✅ +14 |
 | Right-click menus (middle, sidebar) | ✅ open at the pointer |
-| Layout | ✅ same size as before; "Anna - Search Result" no longer truncated |
+| Layout | ✅ same size as before; "Hariiro - Search Result" no longer truncated |
 | Search box at 200 % | ✅ magnifier and placeholder at full size |
 | Layout at 2560×1440 / 100 % (display changed during testing) | ✅ panels match the host-drawn frames |
 
@@ -161,16 +161,16 @@ changing the Windows display scale is not done by the agent).
 
 ## Phase D smoke test (2026-11-20, after `5caabca`)
 
-D3 test shim, D2 `AnnaShared.PVAR` keys and D1 step 1 (`AnnaGlassDrop`) on Windows:
+D3 test shim, D2 `HariiroShared.PVAR` keys and D1 step 1 (`HariiroGlassDrop`) on Windows:
 skin loads with no script errors; QUEUE/lyrics toggle, GLASS/NATIVE switch and accent
 colour (Sky blue and back to Rose, all panels recolour and the menu tick follows) work;
 middle → sidebar drop, pinned → middle rejection and an external file onto the middle list
 behave as in Round 15. Playlists were restored from a backup afterwards.
 
-D1 step 2 (`AnnaScratchViews`, same day): skin loads with no script errors. Music Library
-and an artist reuse the registered `Anna - Sorted Library View` / `Anna - Artist View`
+D1 step 2 (`HariiroScratchViews`, same day): skin loads with no script errors. Music Library
+and an artist reuse the registered `Hariiro - Sorted Library View` / `Hariiro - Artist View`
 (no new lists). Opening another artist while the Artist view is playing creates
-`Anna - Artist View #2` and leaves the playing list untouched. Playlists restored afterwards.
+`Hariiro - Artist View #2` and leaves the playing list untouched. Playlists restored afterwards.
 
 Seen, not changed (same before the move): `#2` is not removed by the cleanup once it is
 no longer active or playing, because the sidebar locks every populated view (`AddItems`,

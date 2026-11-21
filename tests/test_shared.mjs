@@ -1,4 +1,4 @@
-// AnnaShared: origin marker format, reserved names, and no drift back into
+// HariiroShared: origin marker format, reserved names, and no drift back into
 // hard-coded copies in the panels that use it. Also loads every panel script
 // in a permissive fake host to catch load-time errors (missing include, typo).
 import assert from 'node:assert/strict';
@@ -11,8 +11,8 @@ const vars = new Map();
 const ctx = vm.createContext({ panelsui: {
   GetVariable: (k, d) => (vars.has(k) ? vars.get(k) : d),
   SetVariable: (k, v) => vars.set(k, v) } });
-vm.runInContext(read('js/anna_shared.js'), ctx);
-const S = ctx.AnnaShared;
+vm.runInContext(read('js/hariiro_shared.js'), ctx);
+const S = ctx.HariiroShared;
 
 // Marker round trips.
 assert.equal(S.sidebarMarker('playlist', 3), 'sidebar:playlist:3');
@@ -30,41 +30,41 @@ assert.deepEqual(p(undefined), { kind: 'external' });
 // Owner-checked clearing.
 S.setOrigin('glass:1'); S.clearOriginIf('sidebar:'); assert.equal(S.getOrigin(), 'glass:1');
 S.clearOriginIf('glass:'); assert.equal(S.getOrigin(), '');
-assert.equal(vm.runInNewContext(read('js/anna_shared.js') + ';AnnaShared.getOrigin()', {}), ''); // no panelsui
+assert.equal(vm.runInNewContext(read('js/hariiro_shared.js') + ';HariiroShared.getOrigin()', {}), ''); // no panelsui
 
 // Reserved names.
-for (const n of ['Anna - Favorites', 'Music Library', 'Anna - Queue Buffer', 'Anna - Sorted Library View',
-  'Anna - Artist View #2', 'Anna - Import Staging', 'Anna - Import Staging #3']) assert(S.isReservedName(n), n);
-for (const n of ['My list', 'Anna - Artist Viewer', 'Music Library 2', 'Favorites']) assert(!S.isReservedName(n), n);
+for (const n of ['Hariiro - Favorites', 'Music Library', 'Hariiro - Queue Buffer', 'Hariiro - Sorted Library View',
+  'Hariiro - Artist View #2', 'Hariiro - Import Staging', 'Hariiro - Import Staging #3']) assert(S.isReservedName(n), n);
+for (const n of ['My list', 'Hariiro - Artist Viewer', 'Music Library 2', 'Favorites']) assert(!S.isReservedName(n), n);
 assert(Object.isFrozen(S) && Object.isFrozen(S.LIST) && Object.isFrozen(S.PVAR));
 
-// Drift guard: the panels that include AnnaShared must not re-hard-code its values.
-for (const f of ['js/anna_glass_playlist.js', 'js/playlist_browser.js']) {
+// Drift guard: the panels that include HariiroShared must not re-hard-code its values.
+for (const f of ['js/hariiro_glass_playlist.js', 'js/playlist_browser.js']) {
   const src = read(f);
-  assert(src.includes("include('anna_shared.js');"), f);
-  assert(!src.includes("'anna.drag.origin'"), f + ': use AnnaShared.PVAR.dragOrigin');
-  assert(!/['"]sidebar:['"]\s*\+|['"]glass:['"]\s*\+/.test(src), f + ': build markers with AnnaShared');
-  for (const name of Object.values(S.LIST)) assert(!src.includes(`'${name}'`), `${f}: use AnnaShared.LIST for '${name}'`);
+  assert(src.includes("include('hariiro_shared.js');"), f);
+  assert(!src.includes("'hariiro.drag.origin'"), f + ': use HariiroShared.PVAR.dragOrigin');
+  assert(!/['"]sidebar:['"]\s*\+|['"]glass:['"]\s*\+/.test(src), f + ': build markers with HariiroShared');
+  for (const name of Object.values(S.LIST)) assert(!src.includes(`'${name}'`), `${f}: use HariiroShared.LIST for '${name}'`);
 }
 
-// D2: every panel-variable key is defined once, in AnnaShared.PVAR. anna_theme.js and
-// anna_i18n.js own their variable (they load standalone) and must use the same value.
+// D2: every panel-variable key is defined once, in HariiroShared.PVAR. hariiro_theme.js and
+// hariiro_i18n.js own their variable (they load standalone) and must use the same value.
 for (const k of ['themeHue', 'themeAccent', 'language', 'queueOpen', 'chromeHidden', 'favoriteCurrent', 'playlistExperimental'])
-  assert(typeof S.PVAR[k] === 'string' && S.PVAR[k].startsWith('anna.'), `AnnaShared.PVAR.${k}`);
-const OWNED = { 'js/anna_theme.js': [S.PVAR.themeHue, S.PVAR.themeAccent, S.PVAR.themeDegree], 'js/anna_i18n.js': [S.PVAR.language] };
+  assert(typeof S.PVAR[k] === 'string' && S.PVAR[k].startsWith('hariiro.'), `HariiroShared.PVAR.${k}`);
+const OWNED = { 'js/hariiro_theme.js': [S.PVAR.themeHue, S.PVAR.themeAccent, S.PVAR.themeDegree], 'js/hariiro_i18n.js': [S.PVAR.language] };
 for (const [f, keys] of Object.entries(OWNED)) for (const v of keys) assert(read(f).includes(`'${v}'`), `${f} must use '${v}'`);
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 for (const f of fs.readdirSync(root + '/js').filter(n => n.endsWith('.js')).map(n => 'js/' + n)) {
-  if (f === 'js/anna_shared.js') continue;
+  if (f === 'js/hariiro_shared.js') continue;
   const src = read(f);
   for (const v of Object.values(S.PVAR)) {
     if ((OWNED[f] || []).includes(v)) continue;
-    // 'anna.x' as a key, or inside an action string such as 'PVAR:TOGGLE:anna.x'
-    assert(!new RegExp(`['":]${esc(v)}['"]`).test(src), `${f} hard-codes '${v}': use AnnaShared.PVAR`);
+    // 'hariiro.x' as a key, or inside an action string such as 'PVAR:TOGGLE:hariiro.x'
+    assert(!new RegExp(`['":]${esc(v)}['"]`).test(src), `${f} hard-codes '${v}': use HariiroShared.PVAR`);
   }
   // Helper modules whose panels include their dependencies first (used inside functions only).
-  if (/\bAnnaShared\./.test(src) && !['js/anna_drop_fix.js', 'js/anna_glass_drop.js', 'js/anna_scratch_views.js', 'js/anna_import_staging.js'].includes(f))
-    assert(src.includes("include('anna_shared.js');"), `${f} uses AnnaShared: include('anna_shared.js')`);
+  if (/\bHariiroShared\./.test(src) && !['js/hariiro_drop_fix.js', 'js/hariiro_glass_drop.js', 'js/hariiro_scratch_views.js', 'js/hariiro_import_staging.js'].includes(f))
+    assert(src.includes("include('hariiro_shared.js');"), `${f} uses HariiroShared: include('hariiro_shared.js')`);
 }
 
 // Smoke test: every panel script loads in a permissive fake host.
@@ -96,7 +96,7 @@ for (const f of scripts) {
   // Helper modules have no include statements: their panel includes these base modules first.
   const src = read('js/' + f);
   if (!/^[ \t]*include\(/m.test(src))
-    for (const base of ['anna_i18n.js', 'anna_shared.js']) if (base !== f) vm.runInContext(read('js/' + base), c);
+    for (const base of ['hariiro_i18n.js', 'hariiro_shared.js']) if (base !== f) vm.runInContext(read('js/' + base), c);
   try { vm.runInContext(src, c, { filename: f }); }
   catch (e) { assert.fail(`${f} failed to load: ${e && e.stack ? e.stack.split('\n').slice(0, 3).join(' | ') : e}`); }
 }

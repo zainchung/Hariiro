@@ -1,9 +1,9 @@
-// Anna Glass: lyric helpers without panel state (Round 18, Phase E1).
+// Hariiro: lyric helpers without panel state (Round 18, Phase E1).
 //  - fileNames(): the file names ESLyric can be configured to save under.
 //  - singSeconds(): how long a line takes to sing, for LRC files with line stamps only.
 //  - createOffsets(): per-track timing offsets, kept in a window property of the panel.
 'use strict';
-var AnnaLyricTools=(function(){
+var HariiroLyricTools=(function(){
  // f = {artist, albumArtist, album, title, track, stem}, already cleaned for file names.
  // The first nine are the Round 11 list (same order); the rest were added in Round 18.
  function fileNames(f){

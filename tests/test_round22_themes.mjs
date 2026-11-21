@@ -10,10 +10,10 @@ const ini = read('foo_ui_panels.ini'), main = read('main.txt');
 
 // ---- 1. wallpapers ------------------------------------------------------------------------------
 const walls = fs.readdirSync(root + '/images/wallpapers').filter(f => !f.endsWith('.md')).sort();
-assert.deepEqual(walls, ['Anna_GLASS_UI2_2560x1440.png', 'Anna_GLASS_UI_2560x1440.png']); // Round 22b: owner's renamed files
-assert.match(ini, /^pvar\.once\.anna\.glass\.v2\.wallpaper = wallpapers\/Anna_GLASS_UI_2560x1440\.png\s*$/m);
-assert(main.includes('$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/Anna_GLASS_UI_2560x1440.png)'));
-assert(read('js/anna_top_chrome.js').includes("const DEFAULT_WALLPAPER='wallpapers/Anna_GLASS_UI_2560x1440.png';"));
+assert.deepEqual(walls, ['Hariiro_UI2_2560x1440.png', 'Hariiro_UI_2560x1440.png']); // Round 22b: owner's renamed files
+assert.match(ini, /^pvar\.once\.hariiro\.wallpaper = wallpapers\/Hariiro_UI_2560x1440\.png\s*$/m);
+assert(main.includes('$if2($getpvar(hariiro.wallpaper),wallpapers/Hariiro_UI_2560x1440.png)'));
+assert(read('js/hariiro_top_chrome.js').includes("const DEFAULT_WALLPAPER='wallpapers/Hariiro_UI_2560x1440.png';"));
 
 // ---- 2. bundled colours: folders with theme.json and the corner ornaments --------------------------
 const BUNDLED = { amber: 36, blue: 211, mint: 150, pink: 326, teal: 174, violet: 278 };
@@ -32,14 +32,14 @@ for (const [id, hue] of Object.entries(BUNDLED)) {
 }
 // main.txt takes corners and the volume icon from the chosen colour's folder.
 assert(!main.includes('images/ornaments/'));
-const FOLDER = '$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))';
+const FOLDER = '$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))';
 for (const c of ['tl', 'tr', 'bl', 'br']) assert(main.includes(`images/controls/${FOLDER}/corner_${c}.png`), c);
 assert(main.includes(`images/controls/${FOLDER}/speaker.png`));
-assert(!/\$strcmp\(\$getpvar\(anna\.theme\.hue\),violet\)/.test(main), 'no per-colour branches left');
-assert(ini.includes('pvar.once.anna.theme.hue = pink'));
+assert(!/\$strcmp\(\$getpvar\(hariiro\.theme\.hue\),violet\)/.test(main), 'no per-colour branches left');
+assert(ini.includes('pvar.once.hariiro.theme.hue = pink'));
 
-// ---- 3. AnnaTheme --------------------------------------------------------------------------------
-const SKIN = 'C:\\fb\\profile\\foo_ui_panels-skins\\Anna_Glass\\', C = SKIN + 'images\\controls\\';
+// ---- 3. HariiroTheme --------------------------------------------------------------------------------
+const SKIN = 'C:\\fb\\profile\\foo_ui_panels-skins\\Hariiro\\', C = SKIN + 'images\\controls\\';
 function host(vars, extra = {}) {
   const files = { [C + 'amber\\theme.json']: '{"hue":36,"accent":"255-196-122"}', [C + 'pink\\theme.json']: '{"hue":326,"accent":"249-165-210"}',
     [C + 'Sakura Gold\\theme.json']: '{"hue":45,"accent":"240-200-90"}' };
@@ -49,7 +49,7 @@ function host(vars, extra = {}) {
     utils: {
       Glob: (p, exc, inc) => p === 'C:\\fb\\profile\\foo_ui_panels-skins\\*' ? [SKIN.slice(0, -1)]
         : p === C + '*' && inc === 0x10 ? ['amber', 'pink', 'Sakura Gold', 'Ocean', 'notes'].map(n => C + n) : [],
-      IsFile: p => p === SKIN + 'js\\anna_top_chrome.js' || plays.includes(p) || p in files,
+      IsFile: p => p === SKIN + 'js\\hariiro_top_chrome.js' || plays.includes(p) || p in files,
       ReadTextFile: p => { if (!(p in files)) throw new Error('missing'); return files[p]; },
     },
     // A folder without theme.json: its colour comes from play.png's dominant colour (teal-blue).
@@ -60,9 +60,9 @@ function host(vars, extra = {}) {
   return h;
 }
 {
-  const h = host({ 'anna.theme.hue': 'rose' }), ctx = panelContext(h);
-  run(ctx, "include('anna_shared.js');include('anna_theme.js');");
-  const T = ctx.AnnaTheme;
+  const h = host({ 'hariiro.theme.hue': 'rose' }), ctx = panelContext(h);
+  run(ctx, "include('hariiro_shared.js');include('hariiro_theme.js');");
+  const T = ctx.HariiroTheme;
   assert.equal(T.selected(), 'pink', 'old "rose" setting is the pink folder');
   assert.equal(T.folder(), 'pink');
   assert.equal(T.recolor(0xffff90c7), 0xffff90c7, 'pink is the base: no recolouring');
@@ -75,42 +75,42 @@ function host(vars, extra = {}) {
   assert.equal(ocean.accent, '63-169-230');
   // Choosing one stores folder, hue and accent; colours follow the stored hue.
   assert(T.set(ocean));
-  assert.equal(h.state.vars.get('anna.theme.hue'), 'Ocean');
-  assert.equal(h.state.vars.get('anna.theme.degree'), String(ocean.hue));
-  assert.equal(h.state.vars.get('anna.glass.v2.accent'), '63-169-230');
+  assert.equal(h.state.vars.get('hariiro.theme.hue'), 'Ocean');
+  assert.equal(h.state.vars.get('hariiro.theme.degree'), String(ocean.hue));
+  assert.equal(h.state.vars.get('hariiro.accent'), '63-169-230');
   assert.equal(T.selected(), 'Ocean'); assert.equal(T.folder(), 'Ocean');
   assert.notEqual(T.recolor(0xffff90c7), 0xffff90c7);
   assert.notEqual(T.key(), 'pink@326', 'cache key follows the colour');
 }
 { // Bundled names still work when no hue is stored yet (other panels before TopChrome ran).
-  const h = host({ 'anna.theme.hue': 'mint' }), ctx = panelContext(h);
-  run(ctx, "include('anna_theme.js');");
-  assert.equal(ctx.AnnaTheme.hue(), 150);
+  const h = host({ 'hariiro.theme.hue': 'mint' }), ctx = panelContext(h);
+  run(ctx, "include('hariiro_theme.js');");
+  assert.equal(ctx.HariiroTheme.hue(), 150);
 }
 
 // ---- 4. settings menu ------------------------------------------------------------------------------
 {
   let pick = 0; const items = [];
   const menu = () => ({ AppendMenuItem: (f, id, text) => items.push([id, text]), AppendMenuSeparator() {}, AppendTo() {}, TrackPopupMenu: () => pick });
-  const h = host({ 'anna.theme.hue': 'violet' }, { window: { CreatePopupMenu: menu } });
+  const h = host({ 'hariiro.theme.hue': 'violet' }, { window: { CreatePopupMenu: menu } });
   const ctx = panelContext(h);
-  runScript(ctx, 'js/anna_top_chrome.js');
+  runScript(ctx, 'js/hariiro_top_chrome.js');
   // The saved colour's folder is gone: pink (or the first) is chosen and published on load.
-  assert.equal(h.state.vars.get('anna.theme.hue'), 'pink');
-  assert.equal(h.state.vars.get('anna.theme.degree'), '326');
+  assert.equal(h.state.vars.get('hariiro.theme.hue'), 'pink');
+  assert.equal(h.state.vars.get('hariiro.theme.degree'), '326');
   ctx.settingsMenu(1, 1);
   const themeItems = items.filter(([id]) => id >= 230 && id < 290).map(([id, t]) => [id, t]);
   assert.deepEqual(themeItems.map(([, t]) => t.trim()), ['amber', 'Ocean', '✓ pink', 'Sakura Gold']);
   pick = themeItems[3][0]; items.length = 0; ctx.settingsMenu(1, 1);
-  assert.equal(h.state.vars.get('anna.theme.hue'), 'Sakura Gold');
-  assert.equal(h.state.vars.get('anna.theme.degree'), '45');
-  assert.equal(h.state.vars.get('anna.glass.v2.accent'), '240-200-90');
+  assert.equal(h.state.vars.get('hariiro.theme.hue'), 'Sakura Gold');
+  assert.equal(h.state.vars.get('hariiro.theme.degree'), '45');
+  assert.equal(h.state.vars.get('hariiro.accent'), '240-200-90');
 }
 
 // ---- 5. panels load images from the colour's folder -------------------------------------------------
-for (const f of ['js/anna_transport.js', 'js/anna_footer_slider.js']) {
+for (const f of ['js/hariiro_transport.js', 'js/hariiro_footer_slider.js']) {
   const src = read(f);
-  assert(src.includes('AnnaTheme.folder()'), f);
+  assert(src.includes('HariiroTheme.folder()'), f);
   assert(!src.includes("'pink/'"), f + ': no rose/pink mapping of its own');
 }
 console.log('test_round22_themes: ok');

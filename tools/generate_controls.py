@@ -1,4 +1,4 @@
-"""Deterministic transparent PNG assets for Anna GLASS control surfaces."""
+"""Deterministic transparent PNG assets for Hariiro control surfaces."""
 from pathlib import Path
 from io import BytesIO
 import cairosvg
@@ -28,7 +28,7 @@ write('order_random',svg(shuffle))
 mask='<circle cx="49" cy="48" r="22" fill="'+DEEP+'" stroke="none"/>'
 write('order_shuffle_tracks',svg(shuffle+mask+'<path d="M48 33 V57 Q42 53 37 58 Q34 65 43 66 Q52 65 52 60 V38 L68 34 V42" stroke="'+PINK+'" stroke-width="4"/>'))
 write('order_shuffle_albums',svg(shuffle+mask+'<circle cx="49" cy="48" r="19" stroke="'+PINK+'" stroke-width="3.8"/><circle cx="49" cy="48" r="5" fill="'+WHITE+'" stroke="none"/><path d="M49 33 A15 15 0 0 0 34 48" stroke="'+WHITE+'" stroke-width="2"/>'))
-# Native Shuffle (folders) remains available in foobar2000, but is hidden from Anna's menu.
+# Native Shuffle (folders) remains available in foobar2000, but is hidden from Hariiro's menu.
 
 for direction,name in [(1,'seek_forward_5'),(-1,'seek_backward_5')]:
     # true mirrored, same radius, same endpoint and stroke. Numeric badge is separate.

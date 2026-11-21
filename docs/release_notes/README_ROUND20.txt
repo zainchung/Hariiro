@@ -1,4 +1,4 @@
-Anna Glass V2 — Round 20 (2026-11-21)
+Hariiro — Round 20 (2026-11-21)
 
 - New installs start in GLASS mode (the album/glass middle list). If you
   already use the skin, your current mode is kept.

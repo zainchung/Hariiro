@@ -1,6 +1,6 @@
-Anna GLASS V2 — Round 13 (2026-11-20) Windows acceptance preview
+Hariiro V2 — Round 13 (2026-11-20) Windows acceptance preview
 
-BACK UP your existing foo_ui_panels-skins/Anna_Glass folder and playlist configuration before replacing the skin.
+BACK UP your existing foo_ui_panels-skins/Hariiro folder and playlist configuration before replacing the skin.
 
 1. All four colour palettes now use images/controls/{pink,violet,blue,teal}/.
 2. Sidebar / middle / Queue script OLE targets use Panels UI windowless routing and explicit accept/reject rules.

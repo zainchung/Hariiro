@@ -1,4 +1,4 @@
-# Anna Glass V2 — Round 5 Windows skin test
+# Hariiro — Round 5 Windows skin test
 
 Scope: six refinements from the 2026-11-19 user review. Baseline: Round 4 (`a55cf86`). The `main` branch is untouched.
 

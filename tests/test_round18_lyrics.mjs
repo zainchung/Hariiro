@@ -3,37 +3,37 @@
 import assert from 'node:assert/strict';
 import { createHost, panelContext, run, runScript } from './helpers/fake_host.mjs';
 
-// ---- AnnaLyricTools ---------------------------------------------------------------------
+// ---- HariiroLyricTools ---------------------------------------------------------------------
 {
   const host = createHost(), ctx = panelContext(host);
-  run(ctx, "include('anna_lyric_tools.js');");
-  const T = ctx.AnnaLyricTools;
+  run(ctx, "include('hariiro_lyric_tools.js');");
+  const T = ctx.HariiroLyricTools;
   assert(Object.isFrozen(T));
-  const f = { artist: 'Anna', albumArtist: 'Various', album: 'Glass', title: 'Moon', track: '03', stem: '03 Moon' };
+  const f = { artist: 'Hariiro', albumArtist: 'Various', album: 'Glass', title: 'Moon', track: '03', stem: '03 Moon' };
   const names = [...T.fileNames(f)];
   // Round 11 patterns first, in their old order.
-  assert.deepEqual(names.slice(0, 9), ['Anna - Moon', 'Anna-Moon', 'Moon - Anna', 'Moon', '03 Moon',
-    'Anna\\Moon', 'Anna\\Anna - Moon', 'Glass\\Moon', 'Anna\\Glass\\Moon']);
-  for (const n of ['Anna_Moon', 'Anna - Glass - Moon', 'Various - Moon', '03. Moon', '03 - Moon',
-    '03. Anna - Moon', 'Glass\\03. Moon', 'Glass\\03 - Moon'])
+  assert.deepEqual(names.slice(0, 9), ['Hariiro - Moon', 'Hariiro-Moon', 'Moon - Hariiro', 'Moon', '03 Moon',
+    'Hariiro\\Moon', 'Hariiro\\Hariiro - Moon', 'Glass\\Moon', 'Hariiro\\Glass\\Moon']);
+  for (const n of ['Hariiro_Moon', 'Hariiro - Glass - Moon', 'Various - Moon', '03. Moon', '03 - Moon',
+    '03. Hariiro - Moon', 'Glass\\03. Moon', 'Glass\\03 - Moon'])
     assert(names.includes(n), n);
   assert.equal(new Set(names).size, names.length, 'no duplicates ("03 Moon" is both stem and track pattern)');
-  assert(![...T.fileNames({ ...f, albumArtist: 'Anna' })].includes('Anna - Moon', 9), 'album artist = artist adds nothing');
+  assert(![...T.fileNames({ ...f, albumArtist: 'Hariiro' })].includes('Hariiro - Moon', 9), 'album artist = artist adds nothing');
   assert.deepEqual([...T.fileNames({ title: 'Moon' })], ['Moon'], 'missing tags give no half names');
 
   assert.equal(T.singSeconds(''), 1);
   assert(Math.abs(T.singSeconds('月には叢雲') - 5 * 0.32) < 1e-9);
   assert(T.singSeconds('hello world') < T.singSeconds('こんにちは世界'), 'Latin letters are quicker than kana');
 
-  const O = T.createOffsets('Anna.Test.Offsets');
+  const O = T.createOffsets('Hariiro.Test.Offsets');
   assert.equal(O.get('a'), 0);
   assert.equal(O.nudge('a', 1), 0.5); assert.equal(O.nudge('a', 1), 1); assert.equal(O.nudge('b', -1), -0.5);
-  assert.deepEqual(JSON.parse(host.state.props.get('Anna.Test.Offsets')), { a: 1, b: -0.5 });
-  assert.equal(T.createOffsets('Anna.Test.Offsets').get('a'), 1, 'remembered');
+  assert.deepEqual(JSON.parse(host.state.props.get('Hariiro.Test.Offsets')), { a: 1, b: -0.5 });
+  assert.equal(T.createOffsets('Hariiro.Test.Offsets').get('a'), 1, 'remembered');
   assert.equal(O.set('a', 99), 30, 'clamped'); assert.equal(O.reset('a'), 0);
-  assert.equal(JSON.parse(host.state.props.get('Anna.Test.Offsets')).a, undefined, 'reset removes the entry');
+  assert.equal(JSON.parse(host.state.props.get('Hariiro.Test.Offsets')).a, undefined, 'reset removes the entry');
   for (let i = 0; i < 520; i++) O.set('t' + i, 1);
-  const kept = Object.keys(JSON.parse(host.state.props.get('Anna.Test.Offsets')));
+  const kept = Object.keys(JSON.parse(host.state.props.get('Hariiro.Test.Offsets')));
   assert.equal(kept.length, 500); assert(!kept.includes('t0') && kept.includes('t519'), 'oldest dropped');
   // Portable foobar2000 stores paths relative to its own folder (found in the Windows check:
   // lyrics next to such tracks were never found).
@@ -47,8 +47,8 @@ import { createHost, panelContext, run, runScript } from './helpers/fake_host.mj
   assert.equal(P('C:\\Music\\b.flac'), 'C:\\Music\\b.flac');
   assert.equal(P('https://radio.example/live'), '');
   assert.equal(P('navidrome://x'), '');
-  host.state.props.set('Anna.Test.Offsets', 'not json');
-  assert.equal(T.createOffsets('Anna.Test.Offsets').get('a'), 0, 'corrupt property → no offsets');
+  host.state.props.set('Hariiro.Test.Offsets', 'not json');
+  assert.equal(T.createOffsets('Hariiro.Test.Offsets').get('a'), 0, 'corrupt property → no offsets');
 }
 
 // ---- Lyrics panel -----------------------------------------------------------------------
@@ -63,13 +63,13 @@ const host = createHost({ overrides: {
   window: { Width: 320, Height: 390, CreatePopupMenu: () => ({ AppendMenuItem() {}, AppendMenuSeparator() {}, TrackPopupMenu: () => menu }) },
 } });
 const L = panelContext(host);
-runScript(L, 'js/anna_lyrics.js');
+runScript(L, 'js/hariiro_lyrics.js');
 assert.equal(run(L, 'state.kind'), 'synced');
 assert.equal(L.currentIndex(), 0);
 const choose = id => { menu = id; L.on_mouse_rbtn_up(10, 10); };
 choose(30); // lyrics earlier
 assert.equal(L.currentIndex(), 1, '+0.5 s: the next line is already due at 4.8 s');
-assert.equal(JSON.parse(host.state.props.get('Anna.Lyrics.TrackOffsets.v1'))['C:/Music/a.flac#0'], 0.5);
+assert.equal(JSON.parse(host.state.props.get('Hariiro.Lyrics.TrackOffsets.v1'))['C:/Music/a.flac#0'], 0.5);
 choose(30);
 // The offset is shown while it is not zero.
 const paintTexts = () => { const out = []; L.on_paint(new Proxy({}, { get: (_, k) => k === 'CalcTextWidth' ? () => 8 : (...a) => { if (k === 'GdiDrawText') out.push([String(a[0]), a[2]]); } })); return out; };
@@ -84,7 +84,7 @@ choose(32); // reset
 assert.equal(L.currentIndex(), 1);
 assert(!paintTexts().some(([t]) => /[+−-]\d\.\d/.test(t) && t.includes('s')), 'no label at 0');
 // Another track has its own offset (none).
-assert.equal(JSON.parse(host.state.props.get('Anna.Lyrics.TrackOffsets.v1') || '{}')['C:/Music/a.flac#0'], undefined);
+assert.equal(JSON.parse(host.state.props.get('Hariiro.Lyrics.TrackOffsets.v1') || '{}')['C:/Music/a.flac#0'], undefined);
 
 // Line-stamp-only LRC: a short line followed by a long gap is sung in about its own length,
 // not stretched over the whole gap.
@@ -106,7 +106,7 @@ assert(early.some(([, c]) => c === CURRENT), 'not all sung at the start');
     window: { Width: 320, Height: 390 },
   } });
   const R = panelContext(h);
-  runScript(R, 'js/anna_lyrics.js');
+  runScript(R, 'js/hariiro_lyrics.js');
   assert.equal(run(R, 'state.kind'), 'synced', 'found: ' + seen.slice(0, 3).join(' | '));
   assert.equal(run(R, 'state.filePath'), 'E:\\Apps\\Music\\c.lrc');
 }

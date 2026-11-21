@@ -1,4 +1,4 @@
-# Anna GLASS — replaceable transparent controls
+# Hariiro — replaceable transparent controls
 
 All 16 control assets are **192×192 RGBA PNGs with a transparent background**. They are authored as a unified set; the running skin uses images, not font glyphs, for its footer transport.
 
@@ -16,7 +16,7 @@ All paths are relative to the skin root's `images/controls/<palette>/` directory
 
 The optional `tools/generate_controls.py` recreates the bundled set with CairoSVG and Pillow; it is not needed to run the skin. To theme the skin, replace the PNGs while preserving aspect ratio and alpha.
 
-The native foobar2000 **Shuffle (folders)** playback order is intentionally not exposed by Anna GLASS and has no dedicated PNG. Native playback order index 6 still exists in foobar2000.
+The native foobar2000 **Shuffle (folders)** playback order is intentionally not exposed by Hariiro and has no dedicated PNG. Native playback order index 6 still exists in foobar2000.
 
 The ±5-second PNGs contain an explicit **5s** label. The extra note and disc badges are enlarged in the two shuffle assets.
 

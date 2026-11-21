@@ -7,31 +7,31 @@ ornaments into the pink colour and give every other colour its own.
 ## Wallpapers
 
 `images/wallpapers/` now holds the owner's two pictures, `moon.png` and
-`櫻花樹下的水晶茶韻.png` (1672 × 941, copied from the installed skin, unchanged; `Anna.jpg`
+`櫻花樹下的水晶茶韻.png` (1672 × 941, copied from the installed skin, unchanged; `Hariiro.jpg`
 removed). `moon.png` is the default (`pvar.once` in the ini, `main.txt` fallback,
 `DEFAULT_WALLPAPER`); the Round 21 rules (peers, fallback when deleted) are unchanged.
 `moon.png` carried a small leftover overlay in its top-left corner (an icon and "000 | Co").
 
 **Update (after commit 47ac3e2):** the owner replaced both pictures in the installed skin;
-the repo now ships those files unchanged: `Anna_GLASS_UI_2560x1440.png` (the night lake at
-2560 × 1440, without the overlay; **default**) and `Anna_GLASS_UI2_2560x1440.png` (byte-for-byte
+the repo now ships those files unchanged: `Hariiro_UI_2560x1440.png` (the night lake at
+2560 × 1440, without the overlay; **default**) and `Hariiro_UI2_2560x1440.png` (byte-for-byte
 the former `櫻花樹下的水晶茶韻.png`, 1672 × 941 despite its name). Defaults in the ini,
 `main.txt` and `DEFAULT_WALLPAPER` follow; a saved `moon.png` falls back to the default by the
 Round 21 rule. Windows check: the Wallpaper submenu lists both, the first one ticked.
 
 ## Accent colours are folders
 
-- `AnnaTheme.scan(skinDir)`: every folder in `images\controls\` with `play.png`, sorted by
+- `HariiroTheme.scan(skinDir)`: every folder in `images\controls\` with `play.png`, sorted by
   name; label = folder name. Hue and accent come from `theme.json`
   (`{"hue": n, "accent": "r-g-b"}`), else from the bundled table, else from `play.png`
   (`GetColourSchemeJSON`: most frequent colour with saturation ≥ 0.25 and value ≥ 0.35).
   Directory listing uses `utils.Glob(path, 0, 0x10)` (verified on the host).
-- Saved state: `anna.theme.hue` = folder (`'rose'` from older builds = `pink`),
-  `anna.theme.degree` = hue (new, `AnnaShared.PVAR.themeDegree`), `anna.glass.v2.accent`.
+- Saved state: `hariiro.theme.hue` = folder (`'rose'` from older builds = `pink`),
+  `hariiro.theme.degree` = hue (new, `HariiroShared.PVAR.themeDegree`), `hariiro.accent`.
   Panels read the hue from the variable, so they never touch the file system; before
   TopChrome has published one, bundled names use their known hue.
 - `recolor()` rotates from the pink base (326) to the stored hue; pink draws unchanged.
-  `AnnaPaintCache` keys bitmaps by `AnnaTheme.key()` (folder@hue).
+  `HariiroPaintCache` keys bitmaps by `HariiroTheme.key()` (folder@hue).
 - TopChrome builds the Accent colour submenu from the scan (up to 60, grey hint
   `themeHint` in nine languages) and, on load and each time the menu opens, makes sure the
   saved folder exists (else `pink`, else the first) and that hue and accent are published.
@@ -44,8 +44,8 @@ Round 21 rule. Windows check: the Wallpaper submenu lists both, the first one ti
 folders got recoloured copies from `tools/make_accent_palette.py <id> <hue> "corner_*.png"`
 (new optional file filter, same hue rule as the controls; the gold dots stay gold).
 `main.txt` draws corners and the volume icon from
-`images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/…`,
-so a new colour folder needs no layout change. `pvar.once.anna.theme.hue = pink`.
+`images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/…`,
+so a new colour folder needs no layout change. `pvar.once.hariiro.theme.hue = pink`.
 
 `tools/package_skin.py` now ships each `theme.json` and checks it has a numeric hue.
 
@@ -56,14 +56,14 @@ line, cover frame, queue card, labels), and (b) the warm peach/gold frames in th
 (GLASS album and cover frames, tooltip frame, gold highlights, two queue hints, a sidebar
 detail), whose hue 0–50 lay outside `recolor`'s pink range.
 
-- `AnnaTheme.recolor`: warm colours (red channel highest, ≥ 120, spread ≥ 22, hue ≤ 50) take
+- `HariiroTheme.recolor`: warm colours (red channel highest, ≥ 120, spread ≥ 22, hue ≤ 50) take
   the colour's hue with their saturation and brightness kept; pink still draws unchanged.
   `tools/make_accent_palette.py` has the same rule; the corner PNGs of the five other
   colours were regenerated (their gold dots now follow too; control icons have no warm
   pixels and are unchanged).
 - `main.txt`: each colour that a colour changes is written
-  `$if2($getpvar(anna.tc.R-G-B),R-G-B)` (22 places, 16 colours = `AnnaTheme.LAYOUT_COLORS`).
-  TopChrome publishes `anna.tc.<base>` = `AnnaTheme.layoutColor(base)` on load, whenever it
+  `$if2($getpvar(hariiro.tc.R-G-B),R-G-B)` (22 places, 16 colours = `HariiroTheme.LAYOUT_COLORS`).
+  TopChrome publishes `hariiro.tc.<base>` = `HariiroTheme.layoutColor(base)` on load, whenever it
   checks the colour, and after a choice (only changed values are written).
   Verified first on the host that `brushcolor-` / `pencolor-` accept `$getpvar`.
 
@@ -75,11 +75,11 @@ frame were all light blue — no peach or gold frame left; with amber they turne
 The other colour sets still showed pink: the old rule skipped dark tints (red < 70), pale
 tints (spread < 22) and some vivid ones, so e.g. the previous/next/order/±5 s/speaker glows,
 pause and butterfly rings and headphone cables kept their pink in every set (up to 100 % of a
-picture's pink pixels), and the pale pink now-playing texts (top right `anna_now_details.js`,
+picture's pink pixels), and the pale pink now-playing texts (top right `hariiro_now_details.js`,
 bottom left in `main.txt`) never changed. Rotating by the full hue distance also let
 tints "cross over": a purple glass tone (259°) became magenta under amber.
 
-New rule, identical in `AnnaTheme.recolor` and `tools/make_accent_palette.py`:
+New rule, identical in `HariiroTheme.recolor` and `tools/make_accent_palette.py`:
 - any tint with hue 255–360 and channel spread ≥ 6 (dark, pale or vivid) moves to the target
   hue keeping 30 % of its distance from pink 326° (`SPREAD`), with its saturation and
   brightness — so it stays within about −21…+10° of the target;
@@ -118,12 +118,12 @@ folder has the 20 PNGs (alpha kept, corners recoloured) and `theme.json`; `main.
 scan (order, labels, theme.json, colour from play.png, folders without play.png ignored);
 `set`, legacy `rose`, hue fallback; the menu (order, tick, choice, missing saved folder);
 panels load from the folder. Older tests follow (20 PNGs per folder, preset list, menu ids,
-corner paths, `themeDegree` owned by anna_theme.js). `tests/test_round22_unified_colours.mjs`
+corner paths, `themeDegree` owned by hariiro_theme.js). `tests/test_round22_unified_colours.mjs`
 (failed first): warm rule per colour, no fixed accent-dependent colour left in `main.txt`,
 `LAYOUT_COLORS` = wrapped colours, TopChrome publishes them, the image tool has the rule.
 `tests/test_round22_native_colours.mjs` (failed first): no highlight lines, no tinted `color.*`.
 `tests/test_round22_icons.mjs` (failed first): every picture of every set equals the pink one put
-through `AnnaTheme.recolor` pixel by pixel (±2), alpha kept; the now-playing texts follow.
+through `HariiroTheme.recolor` pixel by pixel (±2), alpha kept; the now-playing texts follow.
 `npm test`: 34/34.
 
 ## Windows check (2026-11-21)

@@ -1,23 +1,23 @@
-// Anna Glass V2 — real playback queue, transparent child-window JS Panel.
+// Hariiro — real playback queue, transparent child-window JS Panel.
 // Requires JS Panel 1.6+ for queue APIs. A real child window receives its own
-// OLE drops (Round 15); AnnaDpi keeps it at the right size. No fake drag affordances.
+// OLE drops (Round 15); HariiroDpi keeps it at the right size. No fake drag affordances.
 // The buffer playlist keeps queue references valid after the drop.
 'use strict';
-include('anna_i18n.js');
-include('anna_theme.js');
-include('anna_shared.js');
-include('anna_dpi.js');
-include('anna_drop_fix.js');
-include('anna_undo.js');
+include('hariiro_i18n.js');
+include('hariiro_theme.js');
+include('hariiro_shared.js');
+include('hariiro_dpi.js');
+include('hariiro_drop_fix.js');
+include('hariiro_undo.js');
 const ROW=35, TOP=29, TXT=0xfff7eaf3, MUTED=0xffc5c5df, PINK=0xffffbbd8;
-const FONT=AnnaDpi.font('Yu Gothic UI',11,0), BOLD=AnnaDpi.font('Yu Gothic UI',11,1);
-const SMALL=AnnaDpi.font('Segoe UI',9,0), DT=0x8024;
-const TRASH_FONT=AnnaDpi.font('Segoe UI Emoji',14,0);
-const BUFFER='Anna - Queue Buffer';
-const BUFFER_PROPERTY='Anna.OwnedQueueBuffer.v1';
+const FONT=HariiroDpi.font('Yu Gothic UI',11,0), BOLD=HariiroDpi.font('Yu Gothic UI',11,1);
+const SMALL=HariiroDpi.font('Segoe UI',9,0), DT=0x8024;
+const TRASH_FONT=HariiroDpi.font('Segoe UI Emoji',14,0);
+const BUFFER='Hariiro - Queue Buffer';
+const BUFFER_PROPERTY='Hariiro.OwnedQueueBuffer.v1';
 // Do not reuse a pre-existing playlist simply because its name matches BUFFER.
 let ownedBufferName=String(window.GetProperty(BUFFER_PROPERTY,'')||'');
-if(ownedBufferName!==BUFFER && !/^Anna - Queue Buffer #(?!1$)[1-9][0-9]*$/.test(ownedBufferName))
+if(ownedBufferName!==BUFFER && !/^Hariiro - Queue Buffer #(?!1$)[1-9][0-9]*$/.test(ownedBufferName))
     ownedBufferName='';
 const BUFFER_LIMIT=400; // compact only when all queue items are independent handles
 const TF_TITLE=fb.TitleFormat('$if(%tracknumber%,$ifgreater($num(%discnumber%,1),1,$num(%discnumber%,1)-$num(%tracknumber%,2),$num(%tracknumber%,2)). ,)$if2(%title%,Untitled)');
@@ -26,7 +26,7 @@ let rows=[], scroll=0,hover=-1,buffer=-1,processed=0,acceptingDrop=false,error='
 let dragIndex=-1,dragTarget=-1,dragStartY=0,movingRow=false;
 let dragY=0,trashHover=false;
 function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-const queueUndo=AnnaUndo.create(()=>window.Repaint()); // Round 17: undo "clear queue"
+const queueUndo=HariiroUndo.create(()=>window.Repaint()); // Round 17: undo "clear queue"
 // Clears the queue and offers to put it back. Items queued later stay, after the old ones
 // (the API can only append).
 function clearQueue(){
@@ -34,7 +34,7 @@ function clearQueue(){
     if(!old.length){refresh();return;}
     plman.FlushPlaybackQueue();
     refresh();
-    queueUndo.offer(AnnaI18n.t('queueCleared')+' '+old.length,()=>{
+    queueUndo.offer(HariiroI18n.t('queueCleared')+' '+old.length,()=>{
         const later=plman.GetPlaybackQueueHandles().Convert();
         plman.FlushPlaybackQueue();
         for(const h of old.concat(later))plman.AddItemToPlaybackQueue(h);
@@ -44,9 +44,9 @@ function clearQueue(){
 function publishBufferName(){
     try {
         if(typeof panelsui!=='undefined' && ownedBufferName &&
-           panelsui.GetVariable(AnnaShared.PVAR.queueBuffer,'')!==ownedBufferName)
-            panelsui.SetVariable(AnnaShared.PVAR.queueBuffer,ownedBufferName);
-    }catch(e){console.log('Anna queue: cannot publish buffer name '+String(e));}
+           panelsui.GetVariable(HariiroShared.PVAR.queueBuffer,'')!==ownedBufferName)
+            panelsui.SetVariable(HariiroShared.PVAR.queueBuffer,ownedBufferName);
+    }catch(e){console.log('Hariiro queue: cannot publish buffer name '+String(e));}
 }
 function bufferPlaylist(){
     // An owned buffer is persistent because legacy queue items may use playlist indices.
@@ -70,7 +70,7 @@ function bufferPlaylist(){
         processed=plman.PlaylistItemCount(buffer);
         publishBufferName();return buffer;
     }
-    throw new Error(AnnaI18n.t('queueBufferFull'));
+    throw new Error(HariiroI18n.t('queueBufferFull'));
 }
 function refresh(){
     try {
@@ -78,16 +78,16 @@ function refresh(){
         const titles=TF_TITLE.EvalWithMetadbs(handles), artists=TF_ARTIST.EvalWithMetadbs(handles);
         rows=handles.Convert().map((h,i)=>({handle:h,title:String(titles[i]||''),artist:String(artists[i]||'')}));
         error='';
-    }catch(e){rows=[];error=AnnaI18n.t('queueUnavailable')+': '+String(e);}
-    scroll=clamp(scroll,0,Math.max(0,rows.length*ROW-Math.max(0,AnnaDpi.height()-TOP)));
+    }catch(e){rows=[];error=HariiroI18n.t('queueUnavailable')+': '+String(e);}
+    scroll=clamp(scroll,0,Math.max(0,rows.length*ROW-Math.max(0,HariiroDpi.height()-TOP)));
     window.Repaint();
 }
 function rowAt(y){
-    if(y<TOP||y>=AnnaDpi.height())return -1;
+    if(y<TOP||y>=HariiroDpi.height())return -1;
     const index=Math.floor((y-TOP+scroll)/ROW);
     return index>=0&&index<rows.length?index:-1;
 }
-function trashHit(x,y){return y>=1&&y<TOP&&x>=AnnaDpi.width()-151&&x<AnnaDpi.width()-122;}
+function trashHit(x,y){return y>=1&&y<TOP&&x>=HariiroDpi.width()-151&&x<HariiroDpi.width()-122;}
 function reorder(from,to){
     if(from<0||to<0||from>=rows.length||to>=rows.length||from===to)return false;
     // The API exposes queue append/remove but not insert. Rebuild in exact
@@ -105,8 +105,8 @@ function reorder(from,to){
         try{
             plman.FlushPlaybackQueue();
             for(const h of original)plman.AddItemToPlaybackQueue(h);
-        }catch(restoreError){console.log('Anna queue restore: '+String(restoreError));}
-        error=AnnaI18n.t('queueReorderFailed')+': '+String(e);window.Repaint();return false;
+        }catch(restoreError){console.log('Hariiro queue restore: '+String(restoreError));}
+        error=HariiroI18n.t('queueReorderFailed')+': '+String(e);window.Repaint();return false;
     }
 }
 function moveOrRemove(index,delta){
@@ -115,12 +115,12 @@ function moveOrRemove(index,delta){
     return reorder(index,index+delta);
 }
 function on_paint(gr){
- gr=AnnaTheme.graphics(gr);
+ gr=HariiroTheme.graphics(gr);
     paintQueue(gr);
-    queueUndo.paint(gr,AnnaDpi.width(),AnnaDpi.height(),SMALL,BOLD);
+    queueUndo.paint(gr,HariiroDpi.width(),HariiroDpi.height(),SMALL,BOLD);
 }
 function paintQueue(gr){
-    const w=AnnaDpi.width(),h=AnnaDpi.height();if(w<10||h<10)return;
+    const w=HariiroDpi.width(),h=HariiroDpi.height();if(w<10||h<10)return;
     // Queue mode is deliberately visually distinct from lyrics: opaque rose/navy.
     // Only an explicit user click on the clear button flushes the playback queue.
     gr.FillSolidRect(1,1,w-2,h-2,0x94502c59);
@@ -136,12 +136,12 @@ function paintQueue(gr){
         removeCue?0xffffffff:0xffffd5e8,w-148,5,24,21,0x8025);
     gr.FillRoundRect(w-119,4,108,23,5,5,0xff8b3c72);
     gr.DrawRoundRect(w-119,4,108,23,5,5,1,0xffffc6df);
-    gr.GdiDrawText(AnnaI18n.t('clearQueue'),SMALL,0xffffffff,w-117,5,104,21,0x8025);
+    gr.GdiDrawText(HariiroI18n.t('clearQueue'),SMALL,0xffffffff,w-117,5,104,21,0x8025);
     gr.FillSolidRect(12,TOP-4,w-24,1,0x88e8adc4);
     if(error) {gr.GdiDrawText(error,SMALL,PINK,12,40,w-24,56,0x10);return;}
     if(!rows.length) {
-        gr.GdiDrawText(AnnaI18n.t('queueEmpty'),BOLD,TXT,12,Math.max(40,h/2-37),w-24,28,0x25);
-        gr.GdiDrawText(AnnaI18n.t('dropQueue'),SMALL,TXT,
+        gr.GdiDrawText(HariiroI18n.t('queueEmpty'),BOLD,TXT,12,Math.max(40,h/2-37),w-24,28,0x25);
+        gr.GdiDrawText(HariiroI18n.t('dropQueue'),SMALL,TXT,
             12,Math.max(68,h/2+3),w-24,30,0x25);
     }
     const first=Math.floor(scroll/ROW),shown=Math.ceil(Math.max(0,h-TOP)/ROW)+1;
@@ -162,12 +162,12 @@ function paintQueue(gr){
     }
     if(movingRow&&dragIndex>=0){
         if(trashHover){
-            gr.GdiDrawText(AnnaI18n.t('queueRemoving'),BOLD,0xffffe4c6,
+            gr.GdiDrawText(HariiroI18n.t('queueRemoving'),BOLD,0xffffe4c6,
                 12,h-33,w-24,28,0x25);
         }else{
             const label=dragTarget>=0?
-                AnnaI18n.t('queueMove')+' '+String(dragIndex+1).padStart(2,'0')+' → '+
-                String(dragTarget+1).padStart(2,'0'):AnnaI18n.t('queueDragReorder');
+                HariiroI18n.t('queueMove')+' '+String(dragIndex+1).padStart(2,'0')+' → '+
+                String(dragTarget+1).padStart(2,'0'):HariiroI18n.t('queueDragReorder');
             gr.FillRoundRect(18,h-39,w-36,29,7,7,0xba633b68);
             gr.DrawRoundRect(18,h-39,w-36,29,7,7,1,0xffffb9df);
             gr.GdiDrawText(label,BOLD,0xffffffff,22,h-36,w-44,23,0x25);
@@ -182,7 +182,7 @@ function paintQueue(gr){
     }
     if(acceptingDrop) {
         gr.DrawRoundRect(4,4,w-9,h-9,8,8,2,0xffffb4d8);
-        gr.GdiDrawText(AnnaI18n.t('dropQueue'),BOLD,PINK,12,Math.max(32,h/2-14),w-24,30,0x25);
+        gr.GdiDrawText(HariiroI18n.t('dropQueue'),BOLD,PINK,12,Math.max(32,h/2-14),w-24,30,0x25);
     }
 }
 function on_drag_enter(action,x,y){on_drag_over(action,x,y);}
@@ -191,7 +191,7 @@ function on_drag_over(action,x,y){
         const p=bufferPlaylist();
         action.Effect=plman.IsPlaylistLocked(p)?0:1;
         acceptingDrop=action.Effect!==0;
-    }catch(e){action.Effect=0;error=AnnaI18n.t('queueUnavailable')+': '+String(e);acceptingDrop=false;}
+    }catch(e){action.Effect=0;error=HariiroI18n.t('queueUnavailable')+': '+String(e);acceptingDrop=false;}
     window.Repaint();
 }
 function on_drag_leave(){acceptingDrop=false;window.Repaint();}
@@ -204,7 +204,7 @@ function compactBufferIfSafe(p){
     plman.ClearPlaylist(p); // hides old transient tracks; no user playlists touched
     processed=0;
 }
-// Files from another program never reach on_drag_drop (see anna_drop_fix.js).
+// Files from another program never reach on_drag_drop (see hariiro_drop_fix.js).
 function externalDropPlan(){
     try{return plman.IsPlaylistLocked(bufferPlaylist())?{kind:'reject'}:{kind:'queue'};}
     catch(e){return {kind:'reject'};}
@@ -220,7 +220,7 @@ function on_drag_drop(action,x,y){
         action.Base=processed;
         action.ToSelect=false;
         action.Effect=1;
-    }catch(e){action.Effect=0;error=AnnaI18n.t('queueDropFailed')+': '+String(e);window.Repaint();}
+    }catch(e){action.Effect=0;error=HariiroI18n.t('queueDropFailed')+': '+String(e);window.Repaint();}
 }
 function on_playlist_items_added(p){
     if(buffer<0||p!==buffer)return;
@@ -232,18 +232,18 @@ function on_playlist_items_added(p){
         for(let i=processed;i<count;i++)
             plman.AddItemToPlaybackQueue(handles.Item(i)); // independent of buffer indices
         processed=count;
-    }catch(e){error=AnnaI18n.t('queueDropFailed')+': '+String(e);}
+    }catch(e){error=HariiroI18n.t('queueDropFailed')+': '+String(e);}
     refresh();
 }
 function on_mouse_lbtn_down(x,y){
-    if(queueUndo.hit(x,y,AnnaDpi.width(),AnnaDpi.height())){dragIndex=-1;movingRow=false;return;}
+    if(queueUndo.hit(x,y,HariiroDpi.width(),HariiroDpi.height())){dragIndex=-1;movingRow=false;return;}
     dragIndex=rowAt(y);dragStartY=y;dragTarget=dragIndex;dragY=y;trashHover=false;movingRow=false;
 }
 function on_mouse_lbtn_up(x,y){
-    const notice=queueUndo.hit(x,y,AnnaDpi.width(),AnnaDpi.height());
+    const notice=queueUndo.hit(x,y,HariiroDpi.width(),HariiroDpi.height());
     if(notice){
         dragIndex=-1;movingRow=false;dragTarget=-1;trashHover=false;
-        if(notice==='undo'){try{queueUndo.undo();}catch(e){error=AnnaI18n.t('undoFailed')+': '+String(e);}}
+        if(notice==='undo'){try{queueUndo.undo();}catch(e){error=HariiroI18n.t('undoFailed')+': '+String(e);}}
         window.Repaint();return true;
     }
     const from=dragIndex, wasMoving=movingRow;
@@ -254,7 +254,7 @@ function on_mouse_lbtn_up(x,y){
         if(target>=0&&target!==from){reorder(from,target);return true;}
         window.Repaint();return true;
     }
-    if(y>=0&&y<TOP&&x>=AnnaDpi.width()-123){
+    if(y>=0&&y<TOP&&x>=HariiroDpi.width()-123){
         clearQueue();return true;
     }
     if(trashHit(x,y))return true;
@@ -273,18 +273,18 @@ function on_mouse_move(x,y,mask){
     if(n!==hover||movingRow){hover=n;window.Repaint();}
 }
 function on_mouse_leave(){hover=-1;if(!movingRow)window.Repaint();}
-function on_mouse_wheel(step){scroll=clamp(scroll-step*ROW*2,0,Math.max(0,rows.length*ROW-(AnnaDpi.height()-TOP)));window.Repaint();}
+function on_mouse_wheel(step){scroll=clamp(scroll-step*ROW*2,0,Math.max(0,rows.length*ROW-(HariiroDpi.height()-TOP)));window.Repaint();}
 function on_mouse_rbtn_up(x,y){
     const i=rowAt(y);
     const m=window.CreatePopupMenu();
     if(i>=0){
-        m.AppendMenuItem(0,10,AnnaI18n.t('moveUp'));
-        m.AppendMenuItem(0,11,AnnaI18n.t('moveDown'));
-        m.AppendMenuItem(0,12,AnnaI18n.t('removeQueue'));
+        m.AppendMenuItem(0,10,HariiroI18n.t('moveUp'));
+        m.AppendMenuItem(0,11,HariiroI18n.t('moveDown'));
+        m.AppendMenuItem(0,12,HariiroI18n.t('removeQueue'));
         m.AppendMenuSeparator();
     }
-    if(rows.length)m.AppendMenuItem(0,13,AnnaI18n.t('clearQueue'));
-    const cmd=AnnaDpi.popup(m,x,y);
+    if(rows.length)m.AppendMenuItem(0,13,HariiroI18n.t('clearQueue'));
+    const cmd=HariiroDpi.popup(m,x,y);
     if(cmd===10)moveOrRemove(i,-1);
     else if(cmd===11)moveOrRemove(i,1);
     else if(cmd===12)moveOrRemove(i,null);
@@ -294,8 +294,8 @@ function on_mouse_rbtn_up(x,y){
 function on_size(){refresh();}
 refresh();
 
-function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}
 
-AnnaDropFix.install({plan:externalDropPlan});
+HariiroDropFix.install({plan:externalDropPlan});
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
-AnnaDpi.install();
+HariiroDpi.install();

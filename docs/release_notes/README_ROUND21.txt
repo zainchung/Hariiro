@@ -1,7 +1,7 @@
-Anna Glass V2 — Round 21 (2026-11-21)
+Hariiro — Round 21 (2026-11-21)
 
 - Wallpapers: every image in images\wallpapers is listed by its file name,
-  including the bundled one (now "Anna"). Delete a file and it leaves the menu;
+  including the bundled one (now "Hariiro"). Delete a file and it leaves the menu;
   if it was in use, another wallpaper is chosen automatically.
 - Much lower CPU while music plays (about a fifth of before on the test machine):
   the lyrics card and the seek bar no longer redraw the whole window on every

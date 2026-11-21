@@ -1,4 +1,4 @@
-Anna Glass V2 — version 1.0.0 (Round 20, 2026-11-21)
+Hariiro — version 1.0.0 (Round 23, 2026-11-21)
 
 A transparent "glass" skin for foobar2000.
 
@@ -25,7 +25,7 @@ Features
 - Menu ☰ → Accent colour: every folder in images\controls, by folder name (six
   bundled). Copy a folder, change its pictures and theme.json, and it appears.
 - Menu ☰ → Wallpaper: every .jpg / .png / .bmp file in images\wallpapers in the
-  skin folder, listed by file name (two Anna_GLASS_UI pictures are bundled). Delete a file
+  skin folder, listed by file name (two Hariiro_UI pictures are bundled). Delete a file
   and it leaves the menu; if it was in use, another one is chosen.
 - Languages: English, Español, Português, 简体中文, 繁體中文, 日本語, Français,
   Deutsch, Русский (menu ☰ → Skin language; "Auto" follows Windows).
@@ -35,10 +35,26 @@ Known limits
   saved (or lyrics in tags). Online search stays in ESLyric.
 - In NATIVE mode the middle list follows foobar2000's own rules, not the Glass ones.
 - Not yet tested on Windows: 125 % / 150 % display scaling and moving the window
-  between monitors with different scaling, drags from the Artist tab, Japanese IME
-  pre-edit text in the search box.
+  between monitors with different scaling, Japanese IME pre-edit text in the
+  search box.
 
-What is new in Round 20
+Updating from a test build
+- 1.0.0 is the first release under the name Hariiro. Settings, window
+  properties and the skin's own playlists of earlier test builds (which used
+  another name) are not carried over: the skin starts with its defaults and
+  creates new "Hariiro - ..." playlists.
+- The old playlists of a test build stay in foobar2000 as normal playlists.
+  To keep your favourites, copy the tracks of the old Favorites playlist into
+  "Hariiro - Favorites", then delete the old playlists you no longer need.
+- Install into a new, empty skin folder (for example foo_ui_panels-skins\Hariiro)
+  and choose it in Panels UI, rather than over a test build.
+
+What is new since the previous builds (Rounds 20-23)
+- New name: Hariiro. Second bundled wallpaper now 2560 x 1440.
 - New installs start in GLASS mode.
-- All wallpapers are in images\wallpapers, including the bundled one. Your
-  wallpaper choice carries over.
+- Two new bundled wallpapers; every image in images\wallpapers is listed by name.
+- Accent colours are folders in images\controls; corners, frames, buttons and
+  now-playing texts all follow the chosen colour, in GLASS and NATIVE mode.
+- Five more languages: Español, Português, Français, Deutsch, Русский.
+- Much lower CPU and memory while music plays; moving the window hitches less.
+- Smoother power button in the title bar.

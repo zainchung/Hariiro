@@ -2,20 +2,20 @@
 
 Owner's report after 1.0.0:
 
-1. The Wallpaper menu always had *Default (Anna)*, even after its file was deleted.
+1. The Wallpaper menu always had *Default (Hariiro)*, even after its file was deleted.
 2. CPU and memory use were high once the skin was loaded.
 3. Moving the main window by dragging stuttered.
 
 ## 1. Wallpapers are peers
 
-The bundled picture is now `images/wallpapers/Anna.jpg` (git rename of `wallpaper.jpg`) and
-is listed like every other image, by file name. `anna_top_chrome.js` has no built-in entry
+The bundled picture is now `images/wallpapers/Hariiro.jpg` (git rename of `wallpaper.jpg`) and
+is listed like every other image, by file name. `hariiro_top_chrome.js` has no built-in entry
 any more; the `wallpaperDefault` string is gone.
 
 The saved choice must be an existing image (`ensureWallpaper`, on load and each time the
-menu opens): a deleted file, or `wallpaper.jpg` saved by an older build, moves to `Anna.jpg`
+menu opens): a deleted file, or `wallpaper.jpg` saved by an older build, moves to `Hariiro.jpg`
 if it exists, otherwise to the first image by name. Nothing is written when the folder is
-empty or cannot be read. `pvar.once` in the ini and the `main.txt` fallback name `Anna.jpg`.
+empty or cannot be read. `pvar.once` in the ini and the `main.txt` fallback name `Hariiro.jpg`.
 
 ## 2. CPU — what the Windows measurement showed
 
@@ -43,12 +43,12 @@ without them). The native Spectrum panel itself costs about 10 %; it stays.
 
 **Changes.**
 
-- `foo_ui_panels.ini`: `AnnaLyrics` and `FooterSeek` are child windows. As the rules require,
-  both scripts now go through `AnnaDpi` (fonts, width/height, popup menu, `repaintRect`,
+- `foo_ui_panels.ini`: `HariiroLyrics` and `FooterSeek` are child windows. As the rules require,
+  both scripts now go through `HariiroDpi` (fonts, width/height, popup menu, `repaintRect`,
   `install()` last); `test_round15_dpi` checks them with the other child windows.
-  `FooterVolume` shares the script and stays windowless (`AnnaDpi` then has scale 1).
-  The lyrics card only rejects drops, so it needs no `AnnaDropFix`.
-- `anna_glass_playlist.js`: the now-playing glyph repaints only its own 20 px rectangle, and
+  `FooterVolume` shares the script and stays windowless (`HariiroDpi` then has scale 1).
+  The lyrics card only rejects drops, so it needs no `HariiroDropFix`.
+- `hariiro_glass_playlist.js`: the now-playing glyph repaints only its own 20 px rectangle, and
   nothing while its row is collapsed or scrolled out of view.
 
 ## 3. Memory
@@ -86,7 +86,7 @@ benchmark in the host:
 | `DrawImage` / `GdiAlphaBlend` of a ready 620 × 45 bitmap | 0.08–0.10 ms |
 | `GdiDrawText` | ~0.035 ms |
 
-**Change.** `js/anna_paint_cache.js`: `shape()` draws a fixed look (round rects, glows,
+**Change.** `js/hariiro_paint_cache.js`: `shape()` draws a fixed look (round rects, glows,
 lines; never text, which loses alpha in a bitmap) once per key, size, DPI scale and accent
 into a bitmap and then only blits it (LRU, 96 bitmaps, released when evicted); `icon()`
 resizes an image once. Used for GLASS rows, album boxes, cover frame and scrollbar, sidebar
@@ -100,7 +100,7 @@ host scales them — sharp up to 200 %.
 ## 6. Five more languages (owner's request)
 
 Español, Português, Français, Deutsch and Русский join English, 简体中文, 繁體中文 and 日本語
-(繁體中文 kept although the owner's reference list did not show it). `anna_i18n.js` keeps the
+(繁體中文 kept although the owner's reference list did not show it). `hariiro_i18n.js` keeps the
 four original columns in `ROWS` and the new ones in `MORE` (key → es, pt, fr, de, ru); all 152
 keys exist in all nine. Loanwords stay where usual (pt/fr/de "Playlists"). "Auto" maps
 `es-*`, `pt-*`, `fr-*`, `de-*`, `ru-*`; other unknown locales still fall back to 日本語 as before.
@@ -108,11 +108,11 @@ keys exist in all nine. Loanwords stay where usual (pt/fr/de "Playlists"). "Auto
 The language submenu lists every language by its own name in the reference order
 (Auto, English, Español, Português, 中文（简体）, 中文（繁體）, 日本語, Français, Deutsch,
 Русский); the former `langZhCN/langZhTW/langJa/langEn` strings are gone
-(`AnnaI18n.nativeName`).
+(`HariiroI18n.nativeName`).
 
-`main.txt` drew four labels by testing `anna.language` itself, so with "Auto" they showed the
+`main.txt` drew four labels by testing `hariiro.language` itself, so with "Auto" they showed the
 Japanese fallback. TopChrome now publishes the resolved language as
-`anna.language.shown` (`AnnaShared.PVAR.languageShown`, on load and on every change) and
+`hariiro.language.shown` (`HariiroShared.PVAR.languageShown`, on load and on every change) and
 `main.txt` tests that, with branches for all nine languages.
 
 Windows check: the submenu showed the ten entries in order with the tick on 中文（简体）;

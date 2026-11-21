@@ -11,9 +11,9 @@ import {installIncludeShim} from './helpers/js_panel.mjs';
 const originalVmRun=installIncludeShim(vm);
 for(const file of readdirSync(root+'js').filter(x=>x.endsWith('.js'))){new vm.Script(readFileSync(root+'js/'+file,'utf8'),{filename:file});}
 const main=readFileSync(root+'main.txt','utf8');const ini=readFileSync(root+'foo_ui_panels.ini','utf8');
-const pack=['NavTabs','TopChrome','NativeScroll','FooterQueueToggle','FooterVolume','FooterTransport','NowDetails','AnnaLyrics','DesktopLyrics','AnnaQueue','SwitchGlass','SwitchNative'];
+const pack=['NavTabs','TopChrome','NativeScroll','FooterQueueToggle','FooterVolume','FooterTransport','NowDetails','HariiroLyrics','DesktopLyrics','HariiroQueue','SwitchGlass','SwitchNative'];
 for(const name of pack){assert.match(main,new RegExp(`\\$panel\\(${name},`));assert.match(ini,new RegExp(`panel\\.${name}\\.script = js/`));}
-assert(!main.includes('FooterVolumePct'));assert(!ini.includes('FooterVolumePct'));assert(!readFileSync(root+'js/anna_footer_slider.js','utf8').includes('PERCENT_LABEL'));
+assert(!main.includes('FooterVolumePct'));assert(!ini.includes('FooterVolumePct'));assert(!readFileSync(root+'js/hariiro_footer_slider.js','utf8').includes('PERCENT_LABEL'));
 assert(!main.includes('images/controls/play_ring.png'));
 assert.match(main,/\$panel\(Cover,Album Art,/);assert(!ini.includes('panel.Cover.script'));
 assert(!ini.includes('window.aspect_lock'));assert(!ini.includes('window.size = 1280 720'));
@@ -38,21 +38,21 @@ for(const w of widths){const h=Math.round(w*9/16);const navEnd=16+350,searchStar
  const deskX=w-209,deskRight=deskX+84;
  assert.equal(queue.x-deskRight,8);assert(deskX>transportEnd+10);
 }
-const flow=readFileSync(root+'js/anna_now_details.js','utf8');assert(flow.includes("gdi.Font('Yu Gothic UI',15"));assert(flow.includes("gdi.Font('Yu Gothic UI',12"));assert(flow.includes("gdi.Font('Yu Gothic UI',11"));
+const flow=readFileSync(root+'js/hariiro_now_details.js','utf8');assert(flow.includes("gdi.Font('Yu Gothic UI',15"));assert(flow.includes("gdi.Font('Yu Gothic UI',12"));assert(flow.includes("gdi.Font('Yu Gothic UI',11"));
 assert(flow.includes('const date=field(handle'));assert(!flow.includes('y+=6'));
-const sidebar=readFileSync(root+'js/playlist_browser.js','utf8');assert(sidebar.includes("source.kind==='artist'"));assert(sidebar.includes('AnnaDpi.doDragDrop(window.ID,handles,1,{})')); // Round 15: fb.DoDragDrop via the DPI adapter
-const desk=readFileSync(root+'js/anna_desktop_lyrics.js','utf8');assert(desk.includes('AnnaTheme.paintSwitch(gr,w,h,'));assert(readFileSync(root+'js/anna_theme.js','utf8').includes('gr.DrawRoundRect(2,2,w-5,h-5')); // Phase D2assert(desk.includes('Desk ON'));assert(desk.includes('Desk OFF'));
-const lyrics=readFileSync(root+'js/anna_lyrics.js','utf8');
-assert(lyrics.includes("AnnaI18n.t('lyricSearch')"));
+const sidebar=readFileSync(root+'js/playlist_browser.js','utf8');assert(sidebar.includes("source.kind==='artist'"));assert(sidebar.includes('HariiroDpi.doDragDrop(window.ID,handles,1,{})')); // Round 15: fb.DoDragDrop via the DPI adapter
+const desk=readFileSync(root+'js/hariiro_desktop_lyrics.js','utf8');assert(desk.includes('HariiroTheme.paintSwitch(gr,w,h,'));assert(readFileSync(root+'js/hariiro_theme.js','utf8').includes('gr.DrawRoundRect(2,2,w-5,h-5')); // Phase D2assert(desk.includes('Desk ON'));assert(desk.includes('Desk OFF'));
+const lyrics=readFileSync(root+'js/hariiro_lyrics.js','utf8');
+assert(lyrics.includes("HariiroI18n.t('lyricSearch')"));
 assert(lyrics.includes("new ActiveXObject('ESLyric')"));
 assert(lyrics.includes('esl.RequestLyric(title,artist)'));assert(lyrics.includes('View/ESLyric/Search...'));
 assert(lyrics.includes('fb.RunMainMenuCommand(path)'));
-const toggle=readFileSync(root+'js/anna_mode_switch.js','utf8');
+const toggle=readFileSync(root+'js/hariiro_mode_switch.js','utf8');
 assert(toggle.includes("panelsui.PanelName==='SwitchGlass'"));
-// D2: the key lives in AnnaShared.PVAR; main.txt still reads it by this name.
-assert(toggle.includes("'PVAR:TOGGLE:'+AnnaShared.PVAR.playlistExperimental"));
-assert(readFileSync(root+'js/anna_shared.js','utf8').includes("playlistExperimental:'anna.playlist.experimental'"));
-assert(!readFileSync(root+'js/anna_top_chrome.js','utf8').includes('cy+6,cx+7,cy+6'));
+// D2: the key lives in HariiroShared.PVAR; main.txt still reads it by this name.
+assert(toggle.includes("'PVAR:TOGGLE:'+HariiroShared.PVAR.playlistExperimental"));
+assert(readFileSync(root+'js/hariiro_shared.js','utf8').includes("playlistExperimental:'hariiro.playlist.experimental'"));
+assert(!readFileSync(root+'js/hariiro_top_chrome.js','utf8').includes('cy+6,cx+7,cy+6'));
 function graphics(){return new Proxy({}, {get(target,key){return (...args)=>{calls.push({method:key,args});};}});}let calls=[];
 function runScript(file,extra={}){
  const ctx={console:{log:()=>{}},gdi:{Font:(...args)=>({args}),Image:()=>({Width:192,Height:192})},window:{Width:428,Height:67,Repaint(){},CreatePopupMenu(){return menu;}},...extra};vm.createContext(ctx);vm.runInContext(readFileSync(root+'js/'+file,'utf8'),ctx,{filename:file});return ctx;
@@ -61,7 +61,7 @@ let activeOrder=0,chosenDevice='';let menu={AppendMenuItem(){},TrackPopupMenu(){
 
 const plman={get PlaybackOrder(){return activeOrder;},set PlaybackOrder(n){activeOrder=n;}};
 const fb={IsPlaying:true,IsPaused:false,PlaybackLength:120,PlaybackTime:30,GetNowPlaying(){return{};},Prev(){},Next(){},PlayOrPause(){},ShowPopupMessage(){throw new Error('unexpected popup')},GetOutputDevices(){return JSON.stringify([{name:'Headphones',active:true,output_id:'a',device_id:'b'},{name:'HDMI monitor',active:false,output_id:'c',device_id:'d'}]);},SetOutputDevice(o,d){chosenDevice=o+'/'+d;}};
-const t=runScript('anna_transport.js',{plman,fb});
+const t=runScript('hariiro_transport.js',{plman,fb});
 for(let i=0;i<7;i++){activeOrder=i;calls=[];t.on_paint(graphics());assert(calls.length>3,`mode ${i} has no icon`);}
 t.activate(0,10,10);assert.equal(activeOrder,6); // menu cancelled: do not auto-cycle order
 t.activate(1,10,10);assert.equal(fb.PlaybackTime,25);
@@ -69,14 +69,14 @@ t.activate(5,10,10);assert.equal(fb.PlaybackTime,30);
 t.activate(6,10,10);assert.equal(chosenDevice,'c/d');
 assert.equal(vm.runInContext("POS[6]",t),403);assert(vm.runInContext('PNG.play && PNG.pause && PNG.headphones',t));
 let min=0,max=0,exit=0,pui=[];
-const chrome=runScript('anna_top_chrome.js',{
+const chrome=runScript('hariiro_top_chrome.js',{
  fb:{Exit(){exit++},ShowPopupMessage(){throw new Error('UIWizard should work')}},
  panelsui:{PanelName:'TopChrome',GetVariable:()=>'',RunAction(c){pui.push(c);return true}},
  ActiveXObject:function(id){assert.equal(id,'UIWizard');return {WindowMinimize(){min++},ToggleMaximize(){max++}};}
 });
 chrome.on_mouse_lbtn_up(74,15);chrome.on_mouse_lbtn_up(120,15);chrome.on_mouse_lbtn_up(164,15);
 assert.equal(min,1);assert.equal(max,1);assert.equal(exit,1);
-let mode='library';let navCalls=[];const nav=runScript('anna_nav_tabs.js',{
+let mode='library';let navCalls=[];const nav=runScript('hariiro_nav_tabs.js',{
  panelsui:{GetVariable(){return mode;},RunAction(action){navCalls.push(action)},SetVariable(name,val){mode=val}},
  window:{Width:350,Height:38,Repaint(){}}
 });
@@ -85,6 +85,6 @@ nav.on_mouse_lbtn_up(35,15);assert.equal(mode,'artists');
 nav.on_mouse_lbtn_up(150,15);assert.equal(mode,'library');
 nav.on_mouse_lbtn_up(278,15);assert.equal(mode,'library');assert.equal(nav.selected(nav.TABS?.[2]??{state:'nowplaying'}),false);
 assert.equal(navCalls.length,3);
-assert.match(readFileSync(root+'js/anna_queue_toggle.js','utf8'),/AnnaTheme\.paintSwitch\(/); // Phase D2: drawn by anna_theme.js
-assert.match(readFileSync(root+'js/anna_theme.js','utf8'),/FillRoundRect/);
+assert.match(readFileSync(root+'js/hariiro_queue_toggle.js','utf8'),/HariiroTheme\.paintSwitch\(/); // Phase D2: drawn by hariiro_theme.js
+assert.match(readFileSync(root+'js/hariiro_theme.js','utf8'),/FillRoundRect/);
 console.log('PASS: all JS syntax checks, native Album Art, four corner assets, no aspect lock, iOS mode switch, ESLyric search, and 4 widths/no overlaps, real device menu, 7 playback-order PNGs, image-based controls, UIWizard window actions, artist drag, lyric border and metadata sizing');

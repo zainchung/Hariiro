@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const read=p=>readFileSync(root+'/'+p,'utf8');
-const main=read('main.txt'),chrome=read('js/anna_top_chrome.js');
+const main=read('main.txt'),chrome=read('js/hariiro_top_chrome.js');
 assert(main.includes('$panel(TopChrome,JS Panel,$eval(%_width% - 199),6,183,31)'));
 assert(main.includes('$panel(GlassSearch,JS Panel,$eval(%_width% - 522),6,304,31)'));
 assert(!chrome.includes('⚙') && !chrome.includes('const ICON='));
@@ -19,7 +19,7 @@ chromeCtx.include=p=>vm.runInContext(read('js/'+p),chromeCtx);
 vm.runInContext(chrome,chromeCtx);
 const drawn=[];const gr=new Proxy({}, {get:(_o,k)=>(...args)=>drawn.push([k,...args])});
 chromeCtx.on_paint(gr);assert(!drawn.some(x=>x.some(v=>typeof v==='number'&&Number.isNaN(v))));
-answer=11;chromeCtx.on_mouse_lbtn_up(20,16);assert.equal(menuHits,1);assert(commands.includes('PVAR:TOGGLE:anna.chrome.hidden'));
+answer=11;chromeCtx.on_mouse_lbtn_up(20,16);assert.equal(menuHits,1);assert(commands.includes('PVAR:TOGGLE:hariiro.chrome.hidden'));
 answer=12;chromeCtx.on_mouse_rbtn_up(20,16);assert.equal(menuHits,2);assert(commands.includes('MENUBAR:toggle'));
 chromeCtx.on_mouse_lbtn_up(70,16);chromeCtx.on_mouse_lbtn_up(120,16);chromeCtx.on_mouse_lbtn_up(164,16);
 assert.deepEqual([min,max,exit],[1,1,1]);
@@ -27,11 +27,11 @@ assert.deepEqual([min,max,exit],[1,1,1]);
 const source=read('js/playlist_browser.js');
 assert(source.includes('sidebarOLEInProgress'));
 assert(source.includes("source.kind==='fixedFavorites'"));
-assert(source.includes("AnnaI18n.t('duplicatePlaylist')"));
+assert(source.includes("HariiroI18n.t('duplicatePlaylist')"));
 const rows=[
 {name:'Original',items:[{Path:'A.flac'}]},
-{name:'Anna - Favorites',items:[{Path:'Fav.flac'}]},
-{name:'Anna - Search Results',items:[{Path:'Found.flac'}]},
+{name:'Hariiro - Favorites',items:[{Path:'Fav.flac'}]},
+{name:'Hariiro - Search Results',items:[{Path:'Found.flac'}]},
 {name:'Mix',items:[{Path:'Mix.flac'}]}];
 let active=0,dragged=[],selfDrop=[];let popupAnswer=0;const info=[];
 const handles=arr=>({Count:arr.length,Item:i=>arr[i],Convert:()=>arr.slice(),Add:h=>arr.push(h)});
@@ -42,7 +42,7 @@ const plman={get PlaylistCount(){return rows.length},get ActivePlaylist(){return
 let sidebar;
 const fb={GetLibraryItems:()=>handles([{Path:'Library.flac'}]),CreateHandleList:()=>handles([]),TitleFormat:()=>({EvalWithMetadb:()=>''}),GetNowPlaying:()=>null,
  DoDragDrop(_id,list){dragged.push(list.Convert().map(x=>x.Path));const action={Effect:1};sidebar.on_drag_over(action,20,8+6*30);selfDrop.push(action.Effect);}};
-const variables=new Map([['anna.nav.mode','library'],['anna.search.results.name','Anna - Search Results'],['anna.search.results.owned','["Anna - Search Results"]']]);
+const variables=new Map([['hariiro.nav.mode','library'],['hariiro.search.results.name','Hariiro - Search Results'],['hariiro.search.results.owned','["Hariiro - Search Results"]']]);
 const ctx=vm.createContext({console:{log(){}},gdi:{Font:()=>({})},plman,fb,utils:{InputBox:()=>''},panelsui:{GetVariable:(k,d)=>variables.get(k)??d,SetVariable:(k,v)=>variables.set(k,v)},
  window:{ID:44,Width:196,Height:420,GetProperty:(_k,d)=>d,SetProperty(){},Repaint(){},SetTimeout(){return 0},ClearTimeout(){},CreatePopupMenu(){return{AppendMenuItem(){},AppendMenuSeparator(){},TrackPopupMenu(){return popupAnswer}}}}});
 sidebar=ctx;
@@ -51,7 +51,7 @@ vm.runInContext(source,ctx);
 const yFor=name=>{const i=ctx.entries().findIndex(row=>row.name===name);assert(i>=0,name);return 8+i*30+14;};
 let previousCount=0;
 // Pinned playlists export their entire track set, but self-drops remain rejected.
-for(const [name,track] of [['Music Library','Library.flac'],['Anna - Favorites','Fav.flac'],['Anna - Search Result','Found.flac']]){
+for(const [name,track] of [['Music Library','Library.flac'],['Hariiro - Favorites','Fav.flac'],['Hariiro - Search Result','Found.flac']]){
  ctx.on_mouse_lbtn_down(20,yFor(name));ctx.on_mouse_move(184,yFor(name),1);
  assert.equal(dragged.at(-1)?.[0],track,`${name} must export its tracks to Queue`);
  assert.equal(selfDrop.at(-1),0,'pinned source may not copy into a sidebar list');
@@ -72,11 +72,11 @@ assert.equal(rows.length,5);assert.equal(rows[4].name,'Mix - Copy');
 assert.equal(rows[4].items.length,1);assert.notEqual(rows[4].items,rows[3].items);
 assert.equal(rows[3].items.length,1);
 assert.equal(ctx.entries().filter(x=>x.name==='Mix - Copy').length,1);
-assert(read('js/anna_i18n.js').includes("['duplicatePlaylist'"));
+assert(read('js/hariiro_i18n.js').includes("['duplicatePlaylist'"));
 
-const glass=read('js/anna_glass_playlist.js');
+const glass=read('js/hariiro_glass_playlist.js');
 assert(glass.includes('localGlassTrackOLE=true'));
-assert(read('js/anna_glass_drop.js').includes("if(src.kind==='glass')return {ok:false,msg:''};")); // Round 14: single decision point (moved to AnnaGlassDrop in D1)
+assert(read('js/hariiro_glass_drop.js').includes("if(src.kind==='glass')return {ok:false,msg:''};")); // Round 14: single decision point (moved to HariiroGlassDrop in D1)
 const glassCtx=vm.createContext({console:{log(){}},gdi:{Font:()=>({})},utils:{},fb:{TitleFormat:()=>({EvalWithMetadbs:a=>a.Convert().map(()=>'')})},plman,
  panelsui:{GetVariable:(k,d)=>variables.get(k)??d},window:{IsVisible:false,Width:630,Height:470,Repaint(){},SetInterval:()=>1,ClearInterval(){}}});
 glassCtx.include=p=>vm.runInContext(read('js/'+p),glassCtx);
@@ -85,5 +85,5 @@ vm.runInContext('localGlassTrackOLE=true;',glassCtx);
 let hover={Effect:1};glassCtx.on_drag_over(hover,20,40);
 assert.equal(hover.Effect,0);assert.equal(vm.runInContext('importStatus',glassCtx),''); // own Glass drag: rejected silently, even if a stale sidebar marker is still set
 let ownDrop={Effect:1};glassCtx.on_drag_drop(ownDrop,20,40);assert.equal(ownDrop.Effect,0);
-assert(!read('js/anna_top_chrome.js').includes("if(i===1)runAction('MENU')"));
+assert(!read('js/hariiro_top_chrome.js').includes("if(i===1)runAction('MENU')"));
 console.log('PASS round10: hamburger-only settings, fixed playlist Queue export, ordinary playlist-to-Queue export, sidebar self-drop rejected, duplication and Glass self-guard');

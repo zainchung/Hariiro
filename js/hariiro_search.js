@@ -1,18 +1,18 @@
-// Anna Glass V2 — single translucent library search with live Unicode input.
+// Hariiro — single translucent library search with live Unicode input.
 // Enter searches foobar2000's *actual* media library. Results are placed in an
 // owned working playlist, never into a user's saved playlist with the same name.
 'use strict';
-include('anna_shared.js');
-include('anna_i18n.js');
-include('anna_theme.js');
-include('anna_dpi.js');
-const FONT=AnnaDpi.font('Yu Gothic UI',11,0);
-const SMALL=AnnaDpi.font('Segoe UI',10,0);
-const GLYPH=AnnaDpi.font('Segoe UI Symbol',18,0), CLEAR_FONT=AnnaDpi.font('Segoe UI',15,0);
+include('hariiro_shared.js');
+include('hariiro_i18n.js');
+include('hariiro_theme.js');
+include('hariiro_dpi.js');
+const FONT=HariiroDpi.font('Yu Gothic UI',11,0);
+const SMALL=HariiroDpi.font('Segoe UI',10,0);
+const GLYPH=HariiroDpi.font('Segoe UI Symbol',18,0), CLEAR_FONT=HariiroDpi.font('Segoe UI',15,0);
 const GLASS=0xa8142347,FRAME=0xbfeab5d4,INK=0xfff6e8f4,MUTED=0xffbdacc5,PINK=0xffffb9d7;
-const OWNED_PROPERTY='Anna.OwnedSearchResults.v1';
-const QUERY_PROPERTY='Anna.Search.LastQuery.v1';
-const RESULT_ROOT='Anna - Search Results';
+const OWNED_PROPERTY='Hariiro.OwnedSearchResults.v1';
+const QUERY_PROPERTY='Hariiro.Search.LastQuery.v1';
+const RESULT_ROOT='Hariiro - Search Results';
 const SORT_EXPR='$lower($if2(%album%,~Singles))|'+
     '$num(%discnumber%,4)|$num(%tracknumber%,5)|'+
     '$lower($if2(%album artist%,$if2(%artist%,Unknown Artist)))';
@@ -31,10 +31,10 @@ function ownedNames(){
 const owned=ownedNames();
 function publishOwnedResults(){
  try{
-  panelsui.SetVariable(AnnaShared.PVAR.searchOwned,JSON.stringify([...owned]));
+  panelsui.SetVariable(HariiroShared.PVAR.searchOwned,JSON.stringify([...owned]));
   const names=[...owned].filter(n=>plman.FindPlaylist(n)>=0);
-  if(names.length)panelsui.SetVariable(AnnaShared.PVAR.searchName,names[names.length-1]);
- }catch(e){console.log('Anna search ownership: '+String(e));}
+  if(names.length)panelsui.SetVariable(HariiroShared.PVAR.searchName,names[names.length-1]);
+ }catch(e){console.log('Hariiro search ownership: '+String(e));}
 }
 publishOwnedResults();
 
@@ -61,7 +61,7 @@ function pruneSearchCaches(){
    if(p>=0&&p<plman.PlaylistCount)protectedNames.add(plman.GetPlaylistName(p));
   for(const q of plman.GetPlaybackQueueContents())if(q&&q.PlaylistIndex>=0&&q.PlaylistIndex<plman.PlaylistCount)
    protectedNames.add(plman.GetPlaylistName(q.PlaylistIndex));
-  const currentName=String(panelsui.GetVariable(AnnaShared.PVAR.searchName,'')||'');
+  const currentName=String(panelsui.GetVariable(HariiroShared.PVAR.searchName,'')||'');
   if(currentName)protectedNames.add(currentName);
  }catch(e){return 0;}
  let removed=0;
@@ -70,7 +70,7 @@ function pruneSearchCaches(){
   if(idx<0){owned.delete(name);continue;}
   if(name===RESULT_ROOT||protectedNames.has(name)||plman.IsPlaylistLocked(idx))continue;
   try{if(plman.RemovePlaylist(idx)!==false){owned.delete(name);removed++;}}
-  catch(e){console.log('Anna search cleanup skipped: '+String(e));}
+  catch(e){console.log('Hariiro search cleanup skipped: '+String(e));}
  }
  if(removed){window.SetProperty(OWNED_PROPERTY,JSON.stringify([...owned]));publishOwnedResults();}
  return removed;
@@ -94,7 +94,7 @@ function safeResultsPlaylist() {
         publishOwnedResults();
         return p;
     }
-    throw new Error(AnnaI18n.t('searchSlotsFull'));
+    throw new Error(HariiroI18n.t('searchSlotsFull'));
 }
 function performSearch(){
     const term=query.trim();if(!term){clearText();return;}
@@ -106,27 +106,27 @@ function performSearch(){
         if(result.Count){
             plman.InsertPlaylistItems(target,0,result);
             if(!plman.SortByFormatV2(target,SORT_EXPR,1))
-                throw new Error(AnnaI18n.t('searchSortFailed'));
+                throw new Error(HariiroI18n.t('searchSortFailed'));
         }
         plman.ActivePlaylist=target;
-        try {panelsui.SetVariable(AnnaShared.PVAR.searchName,plman.GetPlaylistName(target));}catch(e){}
-        countLabel=String(result.Count)+' '+AnnaI18n.t('searchResultsCount');
+        try {panelsui.SetVariable(HariiroShared.PVAR.searchName,plman.GetPlaylistName(target));}catch(e){}
+        countLabel=String(result.Count)+' '+HariiroI18n.t('searchResultsCount');
         pruneSearchCaches();
         error='';
     }catch(e){
-        error=AnnaI18n.t('searchFailed')+': '+String(e);
-        console.log('Anna search: '+String(e));
+        error=HariiroI18n.t('searchFailed')+': '+String(e);
+        console.log('Hariiro search: '+String(e));
     }
     selectAll=false;window.Repaint();
 }
 function on_paint(gr){
- gr=AnnaTheme.graphics(gr);
-    const w=AnnaDpi.width(),h=AnnaDpi.height();if(w<30||h<18)return;
+ gr=HariiroTheme.graphics(gr);
+    const w=HariiroDpi.width(),h=HariiroDpi.height();if(w<30||h<18)return;
     gr.FillRoundRect(0,0,w,h,12,12,GLASS);
     gr.DrawRoundRect(1,1,w-3,h-3,11,11,1,focused?PINK:FRAME);
     gr.GdiDrawText('⌕',GLYPH,PINK,9,3,23,h-6,0x8024);
     const hasText=!!query;
-    const showText=hasText?query:AnnaI18n.t('searchHint');
+    const showText=hasText?query:HariiroI18n.t('searchHint');
     const right=hasText?37:10;
     const visibleWidth=Math.max(10,w-45-right);
     if(focused&&selectAll&&hasText)
@@ -148,7 +148,7 @@ function on_paint(gr){
 function on_focus(value){focused=!!value;cursorOn=true;window.Repaint();}
 function on_mouse_move(x,y){window.SetCursor(32513);} // I-beam
 function on_mouse_lbtn_down(x,y){
-    if(query&&x>AnnaDpi.width()-36){clearText();return;}
+    if(query&&x>HariiroDpi.width()-36){clearText();return;}
     focused=true;cursorOn=true;selectAll=false;
     // Approximate the nearest character boundary using the actual GDI font.
     const points=Array.from(query),target=Math.max(0,x-38);
@@ -161,7 +161,7 @@ function on_mouse_lbtn_down(x,y){
     window.Repaint();
 }
 function graphemeWidth(text){
-    try{const w=AnnaDpi.textWidth(text,FONT);return w===null?text.length*8:w;}
+    try{const w=HariiroDpi.textWidth(text,FONT);return w===null?text.length*8:w;}
     catch(e){return text.length*8;}
 }
 function on_char(code){
@@ -186,12 +186,12 @@ function on_key_down(code){
     if(ctrl&&code===65){selectAll=true;cursorOn=true;window.Repaint();return true;}
     if(ctrl&&code===86){
         try{addChars(utils.GetClipboardText());}
-        catch(e){console.log('Anna search clipboard: '+String(e));}
+        catch(e){console.log('Hariiro search clipboard: '+String(e));}
         return true;
     }
     if(ctrl&&code===67){
         try{utils.SetClipboardText(query);}
-        catch(e){console.log('Anna search clipboard: '+String(e));}
+        catch(e){console.log('Hariiro search clipboard: '+String(e));}
         return true;
     }
     if(code===37){caret=selectAll?0:Math.max(0,caret-1);selectAll=false;window.Repaint();return true;}
@@ -208,10 +208,10 @@ function on_key_down(code){
 }
 function on_mouse_rbtn_up(x,y){
     const m=window.CreatePopupMenu();
-    m.AppendMenuItem(0,1,AnnaI18n.t('searchNow'));
-    m.AppendMenuItem(0,2,AnnaI18n.t('paste'));
-    m.AppendMenuItem(0,3,AnnaI18n.t('clearSearch'));
-    const choice=AnnaDpi.popup(m,x,y);
+    m.AppendMenuItem(0,1,HariiroI18n.t('searchNow'));
+    m.AppendMenuItem(0,2,HariiroI18n.t('paste'));
+    m.AppendMenuItem(0,3,HariiroI18n.t('clearSearch'));
+    const choice=HariiroDpi.popup(m,x,y);
     if(choice===1)performSearch();
     else if(choice===2){try{addChars(utils.GetClipboardText());}catch(e){console.log('Clipboard: '+String(e));}}
     else if(choice===3)clearText();
@@ -221,12 +221,12 @@ function on_mouse_rbtn_up(x,y){
 blinkTimer=window.SetInterval(function(){
     if(!focused||!window.IsVisible)return;
     cursorOn=!cursorOn;
-    AnnaDpi.repaintRect(37,2,Math.max(1,AnnaDpi.width()-74),Math.max(1,AnnaDpi.height()-4));
+    HariiroDpi.repaintRect(37,2,Math.max(1,HariiroDpi.width()-74),Math.max(1,HariiroDpi.height()-4));
 },500);
 function on_script_unload(){if(blinkTimer)window.ClearInterval(blinkTimer);}
 
-function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue){window.Repaint();return;}
-if(name===AnnaShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue){window.Repaint();return;}
+if(name===HariiroShared.PVAR.language)window.Repaint();}
 
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
-AnnaDpi.install();
+HariiroDpi.install();

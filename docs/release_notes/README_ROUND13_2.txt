@@ -1,4 +1,4 @@
-Anna Glass V2 — Round 13.2 (2026-11-20)
+Hariiro — Round 13.2 (2026-11-20)
 
 New: normal playlist imports skip duplicate physical file paths (directory +
 filename + extension, case-insensitive on Windows). Pre-existing duplicates

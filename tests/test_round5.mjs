@@ -11,8 +11,8 @@ import {installIncludeShim} from './helpers/js_panel.mjs';
 const originalVmRun=installIncludeShim(vm);
 const read=f=>readFileSync(root+'/'+f,'utf8');
 const main=read('main.txt'), ini=read('foo_ui_panels.ini');
-const lyrics=read('js/anna_lyrics.js'),chrome=read('js/anna_top_chrome.js');
-const native=read('js/anna_native_scroll.js');
+const lyrics=read('js/hariiro_lyrics.js'),chrome=read('js/hariiro_top_chrome.js');
+const native=read('js/hariiro_native_scroll.js');
 assert.match(lyrics,/PLAYED_NEAR = 0xffec85bb, PLAYED_FAR = 0xffb869a6/);
 assert.match(lyrics,/played\?PLAYED_NEAR/);
 const active=0xffffedf6, played=0xffec85bb;
@@ -20,13 +20,13 @@ assert(Math.abs((active&255)-(played&255))+Math.abs((active>>8&255)-(played>>8&2
 assert(main.includes('アーティスト/ライブラリ'));
 assert(main.includes('ALBUMS / TRACKS'));
 assert(main.includes('$panel(NativeScroll,JS Panel,'));
-assert.match(ini,/panel.NativeScroll.script = js\/anna_native_scroll.js/);
+assert.match(ini,/panel.NativeScroll.script = js\/hariiro_native_scroll.js/);
 assert.match(native,/EnsurePlaylistItemVisible\(active\(\),estimated\)/);
 assert.match(ini,/panel.NativeScroll.windowless = 0/);
 // Round 22: no highlight colour; the native playlist uses the accent (test_round22_native_colours).
 assert(!ini.includes('color.playlist.highlight = 205 145 92'));
 assert(main.includes('$panel(TopChrome,JS Panel'));
-assert(ini.includes('panel.TopChrome.script = js/anna_top_chrome.js'));
+assert(ini.includes('panel.TopChrome.script = js/hariiro_top_chrome.js'));
 assert(chrome.includes('function settingsMenu(x,y)'));
 assert(chrome.includes('red=over?')); // Round 22: inside drawPower / powerBitmap
 const geom=[];
@@ -72,5 +72,5 @@ assert(runs[0][1].startsWith('/select,"C:'));
 vm.runInContext("state={kind:'synced',lines:[{time:1,text:'hello'}],source:'Embedded · synced'}",lyricCtx);
 assert.equal(lyricCtx.openCurrentLyricsLocation(),false);
 assert(popup.some(x=>x.includes('タグ')||x.includes('音频标签')||x.includes('audio tags')));
-assert(lyrics.includes("AnnaI18n.t('lyricLocate')"));
+assert(lyrics.includes("HariiroI18n.t('lyricLocate')"));
 console.log('PASS round5: contrasting played lyrics; real lyric-file reveal; chrome states and power hover; classic navigation strip; theme colours; header/covers/spectrum geometry at 960–1920px');

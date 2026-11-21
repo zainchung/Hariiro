@@ -4,7 +4,7 @@ Usage:  python tools/make_accent_palette.py <palette-id> <hue> [glob]
 Example: python tools/make_accent_palette.py amber 36
          python tools/make_accent_palette.py amber 36 "corner_*.png"   (only those files)
 
-Every pixel goes through the same rule as AnnaTheme.recolor() in js/anna_theme.js (see
+Every pixel goes through the same rule as HariiroTheme.recolor() in js/hariiro_theme.js (see
 recolor() below); the alpha channel is kept. Builds the bundled colour folders from pink/,
 so a new colour folder gets matching images with the same file names.
 Needs Pillow only.
@@ -16,11 +16,11 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent / 'images' / 'controls'
-SPREAD = 0.3  # as in js/anna_theme.js
+SPREAD = 0.3  # as in js/hariiro_theme.js
 
 
 def recolor(r, g, b, target):
-    """The one recolouring rule, identical to AnnaTheme.recolor() in js/anna_theme.js:
+    """The one recolouring rule, identical to HariiroTheme.recolor() in js/hariiro_theme.js:
     - any pink / rose / violet / purple tint (hue 255-360, spread >= 6) - dark, pale or vivid -
       moves to the target hue, keeping 30 % of its distance from pink (326) (SPREAD);
     - warm peach / gold frames (hue 0-50, red >= 120, spread >= 22) take the target hue;

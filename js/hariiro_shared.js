@@ -1,41 +1,41 @@
-// Anna GLASS: names and drag-origin helpers shared by several JS Panels.
+// Hariiro: names and drag-origin helpers shared by several JS Panels.
 // One definition for panel-variable keys, reserved playlist names and the
 // OLE origin marker format, so the sidebar and the Glass list cannot drift.
 'use strict';
-var AnnaShared=(function(){
+var HariiroShared=(function(){
  // Panels UI variables (panelsui.GetVariable / SetVariable).
  const PVAR=Object.freeze({
-  dragOrigin:'anna.drag.origin',
-  navMode:'anna.nav.mode',
-  queueBuffer:'anna.queue.buffer.name',
-  searchOwned:'anna.search.results.owned',
-  searchName:'anna.search.results.name',
-  sidebarEditable:'anna.sidebar.editable.name',
-  dropPending:'anna.drop.pending', // Round 15: external drop to redirect (AnnaDropFix)
-  // Owned by anna_theme.js / anna_i18n.js (they load standalone and keep the same value).
-  themeHue:'anna.theme.hue',
-  themeAccent:'anna.glass.v2.accent',
-  themeDegree:'anna.theme.degree', // Round 22: hue of the chosen colour folder
-  themeColorPrefix:'anna.tc.', // Round 22: + base 'r-g-b' of a main.txt colour = recoloured value
-  language:'anna.language',
+  dragOrigin:'hariiro.drag.origin',
+  navMode:'hariiro.nav.mode',
+  queueBuffer:'hariiro.queue.buffer.name',
+  searchOwned:'hariiro.search.results.owned',
+  searchName:'hariiro.search.results.name',
+  sidebarEditable:'hariiro.sidebar.editable.name',
+  dropPending:'hariiro.drop.pending', // Round 15: external drop to redirect (HariiroDropFix)
+  // Owned by hariiro_theme.js / hariiro_i18n.js (they load standalone and keep the same value).
+  themeHue:'hariiro.theme.hue',
+  themeAccent:'hariiro.accent',
+  themeDegree:'hariiro.theme.degree', // Round 22: hue of the chosen colour folder
+  themeColorPrefix:'hariiro.tc.', // Round 22: + base 'r-g-b' of a main.txt colour = recoloured value
+  language:'hariiro.language',
   // Round 21: the language actually shown ("auto" resolved); written by the title-bar
   // panel, read by main.txt.
-  languageShown:'anna.language.shown',
+  languageShown:'hariiro.language.shown',
   // Skin toggles; main.txt and foo_ui_panels.ini read them by name too.
-  queueOpen:'anna.queue.open',
-  chromeHidden:'anna.chrome.hidden',
-  favoriteCurrent:'anna.favorite.current',
-  playlistExperimental:'anna.playlist.experimental',
-  wallpaper:'anna.glass.v2.wallpaper' // Round 19; also background.image_pvar in the ini
+  queueOpen:'hariiro.queue.open',
+  chromeHidden:'hariiro.chrome.hidden',
+  favoriteCurrent:'hariiro.favorite.current',
+  playlistExperimental:'hariiro.playlist.experimental',
+  wallpaper:'hariiro.wallpaper' // Round 19; also background.image_pvar in the ini
  });
  // Playlists created and owned by the skin. Users never drop into these.
  const LIST=Object.freeze({
-  favorites:'Anna - Favorites',
+  favorites:'Hariiro - Favorites',
   library:'Music Library',
-  queueBuffer:'Anna - Queue Buffer',
-  sortedView:'Anna - Sorted Library View',
-  artistView:'Anna - Artist View',
-  importStaging:'Anna - Import Staging'
+  queueBuffer:'Hariiro - Queue Buffer',
+  sortedView:'Hariiro - Sorted Library View',
+  artistView:'Hariiro - Artist View',
+  importStaging:'Hariiro - Import Staging'
  });
  // OLE origin markers (value of PVAR.dragOrigin while a drag is in progress):
  //   glass:<playlist>          tracks selected in the Glass (middle) list

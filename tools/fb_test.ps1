@@ -1,5 +1,5 @@
 <#
-Windows test helper for the Anna Glass skin in a real foobar2000 (portable or installed).
+Windows test helper for the Hariiro skin in a real foobar2000 (portable or installed).
 Short output on purpose: one line per fact, so an agent can read results without screenshots.
 
   & tools/fb_test.ps1 status              # skin vs repo, playlist counts, last JS log lines
@@ -8,27 +8,29 @@ Short output on purpose: one line per fact, so an agent can read results without
   & tools/fb_test.ps1 restore [-Name x]   # close foobar, put the backup back, start
   & tools/fb_test.ps1 restart
 
-foobar2000 folder: -FoobarDir, else $env:ANNA_FOOBAR_DIR (the folder holding foobar2000.exe).
-Backups go to $env:TEMP\anna-glass-tests\<Name> (default name: "last").
+foobar2000 folder: -FoobarDir, else $env:HARIIRO_FOOBAR_DIR (the folder holding foobar2000.exe).
+Installed skin folder name: -SkinFolder, else $env:HARIIRO_SKIN_FOLDER, else 'Hariiro'.
+Backups go to $env:TEMP\hariiro-tests\<Name> (default name: "last").
 From bash, run it as: powershell -NoProfile -ExecutionPolicy Bypass -File tools/fb_test.ps1 status
 #>
 param(
   [Parameter(Position = 0)][ValidateSet('status', 'backup', 'deploy', 'restore', 'restart')][string]$Action = 'status',
-  [string]$FoobarDir = $env:ANNA_FOOBAR_DIR,
+  [string]$FoobarDir = $env:HARIIRO_FOOBAR_DIR,
   [string]$Name = 'last',
+  [string]$SkinFolder = $(if ($env:HARIIRO_SKIN_FOLDER) { $env:HARIIRO_SKIN_FOLDER } else { 'Hariiro' }),
   [switch]$Images
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 if (-not $FoobarDir -or -not (Test-Path (Join-Path $FoobarDir 'foobar2000.exe'))) {
-  throw 'foobar2000 not found: pass -FoobarDir or set $env:ANNA_FOOBAR_DIR to the folder with foobar2000.exe'
+  throw 'foobar2000 not found: pass -FoobarDir or set $env:HARIIRO_FOOBAR_DIR to the folder with foobar2000.exe'
 }
 $exe = Join-Path $FoobarDir 'foobar2000.exe'
 # Portable installs keep the profile next to the exe; installed ones use %APPDATA%.
 $profileDir = if (Test-Path (Join-Path $FoobarDir 'portable_mode_enabled')) { Join-Path $FoobarDir 'profile' } else { Join-Path $env:APPDATA 'foobar2000-v2' }
-$skin = Join-Path $profileDir 'foo_ui_panels-skins\Anna_Glass'
+$skin = Join-Path (Join-Path $profileDir 'foo_ui_panels-skins') $SkinFolder
 $lists = Join-Path $profileDir 'playlists-v2.0'
-$backup = Join-Path (Join-Path $env:TEMP 'anna-glass-tests') $Name
+$backup = Join-Path (Join-Path $env:TEMP 'hariiro-tests') $Name
 
 function Stop-Foobar {
   $p = Get-Process foobar2000 -ErrorAction SilentlyContinue

@@ -1,133 +1,133 @@
-// Anna Glass V2 - Stage 3I.4: reversible immersive system chrome.
-// The Anna Glass settings button controls Windows title bar and menu bar visibility.
-// The top-right three-line button opens Anna Glass settings and foobar2000 commands.
+// Hariiro - Stage 3I.4: reversible immersive system chrome.
+// The Hariiro settings button controls Windows title bar and menu bar visibility.
+// The top-right three-line button opens Hariiro settings and foobar2000 commands.
 // Build includes runtime assets only; Stage 3G layout and transport preserved.
 // Freely resizable; no 16:9 aspect lock or special plugin DLL required.
 // Stage 3E wallpaper retained; Stage 3F panel proportions and core functions preserved.
 // Safe incremental build based on the Windows-verified Stage 2B installation.
 // Hide only the system title bar; the skin header and menus remain functional.
-// Open Anna Glass settings to restore the title bar before switching skins.
-$if($strcmp($getpvar(anna.chrome.hidden),1),$windowstyle(hidetitlebar),$windowstyle(showtitlebar))
+// Open Hariiro settings to restore the title bar before switching skins.
+$if($strcmp($getpvar(hariiro.chrome.hidden),1),$windowstyle(hidetitlebar),$windowstyle(showtitlebar))
 $drawrect(0,0,%_width%,%_height%,brushcolor-24-25-30 pencolor-null)
 // Stage 2B base: transparent JS left browser; wallpaper retained from 2A — draw the shared wallpaper beneath the existing panels.
 // The registered wallpaper lets supported native panels re-use the same canvas snapshot.
-// Round 19: the file is the anna.glass.v2.wallpaper variable (settings menu → Wallpaper),
+// Round 19: the file is the hariiro.wallpaper variable (settings menu → Wallpaper),
 // relative to images/, as for background.image_pvar in foo_ui_panels.ini.
-$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/Anna_GLASS_UI_2560x1440.png))
-// Round 22: colours that follow the accent read anna.tc.<base r-g-b> (published by TopChrome,
-// AnnaTheme.LAYOUT_COLORS); the base colour is the fallback.
+$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(hariiro.wallpaper),wallpapers/Hariiro_UI_2560x1440.png))
+// Round 22: colours that follow the accent read hariiro.tc.<base r-g-b> (published by TopChrome,
+// HariiroTheme.LAYOUT_COLORS); the base colour is the fallback.
 // Light-touch navy tint keeps the wallpaper luminous; each transparent row adds its own contrast.
 $drawrect(0,0,%_width%,%_height%,brushcolor-9-14-28 pencolor-null alpha-56)
 
 // Frameless vector tabs reproduce the original concept's navigation hierarchy.
-// Round 21: skin-drawn labels follow anna.language.shown (the resolved language,
+// Round 21: skin-drawn labels follow hariiro.language.shown (the resolved language,
 // published by TopChrome) in nine languages.
 // Content semantics: ライブラリ browses artists; プレイリスト browses saved playlists.
 $drawrect(0,0,%_width%,44,brushcolor-15-24-49 pencolor-null alpha-120)
-$drawrect(0,43,%_width%,1,brushcolor-$if2($getpvar(anna.tc.239-170-200),239-170-200) pencolor-null alpha-150)
+$drawrect(0,43,%_width%,1,brushcolor-$if2($getpvar(hariiro.tc.239-170-200),239-170-200) pencolor-null alpha-150)
 $panel(NavTabs,JS Panel,16,3,350,38)
 // Only the otherwise empty titlebar span catches double-click to maximize/restore.
 // Search fields, tabs and system buttons retain their own click areas.
 $panel(CaptionStrip,JS Panel,367,4,$eval(%_width% - 889),37)
 // Search is left of the system cluster, which shares the right-card 16px margin.
 $panel(GlassSearch,JS Panel,$eval(%_width% - 522),6,304,31)
-// The three-line button opens Anna Glass settings; no separate gear/SYS/MB button exists.
+// The three-line button opens Hariiro settings; no separate gear/SYS/MB button exists.
 $panel(TopChrome,JS Panel,$eval(%_width% - 199),6,183,31)
 
 // Airier three-column panels, with 15px+ gaps and continuous backdrop.
-$drawrect(16,58,211,$eval(%_height% - 187),brushcolor-18-26-49 pencolor-$if2($getpvar(anna.tc.236-184-177),236-184-177) alpha-53)
-$drawrect(241,58,$eval(%_width% * 72 / 100 - 265),$eval(%_height% - 187),brushcolor-18-26-49 pencolor-$if2($getpvar(anna.tc.236-184-177),236-184-177) alpha-53)
+$drawrect(16,58,211,$eval(%_height% - 187),brushcolor-18-26-49 pencolor-$if2($getpvar(hariiro.tc.236-184-177),236-184-177) alpha-53)
+$drawrect(241,58,$eval(%_width% * 72 / 100 - 265),$eval(%_height% - 187),brushcolor-18-26-49 pencolor-$if2($getpvar(hariiro.tc.236-184-177),236-184-177) alpha-53)
 // Intentionally no full-height right-column frame: the now-playing card and
 // the lyrics/queue card retain their own outlines and their original spacing.
 $font(Yu Gothic UI,11,bold)
 // Left pane intentionally has a title only. Global top-bar Artist/Library
 // controls remain the working navigation, with no duplicate sidebar buttons.
-$font(Yu Gothic UI,12,bold,$if2($getpvar(anna.tc.249-220-235),249-220-235))
-$drawstring($if($strcmp($getpvar(anna.language.shown),zh-CN),艺术家/媒体库,$if($strcmp($getpvar(anna.language.shown),zh-TW),藝人/媒體庫,$if($strcmp($getpvar(anna.language.shown),en),Artists / Library,$if($strcmp($getpvar(anna.language.shown),es),Artistas / Biblioteca,$if($strcmp($getpvar(anna.language.shown),pt),Artistas / Biblioteca,$if($strcmp($getpvar(anna.language.shown),fr),Artistes / Bibliothèque,$if($strcmp($getpvar(anna.language.shown),de),Künstler / Bibliothek,$if($strcmp($getpvar(anna.language.shown),ru),Артисты / Медиатека,アーティスト/ライブラリ)))))))),50,64,173,21,$if2($getpvar(anna.tc.249-220-235),249-220-235))
+$font(Yu Gothic UI,12,bold,$if2($getpvar(hariiro.tc.249-220-235),249-220-235))
+$drawstring($if($strcmp($getpvar(hariiro.language.shown),zh-CN),艺术家/媒体库,$if($strcmp($getpvar(hariiro.language.shown),zh-TW),藝人/媒體庫,$if($strcmp($getpvar(hariiro.language.shown),en),Artists / Library,$if($strcmp($getpvar(hariiro.language.shown),es),Artistas / Biblioteca,$if($strcmp($getpvar(hariiro.language.shown),pt),Artistas / Biblioteca,$if($strcmp($getpvar(hariiro.language.shown),fr),Artistes / Bibliothèque,$if($strcmp($getpvar(hariiro.language.shown),de),Künstler / Bibliothek,$if($strcmp($getpvar(hariiro.language.shown),ru),Артисты / Медиатека,アーティスト/ライブラリ)))))))),50,64,173,21,$if2($getpvar(hariiro.tc.249-220-235),249-220-235))
 $font(Yu Gothic UI,11,bold)
-$drawstring($if($strcmp($getpvar(anna.language.shown),zh-CN),专辑 / 曲目,$if($strcmp($getpvar(anna.language.shown),zh-TW),專輯 / 曲目,$if($strcmp($getpvar(anna.language.shown),en),ALBUMS / TRACKS,$if($strcmp($getpvar(anna.language.shown),es),ÁLBUMES / PISTAS,$if($strcmp($getpvar(anna.language.shown),pt),ÁLBUNS / FAIXAS,$if($strcmp($getpvar(anna.language.shown),fr),ALBUMS / PISTES,$if($strcmp($getpvar(anna.language.shown),de),ALBEN / TITEL,$if($strcmp($getpvar(anna.language.shown),ru),АЛЬБОМЫ / ТРЕКИ,アルバム / 曲目)))))))),275,64,$eval(%_width% * 72 / 100 - 324),20,$if2($getpvar(anna.tc.249-220-217),249-220-217))
+$drawstring($if($strcmp($getpvar(hariiro.language.shown),zh-CN),专辑 / 曲目,$if($strcmp($getpvar(hariiro.language.shown),zh-TW),專輯 / 曲目,$if($strcmp($getpvar(hariiro.language.shown),en),ALBUMS / TRACKS,$if($strcmp($getpvar(hariiro.language.shown),es),ÁLBUMES / PISTAS,$if($strcmp($getpvar(hariiro.language.shown),pt),ÁLBUNS / FAIXAS,$if($strcmp($getpvar(hariiro.language.shown),fr),ALBUMS / PISTES,$if($strcmp($getpvar(hariiro.language.shown),de),ALBEN / TITEL,$if($strcmp($getpvar(hariiro.language.shown),ru),АЛЬБОМЫ / ТРЕКИ,アルバム / 曲目)))))))),275,64,$eval(%_width% * 72 / 100 - 324),20,$if2($getpvar(hariiro.tc.249-220-217),249-220-217))
 // Native renderer remains available. Draw an iOS-style switch with PVAR-selected panels.
-$if($strcmp($getpvar(anna.playlist.experimental),1),$panel(SwitchGlass,JS Panel,$eval(%_width% * 72 / 100 - 115),61,74,24),$panel(SwitchNative,JS Panel,$eval(%_width% * 72 / 100 - 115),61,74,24))
+$if($strcmp($getpvar(hariiro.playlist.experimental),1),$panel(SwitchGlass,JS Panel,$eval(%_width% * 72 / 100 - 115),61,74,24),$panel(SwitchNative,JS Panel,$eval(%_width% * 72 / 100 - 115),61,74,24))
 
 // Main: artist/library navigator and native or glass playlist share EXACTLY the same working order.
 $panel(Playlists,JS Panel,23,89,196,$eval(%_height% - 224))
-$if($strcmp($getpvar(anna.playlist.experimental),1),$panel(GlassPlaylist,JS Panel,248,89,$eval(%_width% * 72 / 100 - 277),$eval(%_height% - 224)),$panel(Playlist,Single Column Playlist,248,89,$eval(%_width% * 72 / 100 - 277),$eval(%_height% - 224)))
-$if($strcmp($getpvar(anna.playlist.experimental),1),,$panel(NativeScroll,JS Panel,$eval(%_width% * 72 / 100 - 44),90,15,$eval(%_height% - 226)))
+$if($strcmp($getpvar(hariiro.playlist.experimental),1),$panel(GlassPlaylist,JS Panel,248,89,$eval(%_width% * 72 / 100 - 277),$eval(%_height% - 224)),$panel(Playlist,Single Column Playlist,248,89,$eval(%_width% * 72 / 100 - 277),$eval(%_height% - 224)))
+$if($strcmp($getpvar(hariiro.playlist.experimental),1),,$panel(NativeScroll,JS Panel,$eval(%_width% * 72 / 100 - 44),90,15,$eval(%_height% - 226)))
 
 // Right artwork and metadata retain their coordinates, without a redundant header or VIS switch.
 // Artwork caps at 180px to preserve the fixed spectrum-row boundary.
-$drawrect($eval(%_width% * 72 / 100 - 10),58,$eval(%_width% * 28 / 100 - 6),265,brushcolor-10-20-42 pencolor-$if2($getpvar(anna.tc.220-165-187),220-165-187) alpha-54)
+$drawrect($eval(%_width% * 72 / 100 - 10),58,$eval(%_width% * 28 / 100 - 6),265,brushcolor-10-20-42 pencolor-$if2($getpvar(hariiro.tc.220-165-187),220-165-187) alpha-54)
 $panel(Cover,Album Art,$eval(%_width% * 72 / 100 + 4),72,$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)))
-$drawrect($eval(%_width% * 72 / 100 + 4),72,$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),brushcolor-null pencolor-$if2($getpvar(anna.tc.245-190-213),245-190-213))
-$font(Segoe UI Symbol,18,,$if2($getpvar(anna.tc.250-181-211),250-181-211))
-$textbutton($eval(%_width% - 57),68,36,33,$if($strcmp($getpvar(anna.favorite.current),1),♥,♡),,JSPANEL:Playlists:togglefavorite,TOOLTIP,'現在の曲を Anna - Favorites へ追加 / 解除')
+$drawrect($eval(%_width% * 72 / 100 + 4),72,$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),brushcolor-null pencolor-$if2($getpvar(hariiro.tc.245-190-213),245-190-213))
+$font(Segoe UI Symbol,18,,$if2($getpvar(hariiro.tc.250-181-211),250-181-211))
+$textbutton($eval(%_width% - 57),68,36,33,$if($strcmp($getpvar(hariiro.favorite.current),1),♥,♡),,JSPANEL:Playlists:togglefavorite,TOOLTIP,'現在の曲を Hariiro - Favorites へ追加 / 解除')
 // One JS metadata panel computes line wrapping and a single vertical flow.
 // It keeps the original fonts and reserves the first-line heart target.
 $panel(NowDetails,JS Panel,$ifgreater(%_width%,1500,$eval(%_width% * 72 / 100 + 198),$eval(%_width% * 84 / 100 + 18)),72,$ifgreater(%_width%,1500,$eval(%_width% * 28 / 100 - 219),$eval(%_width% * 16 / 100 - 42)),190)
 // Native Panels UI spectrum kept as the simpler, tested visualizer.
 // Spectrum begins 14px beneath the embedded cover; its bottom remains y=309.
 // At the screenshot's ~1290px width this expands from 40 to roughly 69px.
-$drawrect($eval(%_width% * 72 / 100 + 4),$ifgreater(%_width%,1500,263,$eval(83 + %_width% * 12 / 100)),$eval(%_width% * 28 / 100 - 34),1,brushcolor-$if2($getpvar(anna.tc.251-173-207),251-173-207) pencolor-null alpha-110)
+$drawrect($eval(%_width% * 72 / 100 + 4),$ifgreater(%_width%,1500,263,$eval(83 + %_width% * 12 / 100)),$eval(%_width% * 28 / 100 - 34),1,brushcolor-$if2($getpvar(hariiro.tc.251-173-207),251-173-207) pencolor-null alpha-110)
 $panel(Spectrum,Spectrum,$eval(%_width% * 72 / 100 + 4),$ifgreater(%_width%,1500,266,$eval(86 + %_width% * 12 / 100)),$eval(%_width% * 28 / 100 - 34),$ifgreater(%_width%,1500,43,$eval(223 - %_width% * 12 / 100)))
 
 // Lyrics and queue share the same right-side footprint (x, y, w, h).
-// Both modes retain the card's OUTER border. AnnaLyrics itself draws no
+// Both modes retain the card's OUTER border. HariiroLyrics itself draws no
 // second border or backing; Queue keeps its stronger coloured treatment.
-$if($strcmp($getpvar(anna.queue.open),1),$drawrect($eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466),brushcolor-$if2($getpvar(anna.tc.58-20-59),58-20-59) pencolor-$if2($getpvar(anna.tc.255-160-211),255-160-211) alpha-126),$drawrect($eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466),brushcolor-null pencolor-$if2($getpvar(anna.tc.236-184-177),236-184-177) alpha-94))
-$if($strcmp($getpvar(anna.queue.open),1),$drawrect($eval(%_width% * 72 / 100 - 10),334,$eval(%_width% * 28 / 100 - 6),4,brushcolor-$if2($getpvar(anna.tc.252-146-204),252-146-204) pencolor-null alpha-238),)
-$font(Yu Gothic UI,11,bold,$if2($getpvar(anna.tc.253-216-227),253-216-227))
-$if($strcmp($getpvar(anna.queue.open),1),$drawstring($if($strcmp($getpvar(anna.language.shown),zh-CN),♫ 队列 · 即将播放,$if($strcmp($getpvar(anna.language.shown),zh-TW),♫ 佇列 · 即將播放,$if($strcmp($getpvar(anna.language.shown),en),♫ QUEUE · NEXT UP,$if($strcmp($getpvar(anna.language.shown),es),♫ COLA · SIGUIENTES,$if($strcmp($getpvar(anna.language.shown),pt),♫ FILA · A SEGUIR,$if($strcmp($getpvar(anna.language.shown),fr),♫ FILE · À SUIVRE,$if($strcmp($getpvar(anna.language.shown),de),♫ WARTESCHLANGE,$if($strcmp($getpvar(anna.language.shown),ru),♫ ОЧЕРЕДЬ · ДАЛЕЕ,♫ QUEUE · 次に再生)))))))),$eval(%_width% * 72 / 100 - 1),344,162,22,$if2($getpvar(anna.tc.253-216-227),253-216-227)),)
-$if($strcmp($getpvar(anna.queue.open),1),$panel(AnnaQueue,JS Panel,$eval(%_width% * 72 / 100 - 4),369,$eval(%_width% * 28 / 100 - 20),$eval(%_height% - 498)),$panel(AnnaLyrics,JS Panel,$eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466)))
+$if($strcmp($getpvar(hariiro.queue.open),1),$drawrect($eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466),brushcolor-$if2($getpvar(hariiro.tc.58-20-59),58-20-59) pencolor-$if2($getpvar(hariiro.tc.255-160-211),255-160-211) alpha-126),$drawrect($eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466),brushcolor-null pencolor-$if2($getpvar(hariiro.tc.236-184-177),236-184-177) alpha-94))
+$if($strcmp($getpvar(hariiro.queue.open),1),$drawrect($eval(%_width% * 72 / 100 - 10),334,$eval(%_width% * 28 / 100 - 6),4,brushcolor-$if2($getpvar(hariiro.tc.252-146-204),252-146-204) pencolor-null alpha-238),)
+$font(Yu Gothic UI,11,bold,$if2($getpvar(hariiro.tc.253-216-227),253-216-227))
+$if($strcmp($getpvar(hariiro.queue.open),1),$drawstring($if($strcmp($getpvar(hariiro.language.shown),zh-CN),♫ 队列 · 即将播放,$if($strcmp($getpvar(hariiro.language.shown),zh-TW),♫ 佇列 · 即將播放,$if($strcmp($getpvar(hariiro.language.shown),en),♫ QUEUE · NEXT UP,$if($strcmp($getpvar(hariiro.language.shown),es),♫ COLA · SIGUIENTES,$if($strcmp($getpvar(hariiro.language.shown),pt),♫ FILA · A SEGUIR,$if($strcmp($getpvar(hariiro.language.shown),fr),♫ FILE · À SUIVRE,$if($strcmp($getpvar(hariiro.language.shown),de),♫ WARTESCHLANGE,$if($strcmp($getpvar(hariiro.language.shown),ru),♫ ОЧЕРЕДЬ · ДАЛЕЕ,♫ QUEUE · 次に再生)))))))),$eval(%_width% * 72 / 100 - 1),344,162,22,$if2($getpvar(hariiro.tc.253-216-227),253-216-227)),)
+$if($strcmp($getpvar(hariiro.queue.open),1),$panel(HariiroQueue,JS Panel,$eval(%_width% * 72 / 100 - 4),369,$eval(%_width% * 28 / 100 - 20),$eval(%_height% - 498)),$panel(HariiroLyrics,JS Panel,$eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466)))
 // Footer DESK and QUEUE share an 84px pill footprint and remain visible together.
 // Draw these controls AFTER footer backing to prevent the Desk ON tint washing out.
 
 // Four explicit petal/filigree corner orientations, aligned INSIDE each panel outline.
 // Round 22: the corners belong to the accent colour: images/controls/<colour folder>/ ("rose" = pink before Round 22).
-$imageabs(16,58,28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_tl.png)
-$imageabs($eval(227 - 28),58,28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_tr.png)
-$imageabs(16,$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_bl.png)
-$imageabs($eval(227 - 28),$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_br.png)
-$imageabs(241,58,28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_tl.png)
-$imageabs($eval(%_width% * 72 / 100 - 24 - 28),58,28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_tr.png)
-$imageabs(241,$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_bl.png)
-$imageabs($eval(%_width% * 72 / 100 - 24 - 28),$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_br.png)
-$imageabs($eval(%_width% * 72 / 100 - 10),58,28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_tl.png)
-$imageabs($eval(%_width% - 16 - 28),58,28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_tr.png)
-$imageabs($eval(%_width% * 72 / 100 - 10),$eval(323 - 28),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_bl.png)
-$imageabs($eval(%_width% - 16 - 28),$eval(323 - 28),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_br.png)
-$imageabs($eval(%_width% * 72 / 100 - 10),337,28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_tl.png)
-$imageabs($eval(%_width% - 16 - 28),337,28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_tr.png)
-$imageabs($eval(%_width% * 72 / 100 - 10),$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_bl.png)
-$imageabs($eval(%_width% - 16 - 28),$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_br.png)
+$imageabs(16,58,28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_tl.png)
+$imageabs($eval(227 - 28),58,28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_tr.png)
+$imageabs(16,$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_bl.png)
+$imageabs($eval(227 - 28),$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_br.png)
+$imageabs(241,58,28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_tl.png)
+$imageabs($eval(%_width% * 72 / 100 - 24 - 28),58,28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_tr.png)
+$imageabs(241,$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_bl.png)
+$imageabs($eval(%_width% * 72 / 100 - 24 - 28),$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_br.png)
+$imageabs($eval(%_width% * 72 / 100 - 10),58,28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_tl.png)
+$imageabs($eval(%_width% - 16 - 28),58,28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_tr.png)
+$imageabs($eval(%_width% * 72 / 100 - 10),$eval(323 - 28),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_bl.png)
+$imageabs($eval(%_width% - 16 - 28),$eval(323 - 28),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_br.png)
+$imageabs($eval(%_width% * 72 / 100 - 10),337,28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_tl.png)
+$imageabs($eval(%_width% - 16 - 28),337,28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_tr.png)
+$imageabs($eval(%_width% * 72 / 100 - 10),$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_bl.png)
+$imageabs($eval(%_width% - 16 - 28),$eval(%_height% - 129 - 28),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_br.png)
 
 // Reference-style footer: controls ABOVE a full-width butterfly seek bar.
-$drawrect(16,$eval(%_height% - 113),$eval(%_width% - 32),105,brushcolor-20-25-50 pencolor-$if2($getpvar(anna.tc.234-172-197),234-172-197) alpha-76)
-$drawrect(17,$eval(%_height% - 112),$eval(%_width% - 34),1,brushcolor-$if2($getpvar(anna.tc.249-183-211),249-183-211) pencolor-null alpha-152)
-$imageabs(16,$eval(%_height% - 113),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_tl.png)
-$imageabs($eval(%_width% - 44),$eval(%_height% - 113),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_tr.png)
-$imageabs(16,$eval(%_height% - 36),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_bl.png)
-$imageabs($eval(%_width% - 44),$eval(%_height% - 36),28,28,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/corner_br.png)
+$drawrect(16,$eval(%_height% - 113),$eval(%_width% - 32),105,brushcolor-20-25-50 pencolor-$if2($getpvar(hariiro.tc.234-172-197),234-172-197) alpha-76)
+$drawrect(17,$eval(%_height% - 112),$eval(%_width% - 34),1,brushcolor-$if2($getpvar(hariiro.tc.249-183-211),249-183-211) pencolor-null alpha-152)
+$imageabs(16,$eval(%_height% - 113),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_tl.png)
+$imageabs($eval(%_width% - 44),$eval(%_height% - 113),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_tr.png)
+$imageabs(16,$eval(%_height% - 36),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_bl.png)
+$imageabs($eval(%_width% - 44),$eval(%_height% - 36),28,28,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/corner_br.png)
 $panel(FooterCover,Album Art,34,$eval(%_height% - 99),67,67)
-$drawrect(34,$eval(%_height% - 99),67,67,brushcolor-null pencolor-$if2($getpvar(anna.tc.226-173-197),226-173-197))
+$drawrect(34,$eval(%_height% - 99),67,67,brushcolor-null pencolor-$if2($getpvar(hariiro.tc.226-173-197),226-173-197))
 $font(Yu Gothic UI,11,bold)
-$drawstring($if(%isplaying%,%title%,Anna Glass V2),112,$eval(%_height% - 96),$eval(%_width% * 16 / 100 - 25),23,$if2($getpvar(anna.tc.253-228-240),253-228-240))
+$drawstring($if(%isplaying%,%title%,Hariiro),112,$eval(%_height% - 96),$eval(%_width% * 16 / 100 - 25),23,$if2($getpvar(hariiro.tc.253-228-240),253-228-240))
 $font(Yu Gothic UI,10)
-$drawstring($if(%isplaying%,%artist%,$if($strcmp($getpvar(anna.language.shown),zh-CN),已停止,$if($strcmp($getpvar(anna.language.shown),zh-TW),已停止,$if($strcmp($getpvar(anna.language.shown),en),Stopped,$if($strcmp($getpvar(anna.language.shown),es),Detenido,$if($strcmp($getpvar(anna.language.shown),pt),Parado,$if($strcmp($getpvar(anna.language.shown),fr),Arrêté,$if($strcmp($getpvar(anna.language.shown),de),Gestoppt,$if($strcmp($getpvar(anna.language.shown),ru),Остановлено,停止中))))))))),112,$eval(%_height% - 69),$eval(%_width% * 16 / 100 - 25),19,$if2($getpvar(anna.tc.229-214-231),229-214-231))
+$drawstring($if(%isplaying%,%artist%,$if($strcmp($getpvar(hariiro.language.shown),zh-CN),已停止,$if($strcmp($getpvar(hariiro.language.shown),zh-TW),已停止,$if($strcmp($getpvar(hariiro.language.shown),en),Stopped,$if($strcmp($getpvar(hariiro.language.shown),es),Detenido,$if($strcmp($getpvar(hariiro.language.shown),pt),Parado,$if($strcmp($getpvar(hariiro.language.shown),fr),Arrêté,$if($strcmp($getpvar(hariiro.language.shown),de),Gestoppt,$if($strcmp($getpvar(hariiro.language.shown),ru),Остановлено,停止中))))))))),112,$eval(%_height% - 69),$eval(%_width% * 16 / 100 - 25),19,$if2($getpvar(hariiro.tc.229-214-231),229-214-231))
 $font(Segoe UI,9)
 $drawstring($if(%isplaying%,%codec%[ · %bitrate% kbps],),112,$eval(%_height% - 48),$eval(%_width% * 16 / 100 - 25),18,198-198-220)
 
 // Newly designed transport vectors: independent clean-line icons; no legacy raster/filled skip controls.
 $panel(FooterTransport,JS Panel,$eval(%_width% * 52 / 100 - 214),$eval(%_height% - 103),428,67)
 // Right footer lower row: speaker and volume rail, no percent; QUEUE retains its x/y.
-$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/$if($strcmp($getpvar(anna.theme.hue),rose),pink,$if2($getpvar(anna.theme.hue),pink))/speaker.png)
+$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))/speaker.png)
 $panel(FooterVolume,JS Panel,$eval(%_width% - 209),$eval(%_height% - 43),168,22)
 $panel(DesktopLyrics,JS Panel,$eval(%_width% - 209),$eval(%_height% - 94),84,24)
 $panel(FooterQueueToggle,JS Panel,$eval(%_width% - 117),$eval(%_height% - 94),84,24)
 
 // Full-width seek line sits along the lower rim; its glowing butterfly thumb
 // is painted inside FooterSeek JS Panel and does one actual seek on mouse-up.
-$font(Segoe UI,12,bold,$if2($getpvar(anna.tc.255-232-246),255-232-246))
-$drawstring($if(%isplaying%,%playback_time%,0:00),$eval(%_width% * 23 / 100 - 48),$eval(%_height% - 39),60,27,$if2($getpvar(anna.tc.255-232-246),255-232-246))
+$font(Segoe UI,12,bold,$if2($getpvar(hariiro.tc.255-232-246),255-232-246))
+$drawstring($if(%isplaying%,%playback_time%,0:00),$eval(%_width% * 23 / 100 - 48),$eval(%_height% - 39),60,27,$if2($getpvar(hariiro.tc.255-232-246),255-232-246))
 $panel(FooterSeek,JS Panel,$eval(%_width% * 23 / 100),$eval(%_height% - 38),$eval(%_width% * 77 / 100 - 350),27)
-$drawstring($if(%isplaying%,%length%,0:00),$eval(%_width% - 336),$eval(%_height% - 39),72,27,$if2($getpvar(anna.tc.255-232-246),255-232-246))
+$drawstring($if(%isplaying%,%length%,0:00),$eval(%_width% - 336),$eval(%_height% - 39),72,27,$if2($getpvar(hariiro.tc.255-232-246),255-232-246))
 

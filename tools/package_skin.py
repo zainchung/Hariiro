@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Build the installable Anna Glass V2 skin ZIP and verify its contents.
+"""Build the installable Hariiro skin ZIP and verify its contents.
 
 Usage:
     python tools/package_skin.py
-    python tools/package_skin.py --output C:\\Temp\\Anna-Glass-V2.zip
+    python tools/package_skin.py --output C:\\Temp\\Hariiro.zip
 
 The archive holds exactly what foobar2000 needs at runtime:
     main.txt, foo_ui_panels.ini, js/*.js, images/** (png/jpg, and theme.json of each colour)
-plus docs/USER_README.txt as Anna-Glass-V2-README.txt (end-user notes).
+plus docs/USER_README.txt as Hariiro-README.txt (end-user notes).
 Other docs, tests and tools are not included. Extract into a *backed-up* copy
 of the skin folder. Before writing, the script checks that
   * every include('x.js') resolves to a file in js/,
@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PNG = b"\x89PNG\r\n\x1a\n"
 JPG = b"\xff\xd8\xff"
 TOP_LEVEL = ("main.txt", "foo_ui_panels.ini")
-USER_README = ("Anna-Glass-V2-README.txt", "docs/USER_README.txt")  # (zip path, source)
+USER_README = ("Hariiro-README.txt", "docs/USER_README.txt")  # (zip path, source)
 
 
 def collect() -> list[str]:
@@ -109,5 +109,5 @@ def build(output: Path) -> None:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--output", type=Path, default=ROOT / "dist" / "Anna-Glass-V2.zip")
+    ap.add_argument("--output", type=Path, default=ROOT / "dist" / "Hariiro.zip")
     build(ap.parse_args().output)

@@ -1,30 +1,30 @@
-// Anna Glass V2 Stage 3J: long-title hover preview and distinct playing/selected states.
+// Hariiro Stage 3J: long-title hover preview and distinct playing/selected states.
 // Source interaction model: official foo_js_panel Playlist sample, adapted to grouped rows.
 // This file NEVER changes/overwrites user's native playlist or saved playlists.
 // MODE: GLASS is the current-mode label; click to toggle back to MODE: NATIVE.
 'use strict';
-include('anna_i18n.js');
-include('anna_theme.js');
-include('anna_shared.js');
-include('anna_glass_drop.js');
-include('anna_dpi.js');
-include('anna_paint_cache.js');
-include('anna_drop_fix.js');
+include('hariiro_i18n.js');
+include('hariiro_theme.js');
+include('hariiro_shared.js');
+include('hariiro_glass_drop.js');
+include('hariiro_dpi.js');
+include('hariiro_paint_cache.js');
+include('hariiro_drop_fix.js');
 const VK_UP=0x26, VK_DOWN=0x28, VK_RETURN=0x0D, VK_DELETE=0x2e, VK_HOME=0x24, VK_END=0x23;
 const VK_PRIOR=0x21, VK_NEXT=0x22, VK_A=0x41, VK_ESCAPE=0x1b;
 const MK_CONTROL=8, MK_SHIFT=4;
 const HEADER_H=132, ROW_H=39, GROUP_GAP=4, BORDER_X=6;
 const COVER_SIZE=90, REFLECTION_HEIGHT=21;
 const DT=0x8024; // single-line + vertical centre + ellipsis
-// Stage 3C palette: soft outlines keep Anna and the lake visible through every row.
+// Stage 3C palette: soft outlines keep Hariiro and the lake visible through every row.
 // JS Panel painting uses ARGB colours (alpha in the highest byte).
 const TXT=0xfff0f3fb, SOFT=0xffd4d7e6, GOLD=0xffebc29a, PINK=0xffffbfd8;
-const FRAME=AnnaTheme.COLORS.rowFrame, GROUP_FRAME=0x92c9ac99;
+const FRAME=HariiroTheme.COLORS.rowFrame, GROUP_FRAME=0x92c9ac99;
 // Active row colors are selected at paint time to match the concept palette.
-const GLOW_FAR=0x24ff8fca, GLOW_MID=AnnaTheme.COLORS.rowGlow, GLOW_NEAR=0x78ffc0d9;
-const FONT=AnnaDpi.font('Yu Gothic UI',13,0), BOLD=AnnaDpi.font('Yu Gothic UI',13,1);
-const SMALL=AnnaDpi.font('Yu Gothic UI',11,0), HEAD=AnnaDpi.font('Yu Gothic UI',17,1);
-const GLYPH=AnnaDpi.font('Segoe UI Symbol',17,0);
+const GLOW_FAR=0x24ff8fca, GLOW_MID=HariiroTheme.COLORS.rowGlow, GLOW_NEAR=0x78ffc0d9;
+const FONT=HariiroDpi.font('Yu Gothic UI',13,0), BOLD=HariiroDpi.font('Yu Gothic UI',13,1);
+const SMALL=HariiroDpi.font('Yu Gothic UI',11,0), HEAD=HariiroDpi.font('Yu Gothic UI',17,1);
+const GLYPH=HariiroDpi.font('Segoe UI Symbol',17,0);
 const TF_GROUP=fb.TitleFormat('$if2(%album artist%,$if2(%artist%,Unknown Artist))');
 const TF_ALBUM=fb.TitleFormat('$if2(%album%,Singles / Unknown Album)');
 const TF_DATE=fb.TitleFormat('[$meta(date)]');
@@ -36,7 +36,7 @@ let data=[], nodes=[], trackNodes=[], totalHeight=0, scroll=0, anchor=-1, downAt
 let scrollingThumb=false,scrollThumbGrab=0;
 let miniEqFrame=0,miniEqTimer=0; // low-rate animated playing-row glyph only
 function glassScrollbar(){
- const h=Math.max(1,AnnaDpi.height()),w=AnnaDpi.width(),max=maxScroll();
+ const h=Math.max(1,HariiroDpi.height()),w=HariiroDpi.width(),max=maxScroll();
  if(max<=0)return null;
  const thumb=Math.min(h,Math.max(35,Math.floor(h*h/Math.max(1,totalHeight))));
  const travel=Math.max(1,h-thumb);
@@ -62,11 +62,11 @@ function leavingGlassForTarget(x,down){
  return Math.sqrt(dx*dx+dy*dy)>=OLE_START_DIST;
 }
 let hoverMouseY=0;
-function clearGlassOrigin(){clearGlassOriginTimer=0;AnnaShared.clearOriginIf('glass:');}
+function clearGlassOrigin(){clearGlassOriginTimer=0;HariiroShared.clearOriginIf('glass:');}
 function clearImportMessage(){if(importMessageTimer){window.ClearTimeout(importMessageTimer);importMessageTimer=0;}importStatus='';}
-// Drop rules live in anna_glass_drop.js (one decision for drag-over and drop);
+// Drop rules live in hariiro_glass_drop.js (one decision for drag-over and drop);
 // this panel only supplies its own DoDragDrop state.
-function evaluateDrop(){return AnnaGlassDrop.evaluate({active:localGlassTrackOLE,guardUntil:localGlassGuardUntil});}
+function evaluateDrop(){return HariiroGlassDrop.evaluate({active:localGlassTrackOLE,guardUntil:localGlassGuardUntil});}
 function flashImportStatus(ms){
  if(importMessageTimer)window.ClearTimeout(importMessageTimer);
  importMessageTimer=window.SetTimeout(function(){importMessageTimer=0;importStatus='';window.Repaint();},ms);
@@ -78,7 +78,7 @@ function on_drag_over(action,x,y){
  window.Repaint();
 }
 function on_drag_leave(){acceptingImport=false;importStatus='';window.Repaint();}
-// Files from another program never reach on_drag_drop (see anna_drop_fix.js).
+// Files from another program never reach on_drag_drop (see hariiro_drop_fix.js).
 // Accepted files already sit in the playlist shown here (the active one).
 function externalDropPlan(){
  const r=evaluateDrop();
@@ -99,13 +99,13 @@ function on_drag_drop(action,x,y){
   // reveal logic follows the list that is actually on screen.
   try{panelsui.RunAction('JSPANEL:Playlists:syncactive');}catch(e){}
   action.Playlist=p;action.Base=plman.PlaylistItemCount(p);action.ToSelect=true;action.Effect=1;
-  importStatus=AnnaI18n.t('importSorting');
+  importStatus=HariiroI18n.t('importSorting');
   flashImportStatus(2800);
- }catch(e){action.Effect=0;importStatus=AnnaI18n.t('importFailed')+': '+String(e);}
+ }catch(e){action.Effect=0;importStatus=HariiroI18n.t('importFailed')+': '+String(e);}
  window.Repaint();
 }
 
-const FAVORITES=AnnaShared.LIST.favorites;
+const FAVORITES=HariiroShared.LIST.favorites;
 let favoriteKeys=new Set();
 function songKey(h){return h?String(h.Path)+'#'+String(h.SubSong||0):'';}
 function refreshFavoriteKeys(){
@@ -114,7 +114,7 @@ function refreshFavoriteKeys(){
         const p=plman.FindPlaylist(FAVORITES);
         if(p>=0)for(const h of plman.GetPlaylistItems(p).Convert())
             favoriteKeys.add(songKey(h));
-    }catch(e){console.log('Anna Glass favorite cache: '+String(e));}
+    }catch(e){console.log('Hariiro favorite cache: '+String(e));}
 }
 function toggleTrackFavorite(index){
     const p=current();
@@ -125,12 +125,12 @@ function toggleTrackFavorite(index){
         if(!h)return false;
         const existing=plman.FindPlaylist(FAVORITES);
         const dest=existing>=0?existing:plman.FindOrCreatePlaylist(FAVORITES,true);
-        if(dest<0||plman.IsPlaylistLocked(dest))throw new Error(AnnaI18n.t('playlistLocked'));
+        if(dest<0||plman.IsPlaylistLocked(dest))throw new Error(HariiroI18n.t('playlistLocked'));
         const all=plman.GetPlaylistItems(dest).Convert();
         const position=all.findIndex(x=>songKey(x)===songKey(h));
         if(position>=0){
             if(dest===plman.PlayingPlaylist)
-                throw new Error(AnnaI18n.t('cannotDeletePlaylist'));
+                throw new Error(HariiroI18n.t('cannotDeletePlaylist'));
             plman.UndoBackup(dest);
             plman.ClearPlaylistSelection(dest);
             plman.SetPlaylistSelectionSingle(dest,position,true);
@@ -142,7 +142,7 @@ function toggleTrackFavorite(index){
             plman.InsertPlaylistItems(dest,plman.PlaylistItemCount(dest),items);
         }
         refreshFavoriteKeys();error='';window.Repaint();return true;
-    }catch(e){console.log('Anna Glass favorite: '+String(e));return false;}
+    }catch(e){console.log('Hariiro favorite: '+String(e));return false;}
 }
 // Show a delayed in-panel tooltip only for titles that are actually truncated.
 // There is no unsupported window tooltip API in this JS Panel build.
@@ -171,7 +171,7 @@ function rowActionAt(x,width){
     if(x>=width-44&&x<width-8)return 'menu';
     return '';
 }
-function maxScroll(){return Math.max(0,totalHeight-Math.max(0,AnnaDpi.height()));}
+function maxScroll(){return Math.max(0,totalHeight-Math.max(0,HariiroDpi.height()));}
 function clampScroll(){scroll=clamp(scroll,0,maxScroll());}
 function releaseCover(key){
     const entry=covers.get(key);
@@ -194,12 +194,12 @@ function getCover(g){
             // Round 21: keep the cover at drawn size (physical pixels of this child window),
             // not the full-resolution art: up to 18 of those cost tens of MB each, and
             // scaling them down again on every repaint cost CPU.
-            const f=Math.min(1,COVER_SIZE*AnnaDpi.scale()/Math.max(art.Width,art.Height));
+            const f=Math.min(1,COVER_SIZE*HariiroDpi.scale()/Math.max(art.Width,art.Height));
             image=f<1?art.Resize(Math.max(1,Math.round(art.Width*f)),Math.max(1,Math.round(art.Height*f))):art;
             if(image!==art&&typeof art.Dispose==='function')art.Dispose();
         }else image=art;
     }catch(e){
-        console.log('Anna album art reflection: '+String(e));
+        console.log('Hariiro album art reflection: '+String(e));
         if(reflection&&typeof reflection.Dispose==='function')reflection.Dispose();
         reflection=null;
     }
@@ -234,7 +234,7 @@ function build(){
         totalHeight=y;
         refreshFavoriteKeys();
         clampScroll();error='';
-    }catch(e){data=[];nodes=[];trackNodes=[];totalHeight=0;error=AnnaI18n.t('playlistFailed')+': '+String(e);}
+    }catch(e){data=[];nodes=[];trackNodes=[];totalHeight=0;error=HariiroI18n.t('playlistFailed')+': '+String(e);}
     window.Repaint();
 }
 function firstVisible(){
@@ -243,14 +243,14 @@ function firstVisible(){
     return lo;
 }
 function nodeAt(y){
-    if(y<0||y>=AnnaDpi.height())return null;
+    if(y<0||y>=HariiroDpi.height())return null;
     const sy=y+scroll;let lo=0,hi=nodes.length;
     while(lo<hi){const m=(lo+hi)>>1;if(nodes[m].y+nodes[m].h<=sy)lo=m+1;else hi=m;}
     return lo<nodes.length&&nodes[lo].y<=sy?nodes[lo]:null;
 }
 function drawCover(gr,g,x,y){
     const entry=getCover(g),img=entry.image,S=COVER_SIZE;
-    AnnaPaintCache.shape(gr,'glassCoverBg',x,y,S,S,1,(g,cx,cy)=>g.FillRoundRect(cx,cy,S,S,6,6,0xb2152547));
+    HariiroPaintCache.shape(gr,'glassCoverBg',x,y,S,S,1,(g,cx,cy)=>g.FillRoundRect(cx,cy,S,S,6,6,0xb2152547));
     if(img && img.Width>0 && img.Height>0){
         const factor=Math.min(S/img.Width,S/img.Height);
         const w=Math.max(1,Math.floor(img.Width*factor)),h=Math.max(1,Math.floor(img.Height*factor));
@@ -268,10 +268,10 @@ function drawCover(gr,g,x,y){
                 Math.round(part.opacity*255));
         }
     }else gr.GdiDrawText('♪',HEAD,GOLD,x,y,S,S,0x1|0x4|0x20);
-    AnnaPaintCache.shape(gr,'glassCoverFrame',x,y,S,S,1,(g,cx,cy)=>g.DrawRoundRect(cx,cy,S,S,6,6,1,0xc8d8a88f));
+    HariiroPaintCache.shape(gr,'glassCoverFrame',x,y,S,S,1,(g,cx,cy)=>g.DrawRoundRect(cx,cy,S,S,6,6,1,0xc8d8a88f));
 }
-function on_paint(gr){gr=AnnaTheme.graphics(gr);
-    const w=AnnaDpi.width(),h=AnnaDpi.height(),p=current();
+function on_paint(gr){gr=HariiroTheme.graphics(gr);
+    const w=HariiroDpi.width(),h=HariiroDpi.height(),p=current();
     if(error){gr.FillRoundRect(9,16,Math.max(30,w-18),60,7,7,0xc01e1b34);gr.GdiDrawText('JS Playlist: '+error,SMALL,PINK,17,16,w-34,60,0x10);return;}
     if(p<0||!nodes.length){gr.GdiDrawText(p<0?'No playlist':'Empty playlist',FONT,TXT,16,14,Math.max(15,w-32),45,DT);return;}
     const playing=plman.GetPlayingItemLocation(),focus=plman.GetPlaylistFocusItemIndex(p);
@@ -287,7 +287,7 @@ function on_paint(gr){gr=AnnaTheme.graphics(gr);
                 playing.PlaylistItemIndex>=n.index&&
                 playing.PlaylistItemIndex<n.index+n.count;
             // Round 21: the album box is a fixed look, drawn once into a cached bitmap.
-            AnnaPaintCache.shape(gr,'glassAlbum|'+(activeAlbum?1:0),gx,gy,gw,gh,2,(g,x,y)=>{
+            HariiroPaintCache.shape(gr,'glassAlbum|'+(activeAlbum?1:0),gx,gy,gw,gh,2,(g,x,y)=>{
                 g.FillRoundRect(x,y,gw,gh,8,8,activeAlbum?0x64263b64:0x52132242);
                 g.DrawRoundRect(x,y,gw,gh,8,8,1,
                     activeAlbum?0xffeeb3d4:GROUP_FRAME);
@@ -314,13 +314,13 @@ function on_paint(gr){gr=AnnaTheme.graphics(gr);
         const x0=BORDER_X+1,y0=y+2,rw=Math.max(20,w-BORDER_X*2-3),rh=ROW_H-4;
         // Keep playing/selection distinct while protecting the wallpaper below.
         const bg=selected?0x8b965075:isPlaying?0x7c86446b:
-            hover===n.index?AnnaTheme.COLORS.rowHover:AnnaTheme.COLORS.rowNormal;
+            hover===n.index?HariiroTheme.COLORS.rowHover:HariiroTheme.COLORS.rowNormal;
         const fr=selected?0xffffc3e3:isPlaying?0xffffafda:
             hover===n.index?0x97d0abc2:FRAME;
         // Round 21: the row background is a fixed look per state, drawn once into a
         // cached bitmap (round rects cost ~0.4 ms each on every host redraw).
         const halo=selected||isPlaying, mark=isPlaying?1:focus===n.index?2:0;
-        AnnaPaintCache.shape(gr,'glassRow|'+bg+'|'+fr+'|'+(halo?1:0)+'|'+mark,x0,y0,rw,rh,4,(g,x,y)=>{
+        HariiroPaintCache.shape(gr,'glassRow|'+bg+'|'+fr+'|'+(halo?1:0)+'|'+mark,x0,y0,rw,rh,4,(g,x,y)=>{
             // A selected or playing track receives the reference-style pink halo.
             if(halo){
                 g.DrawRoundRect(x-3,y-3,rw+6,rh+6,9,9,1,GLOW_FAR);
@@ -366,9 +366,9 @@ function on_paint(gr){gr=AnnaTheme.graphics(gr);
     }
     const bar=glassScrollbar();
     if(bar){
-        AnnaPaintCache.shape(gr,'glassBarTrack',w-15,0,12,h,1,(g,x,y)=>g.FillRoundRect(x,y,12,h,5,5,0x46252243));
+        HariiroPaintCache.shape(gr,'glassBarTrack',w-15,0,12,h,1,(g,x,y)=>g.FillRoundRect(x,y,12,h,5,5,0x46252243));
         const thumbColor=scrollingThumb?0xffffdeef:0xc6eebed8;
-        AnnaPaintCache.shape(gr,'glassBarThumb|'+thumbColor,w-12,bar.y,6,bar.thumb,1,(g,x,y)=>g.FillRoundRect(x,y,6,bar.thumb,3,3,thumbColor));
+        HariiroPaintCache.shape(gr,'glassBarThumb|'+thumbColor,w-12,bar.y,6,bar.thumb,1,(g,x,y)=>g.FillRoundRect(x,y,6,bar.thumb,3,3,thumbColor));
     }
     // Hover preview is painted last so later rows cannot occlude it.
     if (tipIndex>=0 && hover===tipIndex && !downAt) {
@@ -397,7 +397,7 @@ function selectTrack(i,mask){
     else {plman.ClearPlaylistSelection(p);plman.SetPlaylistSelectionSingle(p,i,true);anchor=i;}
     plman.SetPlaylistFocusItem(p,i);window.Repaint();
 }
-function reveal(i){let n=trackNodes[i];if(!n){build();n=trackNodes[i];}if(!n)return;if(n.y<scroll)scroll=n.y; else if(n.y+n.h>scroll+AnnaDpi.height())scroll=n.y+n.h-AnnaDpi.height();clampScroll();}
+function reveal(i){let n=trackNodes[i];if(!n){build();n=trackNodes[i];}if(!n)return;if(n.y<scroll)scroll=n.y; else if(n.y+n.h>scroll+HariiroDpi.height())scroll=n.y+n.h-HariiroDpi.height();clampScroll();}
 function toggleGroup(k){cancelTip();if(groupCollapsed.has(k))groupCollapsed.delete(k);else groupCollapsed.add(k);hover=-1;build();}
 function on_mouse_lbtn_down(x,y,mask){
     cancelTip();
@@ -412,7 +412,7 @@ function on_mouse_lbtn_down(x,y,mask){
     if(n&&n.kind==='group'){toggleGroup(n.key);return;}
     if(n&&n.kind==='song'){
         // Keep icon clicks separate from row selection / drag initiation.
-        const action=rowActionAt(x,AnnaDpi.width());
+        const action=rowActionAt(x,HariiroDpi.width());
         if(action){downAt={action,index:n.index};return;}
         // A click on an already selected row keeps multiselection until mouse-up,
         // so a later drag or context menu does not silently discard the range.
@@ -430,7 +430,7 @@ function on_mouse_lbtn_up(x,y,mask){
     const down=downAt;downAt=null;
     const n=nodeAt(y);
     if(down&&down.action&&n&&n.kind==='song'&&n.index===down.index&&
-        rowActionAt(x,AnnaDpi.width())===down.action){
+        rowActionAt(x,HariiroDpi.width())===down.action){
         if(down.action==='favorite')toggleTrackFavorite(n.index);
         if(down.action==='menu'){
             if(!plman.IsPlaylistItemSelected(current(),n.index))selectTrack(n.index,0);
@@ -443,7 +443,7 @@ function on_mouse_lbtn_up(x,y,mask){
 }
 function on_mouse_lbtn_dblclk(x,y){
     const n=nodeAt(y);
-    if(n&&n.kind==='song'&&!rowActionAt(x,AnnaDpi.width()))
+    if(n&&n.kind==='song'&&!rowActionAt(x,HariiroDpi.width()))
         plman.ExecutePlaylistDefaultAction(current(),n.index);
 }
 function queueSelected() {
@@ -455,13 +455,13 @@ function queueSelected() {
         // This survives subsequent Artist/Library switching and re-sorting.
         plman.AddItemToPlaybackQueue(handles.Item(i)); added++;
     }
-    if(added) console.log('Anna: queued '+added+' selected tracks');
+    if(added) console.log('Hariiro: queued '+added+' selected tracks');
 }
 function on_mouse_move(x,y,mask){
     hoverMouseY=y;
     if(scrollingThumb){if(mask&1){dragGlassScrollbar(y);return;}scrollingThumb=false;}
     const n=nodeAt(y),h=n&&n.kind==='song'?n.index:-1;
-    const action=h>=0?rowActionAt(x,AnnaDpi.width()):'';
+    const action=h>=0?rowActionAt(x,HariiroDpi.width()):'';
     if(h!==hover||action!==hoverAction){
         hover=h;hoverAction=action;
         queueTip(action?-1:h);
@@ -475,24 +475,24 @@ function on_mouse_move(x,y,mask){
             if(selected.Count){
                 localGlassTrackOLE=true;
                 if(clearGlassOriginTimer){window.ClearTimeout(clearGlassOriginTimer);clearGlassOriginTimer=0;}
-                AnnaShared.setOrigin(AnnaShared.glassMarker(current()));
-                try{AnnaDpi.doDragDrop(window.ID,selected,1,{});}
+                HariiroShared.setOrigin(HariiroShared.glassMarker(current()));
+                try{HariiroDpi.doDragDrop(window.ID,selected,1,{});}
                 finally{
                   localGlassTrackOLE=false;localGlassGuardUntil=Date.now()+350;
                   clearGlassOriginTimer=window.SetTimeout(clearGlassOrigin,350);
                   importStatus='';acceptingImport=false;window.Repaint();
                 }
             }
-        } catch(e) { console.log('Anna: drag unsupported; use right-click Add to Queue: '+e); }
+        } catch(e) { console.log('Hariiro: drag unsupported; use right-click Add to Queue: '+e); }
     }
 }
 function on_mouse_leave(){if(!scrollingThumb){cancelTip();hover=-1;hoverAction='';window.Repaint();}}
 function on_mouse_wheel(step){cancelTip();scroll=clamp(scroll-step*ROW_H*3,0,maxScroll());window.Repaint();}
 function removeFromCurrentPlaylist(){
  const p=current(),name=String(p>=0?plman.GetPlaylistName(p):'');
- const editable=String(panelsui.GetVariable(AnnaShared.PVAR.sidebarEditable,''));
+ const editable=String(panelsui.GetVariable(HariiroShared.PVAR.sidebarEditable,''));
  if(p<0 || !editable || name!==editable ||
-    String(panelsui.GetVariable(AnnaShared.PVAR.navMode,'library'))!=='library'||
+    String(panelsui.GetVariable(HariiroShared.PVAR.navMode,'library'))!=='library'||
     plman.IsPlaylistLocked(p))return false;
  const selected=plman.GetPlaylistSelectedItems(p);
  if(!selected||!selected.Count)return false;
@@ -505,19 +505,19 @@ function on_mouse_rbtn_up(x,y){
     if(p<0)return false;
     if(n&&n.kind==='song'&&!plman.IsPlaylistItemSelected(p,n.index))selectTrack(n.index,0);
     try{
-        const m=window.CreatePopupMenu();m.AppendMenuItem(0,1,AnnaI18n.t('switchNative'));
-        m.AppendMenuItem(0,2,AnnaI18n.t('queueSelected'));
-        if(String(panelsui.GetVariable(AnnaShared.PVAR.sidebarEditable,''))===String(plman.GetPlaylistName(p)))
-           m.AppendMenuItem(0,3,AnnaI18n.t('removeSelected'));
+        const m=window.CreatePopupMenu();m.AppendMenuItem(0,1,HariiroI18n.t('switchNative'));
+        m.AppendMenuItem(0,2,HariiroI18n.t('queueSelected'));
+        if(String(panelsui.GetVariable(HariiroShared.PVAR.sidebarEditable,''))===String(plman.GetPlaylistName(p)))
+           m.AppendMenuItem(0,3,HariiroI18n.t('removeSelected'));
         m.AppendMenuSeparator();
         const cm=fb.CreateContextMenuManager();cm.InitContextPlaylist();cm.BuildMenu(m,100,1000);
-        const cmd=AnnaDpi.popup(m,x,y);
-        if(cmd===1){panelsui.RunAction('PVAR:TOGGLE:'+AnnaShared.PVAR.playlistExperimental);}
+        const cmd=HariiroDpi.popup(m,x,y);
+        if(cmd===1){panelsui.RunAction('PVAR:TOGGLE:'+HariiroShared.PVAR.playlistExperimental);}
         else if(cmd===2){queueSelected();}
         else if(cmd===3){removeFromCurrentPlaylist();}
         else if(cmd>=100)cm.ExecuteByID(cmd-100);
         return true;
-    }catch(e){console.log('Anna Glass context menu: '+e);return false;}
+    }catch(e){console.log('Hariiro context menu: '+e);return false;}
 }
 function on_key_down(key){
     const p=current();if(p<0)return false;
@@ -537,7 +537,7 @@ function on_key_down(key){
     if(key===VK_DELETE){return removeFromCurrentPlaylist();}
     if(key===VK_UP||key===VK_DOWN||key===VK_HOME||key===VK_END||key===VK_PRIOR||key===VK_NEXT){
         const count=data.length;if(!count)return false;
-        const page=Math.max(1,Math.floor(AnnaDpi.height()/ROW_H)-2);
+        const page=Math.max(1,Math.floor(HariiroDpi.height()/ROW_H)-2);
         const delta=key===VK_UP?-1:key===VK_DOWN?1:key===VK_PRIOR?-page:page;
         const next=key===VK_HOME?0:key===VK_END?count-1:clamp((focus<0?0:focus)+delta,0,count-1);
         // An arrow key into a folded group unfolds it before selecting the target.
@@ -593,15 +593,15 @@ miniEqTimer=window.SetInterval(function(){
         const n=trackNodes[loc.PlaylistItemIndex];
         if(!n)return;
         const y=n.y-scroll;
-        if(y+ROW_H<=0||y>=AnnaDpi.height())return;
+        if(y+ROW_H<=0||y>=HariiroDpi.height())return;
         miniEqFrame=(miniEqFrame+1)%360;
-        AnnaDpi.repaintRect(58,y+2,20,ROW_H-4);
+        HariiroDpi.repaintRect(58,y+2,20,ROW_H-4);
     }catch(e){/* host may be switching playlists */}
 },160);
 function on_script_unload(){if(miniEqTimer)window.ClearInterval(miniEqTimer);if(importMessageTimer)window.ClearTimeout(importMessageTimer);if(clearGlassOriginTimer)window.ClearTimeout(clearGlassOriginTimer);}
 
-function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}
 
-AnnaDropFix.install({plan:externalDropPlan});
+HariiroDropFix.install({plan:externalDropPlan});
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
-AnnaDpi.install();
+HariiroDpi.install();

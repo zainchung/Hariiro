@@ -7,26 +7,26 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const read=p=>readFileSync(root+'/'+p,'utf8');
 // Unit-test canonical file identity before exercising the real sidebar callbacks.
 const isolated=vm.createContext({});
-vm.runInContext(read('js/anna_playlist_dedup.js'),isolated);
-const normalize=h=>vm.runInContext('AnnaPlaylistDedup.key',isolated)(h);
+vm.runInContext(read('js/hariiro_playlist_dedup.js'),isolated);
+const normalize=h=>vm.runInContext('HariiroPlaylistDedup.key',isolated)(h);
 assert.equal(normalize({Path:'C:/Songs/Album/Name.FLAC'}),normalize({Path:'c:\\songs\\album\\name.flac'}));
 assert.notEqual(normalize({Path:'C:/Songs/A.flac'}),normalize({Path:'C:/Songs/A.mp3'}));
 assert.notEqual(normalize({Path:'C:/Songs/A.flac'}),normalize({Path:'D:/Songs/A.flac'}));
 assert.equal(normalize({Path:'https://radio.example/live'}),'','HTTP streams are not physical files');
 const oldKeys=['a','a','b'],afterKeys=['a','a','b','a','c','c'];
-assert.deepEqual([...vm.runInContext('AnnaPlaylistDedup.redundantAddedIndices',isolated)(oldKeys,afterKeys)],[3,5]);
+assert.deepEqual([...vm.runInContext('HariiroPlaylistDedup.redundantAddedIndices',isolated)(oldKeys,afterKeys)],[3,5]);
 
 const handle=(path,subsong=0)=>({Path:path,SubSong:subsong});
 const data=[
  {name:'Mix A',items:[handle('C:\\MUSIC\\Album\\Song.FLAC'),handle('C:\\music\\Album\\Song.FLAC')]},
  {name:'Mix B',items:[handle('D:\\Music\\Original.mp3')]},
- {name:'Anna - Favorites',items:[handle('C:\\Music\\fav.flac')]},
- {name:'Anna - Search Results',items:[handle('C:\\Music\\search.flac')]},
- {name:'Anna - Queue Buffer',items:[handle('C:\\Music\\queue.flac')]}
+ {name:'Hariiro - Favorites',items:[handle('C:\\Music\\fav.flac')]},
+ {name:'Hariiro - Search Results',items:[handle('C:\\Music\\search.flac')]},
+ {name:'Hariiro - Queue Buffer',items:[handle('C:\\Music\\queue.flac')]}
 ];
 let active=0,playing=-1,selected=new Map(),focus=new Map(),backups=0,removalCalls=0,sortCalls=0,filesRemoved=0;
-const windows=[],vars=new Map([['anna.nav.mode','library'],['anna.queue.buffer.name','Anna - Queue Buffer'],
- ['anna.search.results.owned',JSON.stringify(['Anna - Search Results'])]]);
+const windows=[],vars=new Map([['hariiro.nav.mode','library'],['hariiro.queue.buffer.name','Hariiro - Queue Buffer'],
+ ['hariiro.search.results.owned',JSON.stringify(['Hariiro - Search Results'])]]);
 function list(values){return{get Count(){return values.length},Convert(){return values.slice()},Item:i=>values[i],Add(x){values.push(x)},Find(x){return values.indexOf(x)}};}
 const pendingTimers=new Map();let nextTimer=0;
 const win={ID:1,Width:196,Height:500,Repaint(){},GetProperty:(k,v)=>v,SetProperty(){},
@@ -97,11 +97,11 @@ sidebar.on_playlists_changed();
 assert.equal(path(0).length,6);
 // New ordinary playlist from blank-area drop: the staging import contains
 // two identical paths and one genuinely different file.
-const stage=sidebar.AnnaImportStaging.playlist();data[stage].items.push(handle('J:\\New\\Only.flac'),handle('j:/new/only.FLAC'),handle('K:\\New\\Different.flac'));
+const stage=sidebar.HariiroImportStaging.playlist();data[stage].items.push(handle('J:\\New\\Only.flac'),handle('j:/new/only.FLAC'),handle('K:\\New\\Different.flac'));
 sidebar.on_playlist_items_added(stage);
 for(const [id,fn] of [...pendingTimers]){pendingTimers.delete(id);fn();}
 // The playlist name is localised (host locale may be ja/zh), so compare with the i18n string.
-const importedName=data.find(x=>x.name.startsWith(sidebar.AnnaI18n.t('importedPlaylistName')));
+const importedName=data.find(x=>x.name.startsWith(sidebar.HariiroI18n.t('importedPlaylistName')));
 assert(importedName,'only playable imported files create a new ordinary playlist');
 assert.deepEqual(importedName.items.map(x=>x.Path),['J:\\New\\Only.flac','K:\\New\\Different.flac']);
 assert.equal(filesRemoved,0,'never delete the source audio');

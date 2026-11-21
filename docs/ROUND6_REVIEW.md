@@ -1,6 +1,6 @@
-# Anna Glass V2 — Round 6 Windows test candidate
+# Hariiro — Round 6 Windows test candidate
 
-Source: `feature/anna-ui-reference-refresh` (Draft PR #1). Test as an isolated skin; **do not replace DLLs or overwrite your working skin**.
+Source: `feature/hariiro-ui-reference-refresh` (Draft PR #1). Test as an isolated skin; **do not replace DLLs or overwrite your working skin**.
 
 ## Changes
 

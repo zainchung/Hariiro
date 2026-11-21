@@ -1,9 +1,9 @@
-// Anna Glass: per-playlist path baselines that let the sidebar remove the duplicate
+// Hariiro: per-playlist path baselines that let the sidebar remove the duplicate
 // copies an import just added (Round 13.2). Moved out of playlist_browser.js in Phase D1;
-// rules unchanged. The including panel loads anna_playlist_dedup.js first.
+// rules unchanged. The including panel loads hariiro_playlist_dedup.js first.
 // create(isOrdinary): isOrdinary(p) says which playlists are the user's own lists.
 'use strict';
-var AnnaDedupTracker=(function(){
+var HariiroDedupTracker=(function(){
  function create(isOrdinary){
   // Track pre-import file paths for every ordinary playlist, including playlists
   // that are not currently active. The foobar2000 OLE host inserts tracks after
@@ -16,7 +16,7 @@ var AnnaDedupTracker=(function(){
    for(let i=0;i<=p;i++)if(String(plman.GetPlaylistName(i))===name)serial++;
    return name+'\u0000'+serial;
   }
-  function snapshot(p){return AnnaPlaylistDedup.paths(plman.GetPlaylistItems(p).Convert());}
+  function snapshot(p){return HariiroPlaylistDedup.paths(plman.GetPlaylistItems(p).Convert());}
   function sync(){
    const present=new Set();
    for(let p=0;p<plman.PlaylistCount;p++)if(isOrdinary(p)){
@@ -64,7 +64,7 @@ var AnnaDedupTracker=(function(){
     baselines.set(t,after);return 0; // No earlier snapshot: never alter unknown user data.
    }
    const prior=baselines.get(t);
-   const duplicates=AnnaPlaylistDedup.redundantAddedIndices(prior,after);
+   const duplicates=HariiroPlaylistDedup.redundantAddedIndices(prior,after);
    try{
     if(duplicates.length&&!plman.IsPlaylistLocked(p))removeDuplicates(p,duplicates);
    }finally{baselines.set(t,snapshot(p));}

@@ -11,9 +11,9 @@ import {installIncludeShim} from './helpers/js_panel.mjs';
 const originalVmRun=installIncludeShim(vm);
 const read=(p)=>readFileSync(root+'/'+p,'utf8');
 const main=read('main.txt'),ini=read('foo_ui_panels.ini');
-const lyricCode=read('js/anna_lyrics.js'),browserCode=read('js/playlist_browser.js');
-const glassCode=read('js/anna_glass_playlist.js'),navCode=read('js/anna_nav_tabs.js');
-const transport=read('js/anna_transport.js');
+const lyricCode=read('js/hariiro_lyrics.js'),browserCode=read('js/playlist_browser.js');
+const glassCode=read('js/hariiro_glass_playlist.js'),navCode=read('js/hariiro_nav_tabs.js');
+const transport=read('js/hariiro_transport.js');
 // The artwork and size/layout contracts must remain untouched.
 assert.match(main,/\$panel\(Cover,Album Art,/);
 assert(!main.includes('play_ring.png'));
@@ -21,9 +21,9 @@ assert(!transport.includes('FillPolygon(C.line,0,[x-7'));
 assert.match(transport,/transport graphics are transparent PNGs/);
 assert.match(main,/72 \/ 100 - 115\),61,74,24/);
 assert.match(main,/\$panel\(DesktopLyrics,JS Panel,\$eval\(%_width% - 209\),\$eval\(%_height% - 94\),84,24/);
-assert.match(read('js/anna_desktop_lyrics.js'),/Desk ON/);
-assert.match(read('js/anna_desktop_lyrics.js'),/Desk OFF/);
-assert.match(read('js/anna_footer_slider.js'),/Match the progress rail/);
+assert.match(read('js/hariiro_desktop_lyrics.js'),/Desk ON/);
+assert.match(read('js/hariiro_desktop_lyrics.js'),/Desk OFF/);
+assert.match(read('js/hariiro_footer_slider.js'),/Match the progress rail/);
 assert(!main.includes('FooterVolumePct'));
 assert.match(navCode,/LastSelected.v2/);
 assert.match(browserCode,/JSPANEL:NavTabs:/);
@@ -32,10 +32,10 @@ assert.match(browserCode,/scrollingThumb/);
 assert.match(glassCode,/dragGlassScrollbar/);
 assert.match(glassCode,/scrollingThumb/);
 assert.match(lyricCode,/View\/ESLyric\/Search\.\.\./);
-assert(lyricCode.includes("AnnaI18n.t('lyricTags')"));
-assert(lyricCode.includes("AnnaI18n.t('lyricConfig')"));
-assert(lyricCode.includes("AnnaI18n.t('lyricTrack')"));
-assert(lyricCode.includes("AnnaI18n.t('lyricBrowse')"));
+assert(lyricCode.includes("HariiroI18n.t('lyricTags')"));
+assert(lyricCode.includes("HariiroI18n.t('lyricConfig')"));
+assert(lyricCode.includes("HariiroI18n.t('lyricTrack')"));
+assert(lyricCode.includes("HariiroI18n.t('lyricBrowse')"));
 const widths=[960,1280,1536,1920];
 for(const w of widths){
   const right=.72*w-41,left=.72*w-115;
@@ -98,10 +98,10 @@ function extractFunction(source,name){
  return source.slice(i,j+1);
 }
 // Use an explicit brace counter only for functions that contain no braces in strings.
-// AnnaDpi (Round 15) reports layout units; at scale 1 they equal window.Width/Height.
+// HariiroDpi (Round 15) reports layout units; at scale 1 they equal window.Width/Height.
 const dpiOf=win=>({width:()=>win.Width,height:()=>win.Height});
 const sideWin={Width:200,Height:300,Repaint(){}};
-const sideCtx=vm.createContext({window:sideWin,AnnaDpi:dpiOf(sideWin),
+const sideCtx=vm.createContext({window:sideWin,HariiroDpi:dpiOf(sideWin),
  entries:()=>Array.from({length:100}),ROW:30,TABS:8,scroll:0,scrollThumbGrab:0,
  clamp:(n,lo,hi)=>Math.min(hi,Math.max(lo,n))});
 vm.runInContext(extractFunction(browserCode,'sidebarScrollbar')+'\n'+extractFunction(browserCode,'dragSidebarScrollbar'),sideCtx);
@@ -109,7 +109,7 @@ const sg=sideCtx.sidebarScrollbar();assert(sg&&sg.max>0);
 sideCtx.dragSidebarScrollbar(sg.top+sg.travel+sg.thumb/2);
 assert(sideCtx.scroll>sg.max*.9);
 const glassWin={Width:620,Height:500,Repaint(){}};
-const glassCtx=vm.createContext({window:glassWin,AnnaDpi:dpiOf(glassWin),
+const glassCtx=vm.createContext({window:glassWin,HariiroDpi:dpiOf(glassWin),
  totalHeight:2500,scroll:0,scrollThumbGrab:0,
  maxScroll:()=>2000,
  clamp:(n,lo,hi)=>Math.min(hi,Math.max(lo,n)),cancelTip(){}});

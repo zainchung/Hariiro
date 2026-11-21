@@ -1,4 +1,4 @@
-// Anna Glass: cached drawing for the hot paint paths (Round 21).
+// Hariiro: cached drawing for the hot paint paths (Round 21).
 // While music plays, Panels UI redraws the whole layout twice a second and every JS panel
 // paints again. Measured on Windows: an antialiased FillRoundRect / DrawRoundRect costs
 // 0.3-0.5 ms and drawing a 192 px PNG at 39 px 0.6 ms, while blitting a ready bitmap costs
@@ -12,13 +12,13 @@
 //                                into a bitmap, which is then only blitted. `margin` layout px
 //                                around w x h hold glows and strokes. Keep text out of it:
 //                                GDI text loses its alpha in a bitmap.
-// Needs anna_theme.js; uses anna_dpi.js when the panel includes it (child windows).
+// Needs hariiro_theme.js; uses hariiro_dpi.js when the panel includes it (child windows).
 'use strict';
-var AnnaPaintCache=(function(){
+var HariiroPaintCache=(function(){
  const MAX_SHAPES=96;
  function dispose(img){try{if(img&&typeof img.Dispose==='function')img.Dispose();}catch(e){}}
- function scale(){try{return typeof AnnaDpi!=='undefined'?AnnaDpi.scale():1;}catch(e){return 1;}}
- function accent(){try{return typeof AnnaTheme!=='undefined'?AnnaTheme.key():'';}catch(e){return '';}} // folder@hue
+ function scale(){try{return typeof HariiroDpi!=='undefined'?HariiroDpi.scale():1;}catch(e){return 1;}}
+ function accent(){try{return typeof HariiroTheme!=='undefined'?HariiroTheme.key():'';}catch(e){return '';}} // folder@hue
 
  const resized=new WeakMap();
  function icon(img,w,h,factor){
@@ -53,8 +53,8 @@ var AnnaPaintCache=(function(){
   const raw=img.GetGraphics();
   try{
    let g=raw;
-   if(s!==1&&typeof AnnaDpi!=='undefined')g=AnnaDpi.graphics(g);
-   if(typeof AnnaTheme!=='undefined')g=AnnaTheme.graphics(g);
+   if(s!==1&&typeof HariiroDpi!=='undefined')g=HariiroDpi.graphics(g);
+   if(typeof HariiroTheme!=='undefined')g=HariiroTheme.graphics(g);
    paint(g,margin,margin);
   }finally{img.ReleaseGraphics(raw);}
   return img;
@@ -65,7 +65,7 @@ var AnnaPaintCache=(function(){
   let img=shapes.get(k);
   if(img===undefined){
    try{img=render(w,h,margin,s,paint);}
-   catch(e){canCache=false;console.log('Anna paint cache: '+String(e));paint(gr,x,y);return;}
+   catch(e){canCache=false;console.log('Hariiro paint cache: '+String(e));paint(gr,x,y);return;}
   }else shapes.delete(k); // re-inserted below as most recently used
   remember(k,img);
   const W=w+2*margin,H=h+2*margin;

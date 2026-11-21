@@ -1,21 +1,21 @@
-# Anna Glass V2 — Development Plan (from 2026-11-20, after Round 14)
+# Hariiro — Development Plan (from 2026-11-20, after Round 14)
 
 ## 1. Repository status
 
 | Item | State |
 |---|---|
 | `main` | Round 14 skin source, tests (`tests/*.mjs`, 14 files, all passing), images, docs. No CI, no `.github/`. |
-| `feature/anna-ui-reference-refresh` (PR #1, Draft) | Same runtime source as `main`, plus extra files `main` lacks (`tools/package_ui_preview.py`, `docs/ROUND2_REVIEW.md`, `UI_REFINEMENT_*.md`, `WINDOWS_UI_ACCEPTANCE.md`). 184 commits and it has diverged from `main`. |
+| `feature/hariiro-ui-reference-refresh` (PR #1, Draft) | Same runtime source as `main`, plus extra files `main` lacks (`tools/package_ui_preview.py`, `docs/ROUND2_REVIEW.md`, `UI_REFINEMENT_*.md`, `WINDOWS_UI_ACCEPTANCE.md`). 184 commits and it has diverged from `main`. |
 | `experiment/16x9-freeze` | Independent 16:9 DLL experiment (C++ plugin, geometry tests, CI). Not part of the skin. |
 | Windows acceptance | **Verified by the owner through Round 14** (2026-11-20). Offline tests model OLE/IME/GDI but cannot prove them, so every future round still needs a Windows pass. |
 
 ## 2. Problems found
 
 1. **Two sources of truth.** `main` and PR #1 carry the same skin but different tooling/docs; PR #1 is a 184-commit Draft that can no longer be merged cleanly as is.
-2. **Broken/legacy test.** `tools/test_ui_reference.mjs` (PR branch only) reads `js/anna_now_cover.js`, which no longer exists. The 14 `tests/` files are the real suite, but there is no single runner and no CI.
+2. **Broken/legacy test.** `tools/test_ui_reference.mjs` (PR branch only) reads `js/hariiro_now_cover.js`, which no longer exists. The 14 `tests/` files are the real suite, but there is no single runner and no CI.
 3. **No packaging on `main`.** `tools/package_ui_preview.py` only exists on the PR branch, and it lists the old 11-file set, not the current 18 JS files + images.
 4. **Per-round README/doc sprawl.** `README_ROUND12/13/13_2/14.txt` plus 14 review docs; no single current README describing install, structure and acceptance.
-5. **Large files.** `playlist_browser.js` (936 lines) and `anna_glass_playlist.js` (630) hold drag/drop, sorting, folders and import logic together; each round has needed edits to both.
+5. **Large files.** `playlist_browser.js` (936 lines) and `hariiro_glass_playlist.js` (630) hold drag/drop, sorting, folders and import logic together; each round has needed edits to both.
 6. **Known limits** (from reviews): NATIVE middle list rules are decided by the host; true ESLyric embedding is unsupported by the Panels UI host; IME pre-edit not guaranteed; `fb.DoDragDrop` / `UIHacks.SetPseudoCaption` untested on Windows.
 
 ## 3. Plan
@@ -40,15 +40,15 @@ Failures become Round 15 bug fixes; nothing new is built on unverified behaviour
 - Expect the likely weak spots: OLE drop targets over windowless panels, stale origin markers, NATIVE-mode drops, HiDPI geometry.
 - **Round 15 (2026-11-20):** confirmed the first weak spot — windowless drop targets were
   misrouted by Panels UI (drops went to the active playlist). Sidebar / middle / Queue are
-  child windows again, scaled by `js/anna_dpi.js` (also the search box and scroll strip).
+  child windows again, scaled by `js/hariiro_dpi.js` (also the search box and scroll strip).
   Files from File Explorer were taken by foobar2000's main window in both modes;
-  `js/anna_drop_fix.js` redirects them. See `docs/ROUND15_REVIEW.md`. Still open on Windows:
+  `js/hariiro_drop_fix.js` redirects them. See `docs/ROUND15_REVIEW.md`. Still open on Windows:
   Artist-tab drags, 125 % / 150 % DPI and multi-monitor DPI changes (offline-tested only).
 
 ### Phase D — Structure and maintainability (done 2026-11-20)
 Done 2026-11-20 (no behaviour change, all tests green):
-- `js/anna_shared.js` (`AnnaShared`): panel-variable keys, reserved playlist names,
-  origin-marker build/parse/clear. `anna_glass_playlist.js` and `playlist_browser.js`
+- `js/hariiro_shared.js` (`HariiroShared`): panel-variable keys, reserved playlist names,
+  origin-marker build/parse/clear. `hariiro_glass_playlist.js` and `playlist_browser.js`
   use it instead of their own copies.
 - `tests/helpers/js_panel.mjs`: generic `include()` shim (Round 7/8 tests no longer list files).
 - `tests/test_shared.mjs`: marker format, reserved names, drift guard (no hard-coded
@@ -56,30 +56,30 @@ Done 2026-11-20 (no behaviour change, all tests green):
 - PR #1 closed; `main` is the only trunk.
 
 Done after Round 15 (no behaviour change, all tests green; Windows smoke test passed):
-- D1 step 1: the middle list's drop decision moved to `js/anna_glass_drop.js` (`AnnaGlassDrop`);
-  `anna_glass_playlist.js` keeps only its own-drag state and a one-line `evaluateDrop()`.
+- D1 step 1: the middle list's drop decision moved to `js/hariiro_glass_drop.js` (`HariiroGlassDrop`);
+  `hariiro_glass_playlist.js` keeps only its own-drag state and a one-line `evaluateDrop()`.
   `tests/test_glass_drop.mjs` covers the source/target/decision matrix directly.
-- D2 keys: every panel-variable key is defined once in `AnnaShared.PVAR`; all panels use it
-  (`anna_theme.js`/`anna_i18n.js` own theirs and are checked to match). Drift guard covers all scripts.
+- D2 keys: every panel-variable key is defined once in `HariiroShared.PVAR`; all panels use it
+  (`hariiro_theme.js`/`hariiro_i18n.js` own theirs and are checked to match). Drift guard covers all scripts.
 - D3 step: the Round 3-6 and vNext suites use the shared `installIncludeShim` instead of their own
   hard-coded include lists.
 
 Done 2026-11-20, D1 step 2 (no behaviour change, all tests green; Windows smoke test passed,
 see the end of `docs/ROUND15_REVIEW.md` — it also notes an older cleanup gap for Round 16):
 - The sidebar's scratch-view registry (sorted / Artist working playlists: ownership property,
-  slot claiming, cleanup of unreferenced numbered copies) moved to `js/anna_scratch_views.js`
-  (`AnnaScratchViews.isOwned/claim/prune`). `tests/test_scratch_views.mjs` tests it directly.
+  slot claiming, cleanup of unreferenced numbered copies) moved to `js/hariiro_scratch_views.js`
+  (`HariiroScratchViews.isOwned/claim/prune`). `tests/test_scratch_views.mjs` tests it directly.
 
 Done 2026-11-20, last steps (no behaviour change, all tests green; Windows smoke test passed,
 see `docs/PHASE_D_REVIEW.md`):
 - D1 step 3: the rest of the sidebar logic that does not need the panel's state moved out of
-  `playlist_browser.js`: `js/anna_sidebar_drop.js` (`AnnaSidebarDrop.decide`, the one drop
+  `playlist_browser.js`: `js/hariiro_sidebar_drop.js` (`HariiroSidebarDrop.decide`, the one drop
   decision behind `on_drag_over`, `on_drag_drop` and the external-file plan, which had three
-  copies), `js/anna_dedup_tracker.js` (`AnnaDedupTracker`, Round 13.2 duplicate removal) and
-  `js/anna_import_staging.js` (`AnnaImportStaging`, the hidden list for blank-space drops).
+  copies), `js/hariiro_dedup_tracker.js` (`HariiroDedupTracker`, Round 13.2 duplicate removal) and
+  `js/hariiro_import_staging.js` (`HariiroImportStaging`, the hidden list for blank-space drops).
   `tests/test_sidebar_modules.mjs` tests all three directly.
-- D2 colours: colours used by more than one panel live in `AnnaTheme.COLORS`; the pill switch
-  (GLASS/NATIVE, QUEUE, DESK — three identical copies) is `AnnaTheme.paintSwitch`.
+- D2 colours: colours used by more than one panel live in `HariiroTheme.COLORS`; the pill switch
+  (GLASS/NATIVE, QUEUE, DESK — three identical copies) is `HariiroTheme.paintSwitch`.
   `tests/test_theme_colors.mjs` compares its draw calls with the old code and rejects copies.
 - D3: `tests/helpers/fake_host.mjs` (`createHost`, `panelContext`): playlists, selection,
   focus, locks with an owner, playback queue, panel variables, window properties, timers. The
@@ -100,6 +100,16 @@ post-import sort, all of which read and write the panel's own state.
 - E4. NATIVE mode parity: document exactly which Glass rules the host decides; consider a Glass-only default.
   **Done**: `docs/NATIVE_VS_GLASS.md`. Round 20: new installs start in GLASS (owner's decision).
 - E5. 16:9: **done 2026-11-20** — dropped by the owner; branch `experiment/16x9-freeze` deleted (last commit `815cb3f`).
+
+### After Phase E — owner's rounds (2026-11-21)
+- Round 20: GLASS by default, wallpapers in `images/wallpapers/` (`docs/ROUND20_REVIEW.md`).
+- Release 1.0.0 prepared: README, user README in the ZIP, version check in `package_skin.py`.
+- Round 21: wallpapers as peers, lower CPU/memory, `HariiroPaintCache`, nine languages
+  (`docs/ROUND21_REVIEW.md`).
+- Round 22: owner's Hariiro_UI wallpapers, accent colours as folders with `theme.json`,
+  one recolour rule, smooth power button (`docs/ROUND22_REVIEW.md`).
+- Round 23: project renamed to Hariiro (files, identifiers, saved keys, reserved playlists;
+  no migration, owner's decision); second wallpaper upscaled to 2560×1440 (`docs/ROUND23_REVIEW.md`).
 
 ## 4. Working rules
 - Every round: failing test first, `npm test` green, review doc `docs/ROUNDnn_REVIEW.md`, short release note, ZIP via `npm run package` (`tools/package_skin.py`); bump `package.json` and the header of `docs/USER_README.txt` for a release.

@@ -3,9 +3,9 @@
 // Panels UI does not expose its internal scroll pixel offset to a skin script;
 // dragging calls foobar2000's native EnsurePlaylistItemVisible API instead.
 'use strict';
-include('anna_shared.js');
-include('anna_theme.js');
-include('anna_dpi.js');
+include('hariiro_shared.js');
+include('hariiro_theme.js');
+include('hariiro_dpi.js');
 const BAR=0x59492d58,THUMB=0xffefafd6,HL=0xffffe2f3;
 const MIN_THUMB=26;
 let grabbed=false,grabOffset=0,estimated=0,lastP=-1,lastCount=-1;
@@ -13,7 +13,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function active(){return plman.ActivePlaylist;}
 function count(){const p=active();return p>=0?plman.PlaylistItemCount(p):0;}
 function geometry(){
- const h=AnnaDpi.height(),n=count();
+ const h=HariiroDpi.height(),n=count();
  if(n<=0||h<50)return null;
  const thumb=clamp(Math.round(h*30/Math.max(30,n)),MIN_THUMB,Math.max(MIN_THUMB,h-4));
  const travel=Math.max(1,h-thumb-4);
@@ -22,14 +22,14 @@ function geometry(){
 function scrollTo(y){
  const g=geometry();if(!g)return;
  estimated=clamp(Math.round((y-grabOffset-2)/g.travel*(g.n-1)),0,g.n-1);
- try{plman.EnsurePlaylistItemVisible(active(),estimated);}catch(e){console.log('Anna native scrollbar: '+String(e));}
+ try{plman.EnsurePlaylistItemVisible(active(),estimated);}catch(e){console.log('Hariiro native scrollbar: '+String(e));}
  window.Repaint();
 }
 function on_paint(gr){
- gr=AnnaTheme.graphics(gr);
+ gr=HariiroTheme.graphics(gr);
  const p=active(),n=count();if(p!==lastP||n!==lastCount){lastP=p;lastCount=n;estimated=0;}
  const g=geometry();if(!g)return;
- const w=AnnaDpi.width();
+ const w=HariiroDpi.width();
  gr.FillRoundRect(w-11,0,9,g.h,4,4,BAR);
  gr.FillRoundRect(w-10,g.y,7,g.thumb,4,4,grabbed?HL:THUMB);
 }
@@ -53,7 +53,7 @@ function on_size(){window.Repaint();}
 
 function on_mouse_rbtn_up(){return true;}
 
-function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}
 
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
-AnnaDpi.install();
+HariiroDpi.install();

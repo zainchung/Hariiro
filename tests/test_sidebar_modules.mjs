@@ -1,17 +1,17 @@
 // Phase D1 (step 3): sidebar pieces moved out of js/playlist_browser.js and tested directly.
-//  - AnnaSidebarDrop: the one drop decision behind on_drag_over / on_drag_drop / external files.
-//  - AnnaDedupTracker: path baselines that remove the duplicates an import just added.
-//  - AnnaImportStaging: the hidden list that receives files dropped on blank sidebar space.
+//  - HariiroSidebarDrop: the one drop decision behind on_drag_over / on_drag_drop / external files.
+//  - HariiroDedupTracker: path baselines that remove the duplicates an import just added.
+//  - HariiroImportStaging: the hidden list that receives files dropped on blank sidebar space.
 import assert from 'node:assert/strict';
 import { read } from './helpers/js_panel.mjs';
 import { createHost, panelContext, run, handle } from './helpers/fake_host.mjs';
 const plain = x => JSON.parse(JSON.stringify(x));
 
-// ---- AnnaSidebarDrop ------------------------------------------------------------------
+// ---- HariiroSidebarDrop ------------------------------------------------------------------
 {
   const ctx = panelContext(createHost());
-  run(ctx, "include('anna_i18n.js');include('anna_sidebar_drop.js');");
-  const D = ctx.AnnaSidebarDrop, t = k => ctx.AnnaI18n.t(k);
+  run(ctx, "include('hariiro_i18n.js');include('hariiro_sidebar_drop.js');");
+  const D = ctx.HariiroSidebarDrop, t = k => ctx.HariiroI18n.t(k);
   assert(Object.isFrozen(D));
   const mine = { kind: 'playlist', index: 4, name: 'Mine' }, fixed = { kind: 'fixedFavorites', index: 1, name: 'Fav' };
   const base = { mode: 'playlists', busy: false, src: '', hit: { i: 5, row: mine }, editable: r => r.kind === 'playlist',
@@ -31,15 +31,15 @@ const plain = x => JSON.parse(JSON.stringify(x));
   assert.deepEqual(decide({ mode: 'artists' }), no(t('artistHint')), 'Artist tab is read-only');
 }
 
-// ---- AnnaDedupTracker -----------------------------------------------------------------
+// ---- HariiroDedupTracker -----------------------------------------------------------------
 {
   const host = createHost({ playlists: [
     { name: 'Mix', items: [handle('C:/A.flac'), handle('C:/A.flac'), handle('C:/B.flac')] },
-    { name: 'Anna - Favorites', items: [handle('C:/A.flac')] }, { name: 'Mix', items: [handle('D:/X.flac')] }] });
+    { name: 'Hariiro - Favorites', items: [handle('C:/A.flac')] }, { name: 'Mix', items: [handle('D:/X.flac')] }] });
   const st = host.state, items = p => st.playlists[p].items;
   const ctx = panelContext(host);
-  run(ctx, "include('anna_playlist_dedup.js');include('anna_dedup_tracker.js');");
-  const T = ctx.AnnaDedupTracker.create(p => st.playlists[p].name !== 'Anna - Favorites');
+  run(ctx, "include('hariiro_playlist_dedup.js');include('hariiro_dedup_tracker.js');");
+  const T = ctx.HariiroDedupTracker.create(p => st.playlists[p].name !== 'Hariiro - Favorites');
   assert(Object.isFrozen(T));
   let removingSeen = false;
   const remove = host.plman.RemovePlaylistSelection;
@@ -71,26 +71,26 @@ const plain = x => JSON.parse(JSON.stringify(x));
   assert.equal(T.dedupe(0), 0);
 }
 
-// ---- AnnaImportStaging ----------------------------------------------------------------
+// ---- HariiroImportStaging ----------------------------------------------------------------
 {
-  const host = createHost({ playlists: [{ name: 'User' }, { name: 'Anna - Import Staging' }] });
+  const host = createHost({ playlists: [{ name: 'User' }, { name: 'Hariiro - Import Staging' }] });
   const ctx = panelContext(host), names = () => host.state.playlists.map(p => p.name);
-  run(ctx, "include('anna_i18n.js');include('anna_shared.js');include('anna_import_staging.js');");
-  const S = ctx.AnnaImportStaging;
+  run(ctx, "include('hariiro_i18n.js');include('hariiro_shared.js');include('hariiro_import_staging.js');");
+  const S = ctx.HariiroImportStaging;
   assert(Object.isFrozen(S));
   assert.equal(S.name(), ''); assert.equal(S.find(), -1);
   assert.equal(S.playlist(), 2, 'a foreign list with the base name is skipped');
-  assert.equal(names()[2], 'Anna - Import Staging #2');
-  assert.equal(S.name(), 'Anna - Import Staging #2'); assert.equal(S.find(), 2);
-  assert.equal(host.state.props.get('Anna.Sidebar.ImportStaging.v1'), 'Anna - Import Staging #2', 'remembered across restarts');
+  assert.equal(names()[2], 'Hariiro - Import Staging #2');
+  assert.equal(S.name(), 'Hariiro - Import Staging #2'); assert.equal(S.find(), 2);
+  assert.equal(host.state.props.get('Hariiro.Sidebar.ImportStaging.v1'), 'Hariiro - Import Staging #2', 'remembered across restarts');
   assert.equal(S.playlist(), 2, 'reused');
 }
 
 // ---- The sidebar keeps no copies -------------------------------------------------------
 const sidebar = read('js/playlist_browser.js');
-for (const f of ['anna_sidebar_drop.js', 'anna_dedup_tracker.js', 'anna_import_staging.js'])
+for (const f of ['hariiro_sidebar_drop.js', 'hariiro_dedup_tracker.js', 'hariiro_import_staging.js'])
   assert(sidebar.includes(`include('${f}');`), f);
-for (const old of ['ordinaryPathBaselines', 'removeImportDuplicates', 'importStageName', 'Anna.Sidebar.ImportStaging.v1',
-  "AnnaI18n.t('sameListDenied')", "AnnaI18n.t('dropNewPlaylist')"])
+for (const old of ['ordinaryPathBaselines', 'removeImportDuplicates', 'importStageName', 'Hariiro.Sidebar.ImportStaging.v1',
+  "HariiroI18n.t('sameListDenied')", "HariiroI18n.t('dropNewPlaylist')"])
   assert(!sidebar.includes(old), 'playlist_browser.js still has ' + old);
 console.log('test_sidebar_modules: ok');

@@ -1,10 +1,10 @@
-# Anna Glass V2 — Windows UI acceptance checklist (Draft PR #1)
+# Hariiro — Windows UI acceptance checklist (Draft PR #1)
 
-**Scope:** skin-only branch `feature/anna-ui-reference-refresh`.
+**Scope:** skin-only branch `feature/hariiro-ui-reference-refresh`.
 **Do not combine these changes with the experimental 16:9 DLL during initial UI debugging.**
 
-Playlist folder grouping uses the playlist name as its persistent key because the JS Panel API does not expose a stable playlist ID. Avoid duplicate playlist names; renaming a playlist outside Anna Glass may leave it at the root until it is assigned again. The hidden `Anna - Queue Buffer` is periodically compacted only when there are no playback/queue index references to it.
-Internal working playlists and the queue buffer are now **ownership-registered**. If a user playlist already has one of the reserved names, Anna Glass creates a numbered alternative and leaves the original untouched. Old unregistered scratch lists from earlier experimental builds are deliberately not cleared; after confirming they are neither playing nor queued, they can be removed manually in foobar2000's Playlist Manager.
+Playlist folder grouping uses the playlist name as its persistent key because the JS Panel API does not expose a stable playlist ID. Avoid duplicate playlist names; renaming a playlist outside Hariiro may leave it at the root until it is assigned again. The hidden `Hariiro - Queue Buffer` is periodically compacted only when there are no playback/queue index references to it.
+Internal working playlists and the queue buffer are now **ownership-registered**. If a user playlist already has one of the reserved names, Hariiro creates a numbered alternative and leaves the original untouched. Old unregistered scratch lists from earlier experimental builds are deliberately not cleared; after confirming they are neither playing nor queued, they can be removed manually in foobar2000's Playlist Manager.
 
 ## Installation and rollback
 
@@ -16,9 +16,9 @@ Internal working playlists and the queue buffer are now **ownership-registered**
 
 ## ESLyric desktop lyrics (optional)
 
-ESLyric is **not bundled** with the Anna Glass preview. Install an x64 ESLyric
+ESLyric is **not bundled** with the Hariiro preview. Install an x64 ESLyric
 component compatible with your foobar2000 installation separately. The in-skin
-right-hand lyric view keeps its **outer frame** but removes the AnnaLyrics-drawn **inner frame**; **DESK** remains at its top-right.
+right-hand lyric view keeps its **outer frame** but removes the HariiroLyrics-drawn **inner frame**; **DESK** remains at its top-right.
 The button is hidden while Playback Queue is open, keeping queue actions clear.
 
 1. First verify `View → ESLyric → Desktop Lyric → Show` works directly in
@@ -45,18 +45,18 @@ item does not guarantee visible lyrics under those settings.
 
 ## Saved ESLyric lyrics: location setup
 
-The AnnaLyrics right-click menu mirrors the **four Location choices** shown under Preferences → Tools → ESLyric → Save Settings. It controls **where AnnaLyrics reads lyrics**, and does not alter the ESLyric component's own saving preferences:
+The HariiroLyrics right-click menu mirrors the **four Location choices** shown under Preferences → Tools → ESLyric → Save Settings. It controls **where HariiroLyrics reads lyrics**, and does not alter the ESLyric component's own saving preferences:
 
 1. **Tags** — read the current track's embedded `LYRICS`, `SYNCED LYRICS`, or other supported lyric metadata tags. This is not a disk folder.
 2. **Configuration folder** — read from foobar2000's profile `lyrics` subfolder using `fb.ProfilePath`, including portable installs.
 3. **The same folder as the track** — read `.lrc`/`.txt` files next to the audio file, matching the audio filename, `%title%`, or common artist/title filename schemes.
 4. **Browse...** — enter the absolute custom folder used by ESLyric; optionally separate multiple paths with semicolons. **Only this fourth choice** prompts for a directory. Because the JS Panel host lacks a working native folder-picker API, Browse opens a path entry dialog rather than a Windows folder-picker window.
 
-An existing custom folder from earlier AnnaLyrics versions is automatically retained as the default Browse selection until the user changes modes. Once set, the active mode persists across panel reloads.
+An existing custom folder from earlier HariiroLyrics versions is automatically retained as the default Browse selection until the user changes modes. Once set, the active mode persists across panel reloads.
 
-**Filename is separate from Location in ESLyric**: for example, the screenshot uses `%title%`. AnnaLyrics searches common patterns, but an arbitrary custom ESLyric filename title-format expression is not interpreted automatically.
+**Filename is separate from Location in ESLyric**: for example, the screenshot uses `%title%`. HariiroLyrics searches common patterns, but an arbitrary custom ESLyric filename title-format expression is not interpreted automatically.
 
-ESLyric is responsible for searching and saving. AnnaLyrics scans the selected location every **4 seconds while visible** and never makes an online request. The right-click menu also retains **Reload saved lyric files**. The obsolete native lyrics/ONLINE controls remain absent.
+ESLyric is responsible for searching and saving. HariiroLyrics scans the selected location every **4 seconds while visible** and never makes an online request. The right-click menu also retains **Reload saved lyric files**. The obsolete native lyrics/ONLINE controls remain absent.
 
 ## Playback and sorting
 
@@ -80,11 +80,11 @@ ESLyric is responsible for searching and saving. AnnaLyrics scans the selected l
 | Right metadata | At 960px, 1280px, 1536px and 1920px wide, play tracks with long Japanese titles and missing album/date/genre tags | One transparent NowDetails panel lays out title/artist/album/date/genre/codec in natural vertical flow, retaining 15/12/11px fonts, with no text collisions or unused gaps |
 | Large Glass album cover | Use a playlist with several albums; scroll, switch playlists and return | 90px cover with a 21px faded reflection, 132px grouped headers; no stale thumbnails or escalating memory use |
 | Glass song rows | In GLASS mode, play one track; inspect numbered/unnumbered rows, hover a long title; hover/click the heart and ellipsis, including double-clicks | Playing row has a rose glow and static three-stroke playing glyph; active album gains a subtle rose outline; row number stays separate; heart/menu hover zones are visible and double-clicking them does not accidentally play a track |
-| Reserved-name collisions | Create a disposable playlist named `Anna - Sorted Library View` and another named `Anna - Queue Buffer` before testing the corresponding feature | Original items remain untouched; new numbered internal playlists are created instead |
+| Reserved-name collisions | Create a disposable playlist named `Hariiro - Sorted Library View` and another named `Hariiro - Queue Buffer` before testing the corresponding feature | Original items remain untouched; new numbered internal playlists are created instead |
 | Search (Glass) | Single-click the only Glass search, type Japanese, use left/right caret, Ctrl+V, Enter and clear; confirm a blinking caret in the empty focused box | The child window receives character input, shows a blinking insertion caret, supports direct paste, and searches into an owned results playlist; no modal double-click or native search switch remains |
-| Search collision | Create a disposable playlist named `Anna - Search Results` before using Glass Search | The disposable playlist is preserved, and a numbered owned result playlist is created instead |
+| Search collision | Create a disposable playlist named `Hariiro - Search Results` before using Glass Search | The disposable playlist is preserved, and a numbered owned result playlist is created instead |
 | Spectrum | Play a track and inspect the right-hand visualizer in normal and maximized windows | Existing native Panels UI Spectrum stays in place with the pink accent; no separate VIS button or custom JS visualizer |
-| Lyrics (ESLyric files) | Save a current track as LRC/TXT; switch AnnaLyrics save-location mode, then edit the LRC without changing song | Outer decorative border and corners remain; AnnaLyrics fills the child panel with no inner box, divider or opaque backing, updating saved content within ~4s |
+| Lyrics (ESLyric files) | Save a current track as LRC/TXT; switch HariiroLyrics save-location mode, then edit the LRC without changing song | Outer decorative border and corners remain; HariiroLyrics fills the child panel with no inner box, divider or opaque backing, updating saved content within ~4s |
 | ESLyric desktop lyrics | Install x64 ESLyric, click DESK twice, toggle from View menu, then open/close Queue | Real desktop lyric overlay toggles; DESK stays at the upper-right of the framed lyric pane and hides only while Queue occupies that pane |
 | Lyric save location | Right-click lyrics and select Tags / Configuration folder / The same folder as the track / Browse... matching ESLyric Save Settings | Tags reads embedded lyrics, Configuration folder reads `<foobar profile>\\lyrics`, Same folder reads adjacent LRC/TXT, and only Browse asks for a custom absolute path; selection persists and never changes ESLyric's own preferences |
 | Seek | Play a track on a dark and a bright section of wallpaper, then drag the butterfly | Darker unplayed rail stays visible; played rail has soft pink glow; paper-cut butterfly is visible; larger elapsed/duration times; one seek on release |
@@ -100,7 +100,7 @@ ESLyric is responsible for searching and saving. AnnaLyrics scans the selected l
 
 - Glass playlist, queue target and Glass Search now use regular child-window JS panels for keyboard focus and OLE drag/drop compatibility with the original Panels UI DLL. Test actual transparency and event routing: those behaviors cannot be fully simulated offline.
 - Glass Search now shows a blinking caret in its focused child window and consumes committed Unicode characters. **Native IME pre-edit / candidate-window positioning is not exposed as an editable Windows control by the current JS Panel host**; Japanese/CJK composition and caret positioning must be checked on Windows and may not be identical to an EDIT control.
-- **Original Panels UI (reborn) cannot directly host ESLyric's Columns UI/Default UI panel**. AnnaLyrics now reads *only previously saved local LRC/TXT files and embedded tags*; ESLyric handles all online searching/saving independently. An in-panel ESLyric host would still require bridge/DLL work.
+- **Original Panels UI (reborn) cannot directly host ESLyric's Columns UI/Default UI panel**. HariiroLyrics now reads *only previously saved local LRC/TXT files and embedded tags*; ESLyric handles all online searching/saving independently. An in-panel ESLyric host would still require bridge/DLL work.
 - The full-skin Windows ZIP includes the existing wallpaper, play-ring, speaker and decorative assets; the minimal repo UI overlay includes only the referenced rose-gold corner ornament.
 - ESLyric's main-menu path can differ by version or localization. The desktop lyrics control will report an unknown command rather than simulate a successful toggle; set the exact menu path via right-click if needed.
 - The experimental DLL must be validated later for actual resize, maximize/restore, Snap, DPI and drag freeze.

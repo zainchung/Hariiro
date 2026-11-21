@@ -1,4 +1,4 @@
-// Anna Glass: DPI adapter for real child-window JS Panels.
+// Hariiro: DPI adapter for real child-window JS Panels.
 // Windowless panels are drawn by Panels UI in layout units and scaled by the
 // host. A child window (windowless = 0, needed for correct OLE drop routing)
 // gets PHYSICAL pixels instead, so at 200% everything would draw at half size.
@@ -8,7 +8,7 @@
 //   mouse / drag callbacks get x,y divided by the scale
 // window.DPI cannot be used: JS Panel's compatibility shim reports a fixed 96.
 'use strict';
-var AnnaDpi=(function(){
+var HariiroDpi=(function(){
  let current=1;
  function raw(key){try{return Number(window[key])||0;}catch(e){return 0;}}
  function panelRect(){
@@ -36,10 +36,10 @@ var AnnaDpi=(function(){
  // Font descriptors in layout px; the real GDI font is made per scale on use.
  function font(name,size,style){
   const made=new Map();
-  return Object.freeze({__annaFont:true,Name:name,Size:size,Style:style||0,
+  return Object.freeze({__hariiroFont:true,Name:name,Size:size,Style:style||0,
    real(){const s=current;if(!made.has(s))made.set(s,gdi.Font(name,Math.max(1,Math.round(size*s)),style||0));return made.get(s);}});
  }
- const realFont=f=>f&&f.__annaFont?f.real():f;
+ const realFont=f=>f&&f.__hariiroFont?f.real():f;
 
  // Argument positions (0-based) holding layout coordinates / sizes / pen widths.
  const COORDS={FillSolidRect:[0,1,2,3],FillGradRect:[0,1,2,3],FillRoundRect:[0,1,2,3,4,5],
@@ -87,16 +87,16 @@ var AnnaDpi=(function(){
  }
  function popup(menu,x,y,...rest){return hostModal(()=>menu.TrackPopupMenu(px(x),px(y),...rest));}
  function doDragDrop(...args){return hostModal(()=>fb.DoDragDrop(...args));}
- const SCALED_GR=Symbol('annaDpiGraphics');
+ const SCALED_GR=Symbol('hariiroDpiGraphics');
  function install(){
   const g=globalThis;
   const wrap=(name,convert,guarded)=>{
-   const original=g[name];if(typeof original!=='function'||original.__annaDpi)return;
+   const original=g[name];if(typeof original!=='function'||original.__hariiroDpi)return;
    const wrapped=function(...a){
     if(guarded&&depth>0)return original.apply(this,a);
     depth++;try{return original.apply(this,convert(a));}finally{depth--;}
    };
-   wrapped.__annaDpi=true;g[name]=wrapped;
+   wrapped.__hariiroDpi=true;g[name]=wrapped;
   };
   for(const n of POINTER)wrap(n,a=>{update();a[0]=unpx(a[0]);a[1]=unpx(a[1]);return a;},true);
   for(const n of DRAG)wrap(n,a=>{update();a[1]=unpx(a[1]);a[2]=unpx(a[2]);return a;},true);

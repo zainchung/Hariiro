@@ -1,23 +1,23 @@
-// Anna Glass: redirect for files dropped from OTHER programs (File Explorer).
+// Hariiro: redirect for files dropped from OTHER programs (File Explorer).
 // Windows check (Round 15, foo_js_panel 1.9.0 + Panels UI, child or windowless
 // panels alike): for an external drop the panel gets on_drag_enter/over and then
 // on_drag_leave at release - never on_drag_drop - and foobar2000 appends the files
 // to the ACTIVE playlist and selects them. Drags that start inside foobar2000
 // reach on_drag_drop normally and are not touched here.
 //
-// Each drop panel installs AnnaDropFix with a plan(x,y) function giving what its
+// Each drop panel installs HariiroDropFix with a plan(x,y) function giving what its
 // own on_drag_drop would have done at the last pointer position:
 //   {kind:'playlist',p,select,activate} | {kind:'queue'} | {kind:'reject'} | null (keep)
 // On "leave with the left button up" the plan is stored in a panel variable; the
 // first on_playlist_items_added for the active playlist then moves the newly
 // appended, selected entries to the plan's target (or just removes them).
 'use strict';
-var AnnaDropFix=(function(){
- // Needs include('anna_shared.js') first; looked up on use so this file loads on its own too.
+var HariiroDropFix=(function(){
+ // Needs include('hariiro_shared.js') first; looked up on use so this file loads on its own too.
  const TTL_MS=15000, VK_LBUTTON=0x01;
- const key=()=>AnnaShared.PVAR.dropPending;
+ const key=()=>HariiroShared.PVAR.dropPending;
  let hooks={},last=null;
- function isExternal(){return AnnaShared.getOrigin()==='';}
+ function isExternal(){return HariiroShared.getOrigin()==='';}
  function buttonDown(){try{return !!utils.IsKeyPressed(VK_LBUTTON);}catch(e){return true;}} // unknown: assume still dragging
  function clear(){try{panelsui.SetVariable(key(),'');}catch(e){}}
  function pending(){
@@ -60,7 +60,7 @@ var AnnaDropFix=(function(){
   }
   return true;
  }
- // Wrap the panel's callbacks; call before AnnaDpi.install() so x,y are layout units.
+ // Wrap the panel's callbacks; call before HariiroDpi.install() so x,y are layout units.
  function install(options){
   hooks=options||{};
   const g=globalThis;
@@ -73,13 +73,13 @@ var AnnaDropFix=(function(){
    // The panel's own leave runs first (it clears hints); the plan may then show a warning.
    const r=typeof original==='function'?original.apply(self,a):undefined;
    if(at&&isExternal()&&!buttonDown()&&typeof hooks.plan==='function'){
-    try{arm(hooks.plan(at.x,at.y));}catch(e){console.log('Anna external drop: '+String(e));}
+    try{arm(hooks.plan(at.x,at.y));}catch(e){console.log('Hariiro external drop: '+String(e));}
    }
    return r;
   });
   wrap('on_playlist_items_added',(original,self,a)=>{
    let moved=false;
-   try{moved=apply(a[0]);}catch(e){console.log('Anna external drop redirect: '+String(e));}
+   try{moved=apply(a[0]);}catch(e){console.log('Hariiro external drop redirect: '+String(e));}
    if(moved){window.Repaint();return undefined;}
    return typeof original==='function'?original.apply(self,a):undefined;
   });

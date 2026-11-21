@@ -9,7 +9,7 @@
    track number). The Round 11 patterns are tried first, in the same order.
 2. **Per-track timing offset.** Right-click the lyrics → *Show lyrics earlier (+0.5 s)*,
    *Show lyrics later (−0.5 s)*, *Reset lyric offset (…)*. It applies to timed lyrics only,
-   is remembered per track (up to 500 tracks, `Anna.Lyrics.TrackOffsets.v1`), is shown at the
+   is remembered per track (up to 500 tracks, `Hariiro.Lyrics.TrackOffsets.v1`), is shown at the
    top right while it is not zero, and seeking by dragging the lyrics lands where the line
    plays with the offset. It adds to an `[offset:]` tag in the file.
 3. **Better progress for LRC files with line timestamps only.** The glyph-by-glyph estimate
@@ -22,10 +22,10 @@
    portable install stores track paths relative to its own folder
    (`file-relative://..\Music\x.flac`). The lyrics panel treated anything with `://` as a
    stream, so in track-folder mode it never found saved lyrics there, and file-name patterns
-   based on the audio file name were empty. `AnnaLyricTools.localPath` resolves such paths
+   based on the audio file name were empty. `HariiroLyricTools.localPath` resolves such paths
    against `fb.FoobarPath` (never above the drive root).
 
-New module `js/anna_lyric_tools.js` (`AnnaLyricTools.fileNames`, `localPath`, `singSeconds`,
+New module `js/hariiro_lyric_tools.js` (`HariiroLyricTools.fileNames`, `localPath`, `singSeconds`,
 `createOffsets`).
 
 ## Tests

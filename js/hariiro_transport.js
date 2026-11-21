@@ -1,11 +1,11 @@
-// Anna GLASS V2 — transport graphics are transparent PNGs in ../images/controls.
+// Hariiro V2 — transport graphics are transparent PNGs in ../images/controls.
 // All playback icons, shuffle states and play/pause rings are raster resources.
 'use strict';
 const POS=[25,88,151,214,277,340,403];
-include('anna_shared.js');
-include('anna_i18n.js');
-include('anna_theme.js');
-include('anna_paint_cache.js');
+include('hariiro_shared.js');
+include('hariiro_i18n.js');
+include('hariiro_theme.js');
+include('hariiro_paint_cache.js');
 const ORDER_LABELS=['orderDefault','orderRepeatPlaylist','orderRepeatTrack','orderRandom','orderShuffleTracks','orderShuffleAlbums'];
 const ORDER_IMAGES=['order_default','order_repeat_playlist','order_repeat_track',
  'order_random','order_shuffle_tracks','order_shuffle_albums'];
@@ -14,23 +14,23 @@ const IMG_NAMES=[...ORDER_IMAGES,'seek_backward_5','seek_forward_5','previous','
 const PNG={};
 let loadedTheme='';
 function loadIcons(){
- const id=AnnaTheme.folder();if(id===loadedTheme)return;
+ const id=HariiroTheme.folder();if(id===loadedTheme)return;
  loadedTheme=id;
  const folder='../images/controls/'+id+'/'; // Round 22: the colour's own folder
  for(const key of Object.keys(PNG))delete PNG[key];
  for(const name of IMG_NAMES){
   try{PNG[name]=gdi.Image(folder+name+'.png');}
-  catch(e){PNG[name]=null;console.log('Anna controls: missing '+folder+name+'.png: '+String(e));}
+  catch(e){PNG[name]=null;console.log('Hariiro controls: missing '+folder+name+'.png: '+String(e));}
  }
 }
 let hot=-1;
-// Round 21: icons are resized once (AnnaPaintCache), not from 192 px on every paint.
+// Round 21: icons are resized once (HariiroPaintCache), not from 192 px on every paint.
 // A windowless panel is scaled by the host, so keep 2 device px per layout px: sharp up
 // to 200 % display scaling.
 const ICON_FACTOR=2;
 function icon(gr,key,cx,cy,size,alpha=255){
  const img=PNG[key];if(!img)return;
- AnnaPaintCache.drawIcon(gr,img,Math.round(cx-size/2),Math.round(cy-size/2),size,size,alpha,ICON_FACTOR);
+ HariiroPaintCache.drawIcon(gr,img,Math.round(cx-size/2),Math.round(cy-size/2),size,size,alpha,ICON_FACTOR);
 }
 function nearest(x){let found=-1,dist=22;for(let i=0;i<POS.length;i++){
  const d=Math.abs(POS[i]-x);if(d<dist){dist=d;found=i;}}return found;}
@@ -46,13 +46,13 @@ function devices(){
    if(Array.isArray(entries))return entries.filter(d=>d&&typeof d.name==='string'
         &&typeof d.output_id==='string'&&typeof d.device_id==='string').slice(0,60);
   }
- }catch(e){console.log('Anna devices: '+String(e));}
+ }catch(e){console.log('Hariiro devices: '+String(e));}
  return [];
 }
 function selectOutput(x,y){
  const d=devices();
  if(!d.length){
-  fb.ShowPopupMessage(AnnaI18n.t('deviceMissing'),'Anna Glass');
+  fb.ShowPopupMessage(HariiroI18n.t('deviceMissing'),'Hariiro');
   return;
  }
  const menu=window.CreatePopupMenu();
@@ -61,9 +61,9 @@ function selectOutput(x,y){
  if(picked<201||picked>=201+d.length)return;
  const chosen=d[picked-201];
  try{
-  if(typeof fb.SetOutputDevice!=='function')throw new Error(AnnaI18n.t('deviceUnsupported'));
+  if(typeof fb.SetOutputDevice!=='function')throw new Error(HariiroI18n.t('deviceUnsupported'));
   fb.SetOutputDevice(chosen.output_id,chosen.device_id);
- }catch(e){fb.ShowPopupMessage(AnnaI18n.t('deviceFailed')+String(e),'Anna Glass');}
+ }catch(e){fb.ShowPopupMessage(HariiroI18n.t('deviceFailed')+String(e),'Hariiro');}
  window.Repaint();
 }
 function activate(i,x,y){
@@ -79,7 +79,7 @@ function activate(i,x,y){
  window.Repaint();
 }
 function on_paint(gr){
- gr=AnnaTheme.graphics(gr);
+ gr=HariiroTheme.graphics(gr);
  loadIcons();
  const y=Math.floor(window.Height/2);
  for(let i=0;i<POS.length;i++){
@@ -97,7 +97,7 @@ function on_mouse_leave(){hot=-1;window.Repaint();}
 function on_mouse_lbtn_up(x,y){const i=nearest(x);if(i>=0)activate(i,x,y);}
 function showPlaybackOrder(x,y){
  const menu=window.CreatePopupMenu(),active=Number(plman.PlaybackOrder)||0;
- ORDER_LABELS.forEach((key,k)=>menu.AppendMenuItem(0,101+k,(k===active?'✓ ':'   ')+AnnaI18n.t(key)));
+ ORDER_LABELS.forEach((key,k)=>menu.AppendMenuItem(0,101+k,(k===active?'✓ ':'   ')+HariiroI18n.t(key)));
  const selected=menu.TrackPopupMenu(x,y);
  if(selected>=101&&selected<107)plman.PlaybackOrder=selected-101;
  window.Repaint();return true;
@@ -113,4 +113,4 @@ function on_playback_starting(){window.Repaint();}
 function on_playback_stop(){window.Repaint();}
 function on_playback_order_changed(){window.Repaint();}
 
-function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}

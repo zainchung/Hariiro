@@ -5,7 +5,7 @@ foobar2000 2.26.2, foo_js_panel 1.9.0, Panels UI (reborn). Skin deployed with
 
 | Round | Check | Result |
 |---|---|---|
-| 19 | ☰ → Wallpaper lists *Default (Anna)* and a test image put in the installed skin's `images\wallpapers\` | ✅ — `utils.Glob` found the skin folder |
+| 19 | ☰ → Wallpaper lists *Default (Hariiro)* and a test image put in the installed skin's `images\wallpapers\` | ✅ — `utils.Glob` found the skin folder |
 | 19 | Choosing the test image | ✅ background changed at once (`$getpvar` inside the `main.txt` image path works) |
 | 19 | Grey hint in the Wallpaper submenu | ❌ showed "imageswallpapers" (backslash lost) → fixed in the dictionary, test added |
 | 19 | ☰ → Accent colour lists Amber and Mint; Amber | ✅ tabs, QUEUE pill, Clear button and footer controls turn amber; `main.txt` blossom shapes stay pink as before |

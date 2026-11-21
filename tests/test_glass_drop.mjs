@@ -1,21 +1,21 @@
-// Phase D1 (step 1): the middle list's drop decision lives in js/anna_glass_drop.js.
+// Phase D1 (step 1): the middle list's drop decision lives in js/hariiro_glass_drop.js.
 // Same rules as the Round 14 drag matrix; the panel only supplies its own-drag state.
 import assert from 'node:assert/strict';
 import { read } from './helpers/js_panel.mjs';
 import { createHost, panelContext, run } from './helpers/fake_host.mjs';
 
-const names = ['User A', 'User B', 'Anna - Favorites', 'Anna - Artist View', 'Anna - Queue Buffer #2', 'Anna - Search Results'];
+const names = ['User A', 'User B', 'Hariiro - Favorites', 'Hariiro - Artist View', 'Hariiro - Queue Buffer #2', 'Hariiro - Search Results'];
 const host = createHost({ playlists: names.map(name => ({ name })) }), st = host.state;
 let now = 1000;
 const ctx = panelContext(host, { Date: { now: () => now } });
-run(ctx, "include('anna_i18n.js');include('anna_shared.js');include('anna_glass_drop.js');");
-const G = ctx.AnnaGlassDrop, S = ctx.AnnaShared, t = k => ctx.AnnaI18n.t(k);
+run(ctx, "include('hariiro_i18n.js');include('hariiro_shared.js');include('hariiro_glass_drop.js');");
+const G = ctx.HariiroGlassDrop, S = ctx.HariiroShared, t = k => ctx.HariiroI18n.t(k);
 let vars; // = host.state.vars after reset()
 const lock = i => { st.playlists[i].locked = { owner: 'js', actions: ['AddItems'] }; };
 const reset = () => {
   st.active = 0; st.playlists.forEach(p => { p.locked = null; }); now = 1000; st.vars.clear(); vars = st.vars;
-  vars.set(S.PVAR.navMode, 'library'); vars.set(S.PVAR.queueBuffer, 'Anna - Queue Buffer #2');
-  vars.set(S.PVAR.searchOwned, '["Anna - Search Results"]');
+  vars.set(S.PVAR.navMode, 'library'); vars.set(S.PVAR.queueBuffer, 'Hariiro - Queue Buffer #2');
+  vars.set(S.PVAR.searchOwned, '["Hariiro - Search Results"]');
 };
 const idle = { active: false, guardUntil: 0 };
 const ev = (own = idle) => JSON.parse(JSON.stringify(G.evaluate(own)));
@@ -55,10 +55,10 @@ st.active = 3; assert.deepEqual(ev(), { ok: false, msg: t('artistHint') }, 'arti
 reset(); vars.set(S.PVAR.navMode, 'artists'); assert.deepEqual(ev(), { ok: false, msg: t('artistHint') });
 
 // The panel keeps only its own-drag state and a thin wrapper.
-const glass = read('js/anna_glass_playlist.js');
-assert(glass.includes("include('anna_glass_drop.js');"));
+const glass = read('js/hariiro_glass_playlist.js');
+assert(glass.includes("include('hariiro_glass_drop.js');"));
 for (const fn of ['dragSource', 'activeDropTarget', 'dropAllowed', 'denyMessage'])
-  assert(!new RegExp(`function ${fn}\\(`).test(glass), `${fn} moved to anna_glass_drop.js`);
-assert(/function evaluateDrop\(\)\{return AnnaGlassDrop\.evaluate\(/.test(glass));
+  assert(!new RegExp(`function ${fn}\\(`).test(glass), `${fn} moved to hariiro_glass_drop.js`);
+assert(/function evaluateDrop\(\)\{return HariiroGlassDrop\.evaluate\(/.test(glass));
 
-console.log('PASS glass drop: AnnaGlassDrop source/target/decision matrix, panel delegates to it');
+console.log('PASS glass drop: HariiroGlassDrop source/target/decision matrix, panel delegates to it');

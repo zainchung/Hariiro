@@ -1,6 +1,6 @@
-# Anna Glass V2 — UI refinement test package (2026-11-18)
+# Hariiro — UI refinement test package (2026-11-18)
 
-This archive is a **complete skin test package**, based on `Anna-Glass-V2-FullSkin-Seven-UI-Fixes-2026-11-18.zip`.
+This archive is a **complete skin test package**, based on `Hariiro-FullSkin-Seven-UI-Fixes-2026-11-18.zip`.
 No foobar2000 executable, extra DLL, or test media is included.
 
 ## Changes made in this iteration

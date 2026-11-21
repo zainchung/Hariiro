@@ -10,11 +10,11 @@ const library=[{Path:'artist1.flac'},{Path:'artist2.mp3'}];
 const records=[
  {name:'User A',items:[{Path:'a.flac'},{Path:'b.flac'}]},
  {name:'User B',items:[{Path:'c.flac'}]},
- {name:'Anna - Favorites',items:[{Path:'fav.flac'}]},
- {name:'Anna - Search Results',items:[{Path:'search.flac'}]}
+ {name:'Hariiro - Favorites',items:[{Path:'fav.flac'}]},
+ {name:'Hariiro - Search Results',items:[{Path:'search.flac'}]}
 ];
-const vars=new Map([['anna.nav.mode','library'],['anna.sidebar.editable.name','User A'],
- ['anna.search.results.name','Anna - Search Results'],['anna.search.results.owned','["Anna - Search Results"]'],['anna.theme.hue','rose']]);
+const vars=new Map([['hariiro.nav.mode','library'],['hariiro.sidebar.editable.name','User A'],
+ ['hariiro.search.results.name','Hariiro - Search Results'],['hariiro.search.results.owned','["Hariiro - Search Results"]'],['hariiro.theme.hue','rose']]);
 let active=0,selected=[0,1],imports=[],queue=[],createCount=0,moveCount=0,dragStarts=0;
 const callbacks=[]; const panels=new Map();
 const plman={
@@ -35,7 +35,7 @@ const plman={
 let sourceTarget=null,sourceDropOn=null;
 function doNativeDrop(_id,handles){
  dragStarts++;
- const target=panels.get(sourceTarget||'AnnaQueue');
+ const target=panels.get(sourceTarget||'HariiroQueue');
  const loc=sourceDropOn||{x:15,y:75};
  const a={Effect:1};target.on_drag_enter(a,loc.x,loc.y);target.on_drag_over(a,loc.x,loc.y);
  if(a.Effect===0)return;
@@ -53,7 +53,7 @@ const fb={TitleFormat(){return {EvalWithMetadb:()=>'',EvalWithMetadbs:hs=>hs.Con
  ShowPopupMessage(){throw Error('unexpected popup')},RunMainMenuCommand(){return true}};
 let timeCounter=0;const timers=new Map();const props=new Map(),captionAreas=[];
 function makePanel(name,extras={}){
- const w=name==='Playlists'?196:name==='GlassPlaylist'?620:name==='AnnaQueue'?330:420;
+ const w=name==='Playlists'?196:name==='GlassPlaylist'?620:name==='HariiroQueue'?330:420;
  const win={ID:name,Width:w,Height:450,IsVisible:true,Repaint(){},
   GetProperty:(key,def)=>props.get(name+':'+key)??def,SetProperty:(key,v)=>props.set(name+':'+key,v),
   SetTimeout(fn){const id=++timeCounter;timers.set(id,fn);return id},ClearTimeout(id){timers.delete(id)},
@@ -65,37 +65,37 @@ function makePanel(name,extras={}){
  ctx.include=file=>vm.runInContext(source('js/'+file),ctx);panels.set(name,ctx);return ctx;
 }
 const sidebar=makePanel('Playlists');vm.runInContext(source('js/playlist_browser.js'),sidebar);
-const glass=makePanel('GlassPlaylist');vm.runInContext(source('js/anna_glass_playlist.js'),glass);
-const q=makePanel('AnnaQueue');vm.runInContext(source('js/anna_queue.js'),q);
+const glass=makePanel('GlassPlaylist');vm.runInContext(source('js/hariiro_glass_playlist.js'),glass);
+const q=makePanel('HariiroQueue');vm.runInContext(source('js/hariiro_queue.js'),q);
 const yOf=(name)=>{const i=sidebar.entries().findIndex(r=>r.name===name);assert(i>=0,name);return 8+30*i+14};
 const startLeft=(name,from=50)=>{const y=yOf(name);sidebar.on_mouse_lbtn_down(from,y);sidebar.on_mouse_move(from+64,y,1)};
 
 // ===== Round 14: the user's drag-and-drop rules, end to end =====
-const A=plman.FindPlaylist('User A'),B=plman.FindPlaylist('User B'),FAV=plman.FindPlaylist('Anna - Favorites');
-const over=(panel,origin,x,y)=>{vars.set('anna.drag.origin',origin);const a={Effect:1};panels.get(panel).on_drag_enter(a,x,y);panels.get(panel).on_drag_over(a,x,y);return a;};
-const drop=(panel,origin,x,y)=>{vars.set('anna.drag.origin',origin);const a={Effect:1};panels.get(panel).on_drag_drop(a,x,y);return a;};
+const A=plman.FindPlaylist('User A'),B=plman.FindPlaylist('User B'),FAV=plman.FindPlaylist('Hariiro - Favorites');
+const over=(panel,origin,x,y)=>{vars.set('hariiro.drag.origin',origin);const a={Effect:1};panels.get(panel).on_drag_enter(a,x,y);panels.get(panel).on_drag_over(a,x,y);return a;};
+const drop=(panel,origin,x,y)=>{vars.set('hariiro.drag.origin',origin);const a={Effect:1};panels.get(panel).on_drag_drop(a,x,y);return a;};
 const status=()=>vm.runInContext('importStatus',glass);
-const tr=k=>glass.AnnaI18n.t(k);
+const tr=k=>glass.HariiroI18n.t(k);
 
 // --- MIDDLE window as destination ---------------------------------------
 // R14-1: a stale/empty sidebar "editable" bookkeeping var must NOT block drops
 // onto an ordinary playlist that is actually on screen (start-up, tab switch, now-playing jump).
-vars.set('anna.nav.mode','library');vars.set('anna.sidebar.editable.name','');
+vars.set('hariiro.nav.mode','library');vars.set('hariiro.sidebar.editable.name','');
 active=A;
 let a=over('GlassPlaylist','',300,100);assert.equal(a.Effect,1,'external -> middle ordinary (no sidebar bookkeeping)');
 a=drop('GlassPlaylist','',300,100);assert.equal(a.Effect,1);assert.equal(a.Playlist,A);assert.equal(a.Base,records[A].items.length);
 
 // R14-2: external files onto Favorites / Artist view / Music Library view / search results -> warning, rejected
-for(const [nm,msg] of [['Anna - Favorites','chooseRegularPlaylist'],['Anna - Search Results','chooseRegularPlaylist'],
-  ['Anna - Sorted Library View','chooseRegularPlaylist'],['Anna - Artist View','artistHint']]){
+for(const [nm,msg] of [['Hariiro - Favorites','chooseRegularPlaylist'],['Hariiro - Search Results','chooseRegularPlaylist'],
+  ['Hariiro - Sorted Library View','chooseRegularPlaylist'],['Hariiro - Artist View','artistHint']]){
  let idx=plman.FindPlaylist(nm);if(idx<0)idx=plman.CreatePlaylist(records.length,nm);
  active=idx;
  a=over('GlassPlaylist','',300,100);assert.equal(a.Effect,0,nm);assert.equal(status(),tr(msg),nm);
  a=drop('GlassPlaylist','',300,100);assert.equal(a.Effect,0,nm);
 }
-active=A;vars.set('anna.nav.mode','artists');
+active=A;vars.set('hariiro.nav.mode','artists');
 a=over('GlassPlaylist','',300,100);assert.equal(a.Effect,0,'artist tab');assert.equal(status(),tr('artistHint'));
-vars.set('anna.nav.mode','library');
+vars.set('hariiro.nav.mode','library');
 
 // R14-3: sidebar ORDINARY playlist -> middle ordinary list = add its tracks (not to itself)
 active=A;
@@ -117,15 +117,15 @@ a=over('GlassPlaylist','glass:'+A,300,100);assert.equal(a.Effect,0);
 
 // --- SIDEBAR as destination ------------------------------------------------
 const rowY=n=>yOf(n);
-vars.set('anna.nav.mode','library');
+vars.set('hariiro.nav.mode','library');
 // middle -> ordinary playlist (multi-select copies all selected); not onto its own source list
 a=over('Playlists','glass:'+A,80,rowY('User B'));assert.equal(a.Effect,1,'middle -> other ordinary playlist');
 a=drop('Playlists','glass:'+A,80,rowY('User B'));assert.equal(a.Effect,1);assert.equal(a.Playlist,B);
 a=over('Playlists','glass:'+A,80,rowY('User A'));assert.equal(a.Effect,0,'middle -> its own playlist');
 // middle -> Music Library / Favorites / Search rows = rejected with the read-only warning
-for(const n of ['Music Library','Anna - Favorites','Anna - Search Result']){
+for(const n of ['Music Library','Hariiro - Favorites','Hariiro - Search Result']){
  a=over('Playlists','glass:'+A,80,rowY(n));assert.equal(a.Effect,0,n);
- assert.equal(vm.runInContext('trackDropNotice',sidebar),sidebar.AnnaI18n.t('listReadOnlyDrop'),n);
+ assert.equal(vm.runInContext('trackDropNotice',sidebar),sidebar.HariiroI18n.t('listReadOnlyDrop'),n);
  a=drop('Playlists','glass:'+A,80,rowY(n));assert.equal(a.Effect,0,n);
 }
 // middle -> blank sidebar area never creates a playlist
@@ -134,9 +134,9 @@ a=over('Playlists','glass:'+A,80,440);assert.equal(a.Effect,0,'glass tracks over
 a=over('Playlists','sidebar:playlist:'+B,80,rowY('User A'));assert.equal(a.Effect,0);
 // external files: ordinary row accepted, pinned rows rejected + warning, blank area = new playlist
 a=over('Playlists','',80,rowY('User B'));assert.equal(a.Effect,1);
-for(const n of ['Music Library','Anna - Favorites','Anna - Search Result']){
+for(const n of ['Music Library','Hariiro - Favorites','Hariiro - Search Result']){
  a=over('Playlists','',80,rowY(n));assert.equal(a.Effect,0,n);
- assert.equal(vm.runInContext('trackDropNotice',sidebar),sidebar.AnnaI18n.t('listReadOnlyDrop'),n);
+ assert.equal(vm.runInContext('trackDropNotice',sidebar),sidebar.HariiroI18n.t('listReadOnlyDrop'),n);
 }
 a=over('Playlists','',80,440);assert.equal(a.Effect,1,'external files over blank sidebar area');
 vm.runInContext("mode='artists'",sidebar);
@@ -146,10 +146,10 @@ vm.runInContext("mode='playlists'",sidebar);
 function rowY0(){return 8+14}
 
 // --- Drag START: diagonal pulls must work (previously silently ignored) -------
-vars.set('anna.drag.origin','');
-let before=dragStarts;sourceTarget='AnnaQueue';sourceDropOn={x:25,y:110};
+vars.set('hariiro.drag.origin','');
+let before=dragStarts;sourceTarget='HariiroQueue';sourceDropOn={x:25,y:110};
 // pinned row, diagonal down-right pull toward the queue
-const yl=yOf('Anna - Favorites');sidebar.on_mouse_lbtn_down(50,yl);sidebar.on_mouse_move(50+18,yl+40,1);
+const yl=yOf('Hariiro - Favorites');sidebar.on_mouse_lbtn_down(50,yl);sidebar.on_mouse_move(50+18,yl+40,1);
 assert.equal(dragStarts,before+1,'pinned row: diagonal pull starts export');
 // ordinary playlist, 40px right / 20px down still exports; mostly vertical still reorders
 before=dragStarts;const yu=yOf('User B');

@@ -1,8 +1,8 @@
-// Anna Glass: physical-file identity for ordinary playlist imports.
+// Hariiro: physical-file identity for ordinary playlist imports.
 // One canonical full path = one file, regardless of title tags or SubSong.
 // Existing duplicates are grandfathered in; only newly imported extras go.
 'use strict';
-const AnnaPlaylistDedup = (function () {
+const HariiroPlaylistDedup = (function () {
     function key(handle) {
         if (!handle || handle.Path === undefined || handle.Path === null) return '';
         const path = String(handle.Path);

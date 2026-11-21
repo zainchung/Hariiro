@@ -10,13 +10,13 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 import {installIncludeShim} from './helpers/js_panel.mjs';
 const originalVmRun=installIncludeShim(vm);
 const read=path=>readFileSync(root+'/'+path,'utf8');
-const main=read('main.txt'),tabsCode=read('js/anna_nav_tabs.js');
-const lyricsCode=read('js/anna_lyrics.js'),deskCode=read('js/anna_desktop_lyrics.js');
+const main=read('main.txt'),tabsCode=read('js/hariiro_nav_tabs.js');
+const lyricsCode=read('js/hariiro_lyrics.js'),deskCode=read('js/hariiro_desktop_lyrics.js');
 assert.match(main,/72 \/ 100 - 115\),61,74,24/);
 assert.match(main,/\$eval\(%_width% - 209\),\$eval\(%_height% - 94\),84,24/);
 assert(!main.includes('72 / 100 - 152),59,111,28'));
-assert.match(read('js/anna_mode_switch.js'),/gdi.Font\('Segoe UI',9,1\)/);
-const artwork=read('js/anna_transport.js');
+assert.match(read('js/hariiro_mode_switch.js'),/gdi.Font\('Segoe UI',9,1\)/);
+const artwork=read('js/hariiro_transport.js');
 assert(artwork.includes('transport graphics are transparent PNGs')); // intentionally unchanged in round 4
 const modes=[];let selectedMode='artists',clock=1_000;
 const tabHost={Width:350,Height:38,Repaint(){},SetTimeout(fn){modes.push({type:'timer',fn});return 42;},ClearTimeout(){},GetProperty(){return 'artists';},SetProperty(){}};
@@ -83,7 +83,7 @@ rec.length=0;time=8.2;ctx.on_playback_seek();
 ctx.on_mouse_lbtn_down(25,v.centerY+v.lineH+2);
 ctx.on_mouse_move(25,v.centerY+2,1);
 ctx.on_paint(gr);
-assert(rec.some(x=>x.method==='GdiDrawText'&&String(x.args[0]).includes(ctx.AnnaI18n.t('lyricReleaseJump'))),
+assert(rec.some(x=>x.method==='GdiDrawText'&&String(x.args[0]).includes(ctx.HariiroI18n.t('lyricReleaseJump'))),
    'missing drag destination caption');
 ctx.on_mouse_lbtn_up(25,v.centerY+2);
 assert(time>=0&&time<=120);

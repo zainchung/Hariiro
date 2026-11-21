@@ -1,4 +1,4 @@
-# Anna Glass V2 — Round 4 Windows test build (2026-11-19)
+# Hariiro — Round 4 Windows test build (2026-11-19)
 
 Baseline: Round 3 (commit `86cc434`), based on the *actual Windows screenshot* and the eight-point user feedback. The previously supplied concept rendering is deliberately not used.
 

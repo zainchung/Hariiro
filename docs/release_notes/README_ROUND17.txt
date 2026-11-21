@@ -1,4 +1,4 @@
-Anna Glass V2 — Round 17 (2026-11-21)
+Hariiro — Round 17 (2026-11-21)
 
 New: undo for deleting a playlist and clearing the Queue.
 - After you delete a playlist in the sidebar or clear the Queue, an Undo button

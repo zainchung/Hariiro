@@ -1,11 +1,11 @@
-// Anna Glass accent palette. Controls use the same saved Panels UI variable.
+// Hariiro accent palette. Controls use the same saved Panels UI variable.
 // Round 22: an accent colour is a folder in <skin>\images\controls\ (with play.png), named
 // by the folder, like wallpapers. It holds the control and corner images; theme.json gives
 // {"hue": 0-359, "accent": "r-g-b"}. Without theme.json the colour is taken from play.png.
-// Saved: anna.theme.hue = folder, anna.theme.degree = hue, anna.glass.v2.accent = accent.
+// Saved: hariiro.theme.hue = folder, hariiro.theme.degree = hue, hariiro.accent = accent.
 // The pink folder (hue 326) is the base palette every colour below is written in.
 'use strict';
-var AnnaTheme=(function(){
+var HariiroTheme=(function(){
  const BASE='pink',BASE_HUE=326,SPREAD=0.3;
  // The bundled folders (also used before a scan, or when the skin folder is unknown).
  const PRESETS=Object.freeze([
@@ -20,11 +20,11 @@ var AnnaTheme=(function(){
  const VALID=/^[^\\/:*?"<>|.][^\\/:*?"<>|]{0,63}$/;
  function variable(key,fallback){try{return String(panelsui.GetVariable(key,fallback)||'');}catch(e){return '';}}
  // 'rose' was the pink folder's id before Round 22.
- function selected(){const s=variable('anna.theme.hue',BASE);if(!s||s==='rose'||!VALID.test(s))return BASE;return s;}
+ function selected(){const s=variable('hariiro.theme.hue',BASE);if(!s||s==='rose'||!VALID.test(s))return BASE;return s;}
  function folder(){return selected();}
  function hue(){
-  const d=Number(variable('anna.theme.degree',''));
-  if(variable('anna.theme.degree','')!==''&&isFinite(d))return ((Math.round(d)%360)+360)%360;
+  const d=Number(variable('hariiro.theme.degree',''));
+  if(variable('hariiro.theme.degree','')!==''&&isFinite(d))return ((Math.round(d)%360)+360)%360;
   const p=byId[selected()];return p?p.hue:BASE_HUE;
  }
  function key(){return selected()+'@'+hue();}
@@ -33,9 +33,9 @@ var AnnaTheme=(function(){
   const t=typeof theme==='string'?byId[theme]:theme;
   if(!t||!VALID.test(String(t.id))||!isFinite(Number(t.hue)))return false;
   try{
-   panelsui.SetVariable('anna.theme.hue',String(t.id));
-   panelsui.SetVariable('anna.theme.degree',String(Math.round(Number(t.hue))));
-   if(/^\d{1,3}-\d{1,3}-\d{1,3}$/.test(String(t.accent)))panelsui.SetVariable('anna.glass.v2.accent',String(t.accent));
+   panelsui.SetVariable('hariiro.theme.hue',String(t.id));
+   panelsui.SetVariable('hariiro.theme.degree',String(Math.round(Number(t.hue))));
+   if(/^\d{1,3}-\d{1,3}-\d{1,3}$/.test(String(t.accent)))panelsui.SetVariable('hariiro.accent',String(t.accent));
   }catch(e){return false;}
   cachedHue=-1;cached.clear();return true;
  }
@@ -52,7 +52,7 @@ var AnnaTheme=(function(){
     const col=Number(c.col)>>>0,r=(col>>>16)&255,g=(col>>>8)&255,b=col&255,x=hsv(r,g,b);
     if(x.s>=0.25&&x.v>=0.35)return {hue:Math.round(x.h)%360,accent:r+'-'+g+'-'+b};
    }
-  }catch(e){console.log('Anna theme colour: '+String(e));}
+  }catch(e){console.log('Hariiro theme colour: '+String(e));}
   finally{try{if(img&&typeof img.Dispose==='function')img.Dispose();}catch(e){}}
   return null;
  }
@@ -62,14 +62,14 @@ var AnnaTheme=(function(){
    const m=JSON.parse(utils.ReadTextFile(dir+'theme.json'));
    const h=Number(m&&m.hue);if(!isFinite(h))return null;
    return {hue:((Math.round(h)%360)+360)%360,accent:/^\d{1,3}-\d{1,3}-\d{1,3}$/.test(String(m.accent))?String(m.accent):''};
-  }catch(e){console.log('Anna theme.json: '+String(e));return null;}
+  }catch(e){console.log('Hariiro theme.json: '+String(e));return null;}
  }
  // Colours in <skinDir>images\controls\, by folder name. Empty when the folder cannot be read.
  function scan(skinDir){
   const BS='\\',root=String(skinDir||'')+'images'+BS+'controls'+BS,out=[];
   if(!skinDir)return out;
   let dirs=[];
-  try{dirs=utils.Glob(root+'*',0,0x10)||[];}catch(e){console.log('Anna theme scan: '+String(e));}
+  try{dirs=utils.Glob(root+'*',0,0x10)||[];}catch(e){console.log('Hariiro theme scan: '+String(e));}
   for(const d of dirs){
    const name=String(d).replace(/[\\/]+$/,'').split(/[\\/]/).pop();
    if(!VALID.test(name))continue;
@@ -87,7 +87,7 @@ var AnnaTheme=(function(){
   return ((a<<24)|(Math.round((t[0]+m)*255)<<16)|(Math.round((t[1]+m)*255)<<8)|Math.round((t[2]+m)*255))>>>0;
  }
  // Colours main.txt draws itself (frames, lines, labels). It reads each one recoloured from
- // the panel variable anna.tc.<r-g-b>, which TopChrome publishes (layoutColor).
+ // the panel variable hariiro.tc.<r-g-b>, which TopChrome publishes (layoutColor).
  const LAYOUT_COLORS=Object.freeze(['234-172-197','236-184-177','239-170-200','245-190-213','249-183-211',
   '249-220-217','249-220-235','250-181-211','251-173-207','252-146-204','253-216-227','253-228-240',
   '255-160-211','255-232-246','220-165-187','226-173-197','58-20-59','229-214-231']);

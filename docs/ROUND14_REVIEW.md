@@ -1,9 +1,9 @@
-# Anna GLASS V2 — Round 14: drag & drop rules (2026-11-20)
+# Hariiro V2 — Round 14: drag & drop rules (2026-11-20)
 
 ## Root causes fixed
 
 1. **The middle list judged "can I accept a drop?" from sidebar bookkeeping**
-   (`anna.sidebar.editable.name`). That value is empty after start-up, after
+   (`hariiro.sidebar.editable.name`). That value is empty after start-up, after
    switching the Artists/Playlists tab and after the Now Playing jump, so files and
    tracks were rejected even though an ordinary playlist was on screen. The middle
    list now looks at the playlist that is actually active (`activeDropTarget()`).

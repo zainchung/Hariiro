@@ -4,16 +4,16 @@ import assert from 'node:assert/strict';
 import { createHost, panelContext, run, runScript, handle } from './helpers/fake_host.mjs';
 
 const tracks = n => Array.from({ length: n }, (_, i) => handle(`C:/Music/${i}.flac`));
-// A click as the panel sees it (AnnaDpi scale 1 in the fake host).
+// A click as the panel sees it (HariiroDpi scale 1 in the fake host).
 const click = (ctx, x, y) => { ctx.on_mouse_lbtn_down(x, y); ctx.on_mouse_lbtn_up(x, y); };
 
-// ---- AnnaUndo -------------------------------------------------------------------------
+// ---- HariiroUndo -------------------------------------------------------------------------
 {
   const host = createHost(), ctx = panelContext(host);
-  run(ctx, "include('anna_undo.js');");
+  run(ctx, "include('hariiro_undo.js');");
   let repaints = 0, restored = [];
-  const U = ctx.AnnaUndo.create(() => repaints++);
-  assert(Object.isFrozen(ctx.AnnaUndo) && Object.isFrozen(U));
+  const U = ctx.HariiroUndo.create(() => repaints++);
+  assert(Object.isFrozen(ctx.HariiroUndo) && Object.isFrozen(U));
   assert.equal(U.active(), false); assert.equal(U.hit(10, 380, 200, 400), '');
   U.offer('Deleted A', () => restored.push('A'));
   assert.equal(U.active(), true); assert.equal(U.text(), 'Deleted A'); assert(repaints > 0);
@@ -30,21 +30,21 @@ const click = (ctx, x, y) => { ctx.on_mouse_lbtn_down(x, y); ctx.on_mouse_lbtn_u
   assert(host.flushTimers() >= 1);
   assert.equal(U.active(), false); assert.equal(U.undo(), false);
   assert.deepEqual(restored, ['B']);
-  assert(ctx.AnnaUndo.DURATION >= 5000 && ctx.AnnaUndo.DURATION <= 15000);
+  assert(ctx.HariiroUndo.DURATION >= 5000 && ctx.HariiroUndo.DURATION <= 15000);
 }
 
 // ---- Sidebar: delete a playlist, then undo ----------------------------------------------
 {
   const mix = tracks(3); mix.push(mix[0]); // an old duplicate the user kept
   const host = createHost({ playlists: [{ name: 'Default' }, { name: 'Mix', items: mix }, { name: 'Other', items: tracks(1) }],
-    active: 1, vars: { 'anna.nav.mode': 'library' } });
+    active: 1, vars: { 'hariiro.nav.mode': 'library' } });
   const st = host.state, sb = panelContext(host);
   runScript(sb, 'js/playlist_browser.js');
   const row = sb.entries().find(e => e.name === 'Mix');
   sb.confirmRemove(row);
   assert.deepEqual(st.playlists.map(p => p.name), ['Default', 'Other']);
   sb.on_playlists_changed();
-  const b = sb.AnnaUndo && run(sb, 'sidebarUndo.button(AnnaDpi.width(),AnnaDpi.height())');
+  const b = sb.HariiroUndo && run(sb, 'sidebarUndo.button(HariiroDpi.width(),HariiroDpi.height())');
   assert(b, 'sidebar shows an undo notice after a delete');
   assert(run(sb, 'sidebarUndo.text()').includes('Mix'));
   click(sb, b.x + 3, b.y + 3);
@@ -69,10 +69,10 @@ const click = (ctx, x, y) => { ctx.on_mouse_lbtn_down(x, y); ctx.on_mouse_lbtn_u
   const host = createHost({ queue: old.map(h => ({ Handle: h, PlaylistIndex: -1, PlaylistItemIndex: -1 })),
     overrides: { window: { Width: 300, Height: 300 } } });
   const st = host.state, q = panelContext(host);
-  runScript(q, 'js/anna_queue.js');
+  runScript(q, 'js/hariiro_queue.js');
   click(q, 300 - 60, 15); // "Clear playback queue" button
   assert.equal(st.queue.length, 0);
-  const b = run(q, 'queueUndo.button(AnnaDpi.width(),AnnaDpi.height())');
+  const b = run(q, 'queueUndo.button(HariiroDpi.width(),HariiroDpi.height())');
   assert(run(q, 'queueUndo.active()'), 'queue shows an undo notice after clearing');
   host.plman.AddItemToPlaybackQueue(later); // queued meanwhile
   click(q, b.x + 3, b.y + 3);

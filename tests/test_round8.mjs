@@ -9,8 +9,8 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 // JS Panel's include() loads shared files into the same script context.
 installIncludeShim(vm);
 const read=(f)=>readFileSync(root+'/'+f,'utf8');
-const transport=read('js/anna_transport.js'),slider=read('js/anna_footer_slider.js');
-const nav=read('js/playlist_browser.js'),glass=read('js/anna_glass_playlist.js');
+const transport=read('js/hariiro_transport.js'),slider=read('js/hariiro_footer_slider.js');
+const nav=read('js/playlist_browser.js'),glass=read('js/hariiro_glass_playlist.js');
 const footer=read('main.txt');
 // Controls really are separately replaceable transparent PNG files.
 const order=['order_default','order_repeat_playlist','order_repeat_track','order_random',
@@ -49,19 +49,19 @@ const seekContext=vm.createContext({gdi:{Image:p=>({Width:192,Height:192,path:p}
 vm.runInContext(slider,seekContext);drawCalls.length=0;seekContext.on_paint(gr);
 assert(drawCalls.some(x=>x.k==='DrawImage'&&x.args[0].path.includes('butterfly')));
 // All three switch scripts share exactly the same active, inactive and knob palette.
-for(const f of ['js/anna_mode_switch.js','js/anna_queue_toggle.js','js/anna_desktop_lyrics.js']){
- // Phase D2: one AnnaTheme.paintSwitch and AnnaTheme.COLORS, no local copies.
- const s=read(f),theme=read('js/anna_theme.js');
+for(const f of ['js/hariiro_mode_switch.js','js/hariiro_queue_toggle.js','js/hariiro_desktop_lyrics.js']){
+ // Phase D2: one HariiroTheme.paintSwitch and HariiroTheme.COLORS, no local copies.
+ const s=read(f),theme=read('js/hariiro_theme.js');
  for(const value of ['0xff93547d','0xff43334f','0xffffc8e7','0xffd9b2d2',
                      '0xffffe9f5','0xffd8cbdf'])assert(theme.includes(value)&&!s.includes(value),f+' '+value);
- assert(s.includes('AnnaTheme.paintSwitch(gr,w,h,'),f);
+ assert(s.includes('HariiroTheme.paintSwitch(gr,w,h,'),f);
 }
 
 // Mock the actual foobar playlist API; deliberately omit utils.MessageBox and
 // plman.RemovePlaylist to reproduce old "TypeError: not a function" conditions.
 let rows=[{name:'Normal',items:[{Path:'a.flac',SubSong:0}]},
- {name:'Anna - Favorites',items:[{Path:'fav.flac',SubSong:0}]},
- {name:'Anna - Search Results',items:[{Path:'result.flac',SubSong:0}]},
+ {name:'Hariiro - Favorites',items:[{Path:'fav.flac',SubSong:0}]},
+ {name:'Hariiro - Search Results',items:[{Path:'result.flac',SubSong:0}]},
  {name:'Editable',items:[{Path:'song1.flac',SubSong:0}]},
  {name:'To Delete',items:[{Path:'song2.flac',SubSong:0}]}];
 let active=3,selected=[0],focus=-1,removedPlaylist=-1,calledRemove=0;
@@ -89,7 +89,7 @@ const fb={
  ShowPopupMessage:m=>notice.push(m),DoDragDrop(){},RunMainMenuCommand:()=>true,
  GetSelection:()=>handles([])
 };
-const vars=new Map([['anna.nav.mode','library'],['anna.search.results.owned','["Anna - Search Results"]'],['anna.search.results.name','Anna - Search Results']]);
+const vars=new Map([['hariiro.nav.mode','library'],['hariiro.search.results.owned','["Hariiro - Search Results"]'],['hariiro.search.results.name','Hariiro - Search Results']]);
 const ctx=vm.createContext({gdi:{Font:()=>({})},plman,fb,utils:{IsKeyPressed(){return false}},
  panelsui:{GetVariable:(k,d)=>vars.get(k)??d,SetVariable:(k,v)=>vars.set(k,v),RunAction:a=>{actions.push(a);return true}},
  window:{ID:1,Width:196,Height:420,Repaint(){},GetProperty:(k,d)=>d,SetProperty(){},
@@ -97,7 +97,7 @@ const ctx=vm.createContext({gdi:{Font:()=>({})},plman,fb,utils:{IsKeyPressed(){r
  SetTimeout(fn){cb.set(++counter,fn);return counter},ClearTimeout(id){cb.delete(id)}},console:{log(){}}});
 vm.runInContext(nav,ctx);
 const hit=(name)=>{const i=ctx.entries().findIndex(r=>r.name===name);assert(i>=0,name);return 8+i*30+10;};
-for(const fixed of ['Music Library','Anna - Favorites','Anna - Search Result']){
+for(const fixed of ['Music Library','Hariiro - Favorites','Hariiro - Search Result']){
  const action={Effect:77};ctx.on_drag_over(action,15,hit(fixed));assert.equal(action.Effect,0,fixed+' rejects a drop');
 }
 const hover={Effect:0};ctx.on_drag_over(hover,20,hit('Editable'));
@@ -115,9 +115,9 @@ assert.equal(rows[3].items[0].Path,'song1.flac','existing audio file handle must
 assert.equal(typeof ctx.removeSelectedTracks,'undefined');
 assert.equal(calledRemove,0);
 assert.equal(rows[3].items[0].Path,'song1.flac');
-for(const fixed of ['Music Library','Anna - Favorites','Anna - Search Result']){
+for(const fixed of ['Music Library','Hariiro - Favorites','Hariiro - Search Result']){
  const item=ctx.entries().find(x=>x.name===fixed);assert.equal(ctx.editablePlaylistRow(item),false);
 }
-assert(glass.includes("AnnaI18n.t('removeSelected')"));
+assert(glass.includes("HariiroI18n.t('removeSelected')"));
 assert(glass.includes('function removeFromCurrentPlaylist()'));
 console.log('PASS round8: all 17 transparent control PNGs, image-rendered footer, unified switch palette, seek timing, pinned drop rejection, OLE target highlight, safe playlist deletion fallback, track removal without file deletion');

@@ -1,4 +1,4 @@
-Anna Glass V2 — Round 18 (2026-11-21)
+Hariiro — Round 18 (2026-11-21)
 
 Lyrics:
 - More saved-lyrics file names are recognised (artist_title, artist - album -

@@ -1,6 +1,6 @@
-Anna Glass V2 — Round 12 test skin
+Hariiro — Round 12 test skin
 
-Installation: back up your previous Anna Glass skin and foobar2000 playlists before replacing files.
+Installation: back up your previous Hariiro skin and foobar2000 playlists before replacing files.
 
 Dragging:
 - Artist / playlist sidebar: use the row's left music-note/grip, drag horizontally RIGHT out of the sidebar to the QUEUE. Vertical list dragging never exports the entire playlist.

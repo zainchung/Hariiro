@@ -1,8 +1,8 @@
 // Round 22 (2): every frame follows the accent colour. Before, (a) main.txt's own colours never
-// changed, and (b) the warm peach/gold frames (hue 0-50) were outside AnnaTheme.recolor's
+// changed, and (b) the warm peach/gold frames (hue 0-50) were outside HariiroTheme.recolor's
 // pink range. Now warm frames take the colour's hue (pink keeps its original design), the
 // corner PNGs follow the same rule, and main.txt reads recoloured values that TopChrome
-// publishes as anna.tc.<r-g-b>.
+// publishes as hariiro.tc.<r-g-b>.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { root, read } from './helpers/js_panel.mjs';
@@ -13,10 +13,10 @@ const hue = ([r, g, b]) => { const mx = Math.max(r, g, b), d = mx - Math.min(r, 
   const h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return h * 60; };
 
 function theme(id, degree) {
-  const h = createHost({ vars: { 'anna.theme.hue': id, ...(degree === undefined ? {} : { 'anna.theme.degree': String(degree) }) } });
+  const h = createHost({ vars: { 'hariiro.theme.hue': id, ...(degree === undefined ? {} : { 'hariiro.theme.degree': String(degree) }) } });
   const ctx = panelContext(h);
-  run(ctx, "include('anna_shared.js');include('anna_theme.js');");
-  return { T: ctx.AnnaTheme, h, ctx };
+  run(ctx, "include('hariiro_shared.js');include('hariiro_theme.js');");
+  return { T: ctx.HariiroTheme, h, ctx };
 }
 
 // ---- 1. warm frames take the colour's hue --------------------------------------------------
@@ -35,34 +35,34 @@ function theme(id, degree) {
   assert.equal(T.recolor(0xff2a1a10), 0xff2a1a10, 'dark warm (r < 120) stays');
 }
 
-// ---- 2. main.txt: every colour a colour changes is read from anna.tc.<r-g-b> ----------------
+// ---- 2. main.txt: every colour a colour changes is read from hariiro.tc.<r-g-b> ----------------
 const main = read('main.txt');
 const { T: blue } = theme('blue');
 const code = main.split(/\r?\n/).filter(l => !l.trimStart().startsWith('//')).join('\n');
 const changes = c => { const [r, g, b] = c.split('-').map(Number); return blue.recolor((0xff000000 | (r << 16) | (g << 8) | b) >>> 0) !== ((0xff000000 | (r << 16) | (g << 8) | b) >>> 0); };
 const bare = [...code.matchAll(/(brushcolor-|pencolor-|,)(\d{1,3}-\d{1,3}-\d{1,3})(?=[ ,)])/g)]
-  .filter(m => !code.slice(Math.max(0, m.index - 30), m.index).endsWith(`$getpvar(anna.tc.${m[2]})`))
+  .filter(m => !code.slice(Math.max(0, m.index - 40), m.index).endsWith(`$getpvar(hariiro.tc.${m[2]})`))
   .map(m => m[2]).filter(changes);
 assert.deepEqual([...new Set(bare)], [], 'colours in main.txt that do not follow the accent');
-const wrapped = [...new Set([...code.matchAll(/\$if2\(\$getpvar\(anna\.tc\.(\d{1,3}-\d{1,3}-\d{1,3})\),(\d{1,3}-\d{1,3}-\d{1,3})\)/g)]
+const wrapped = [...new Set([...code.matchAll(/\$if2\(\$getpvar\(hariiro\.tc\.(\d{1,3}-\d{1,3}-\d{1,3})\),(\d{1,3}-\d{1,3}-\d{1,3})\)/g)]
   .map(m => { assert.equal(m[1], m[2], 'fallback is the base colour'); return m[1]; }))].sort();
 assert(wrapped.length >= 15, 'frames, lines and labels of the layout');
-assert.deepEqual([...blue.LAYOUT_COLORS].sort(), wrapped, 'AnnaTheme.LAYOUT_COLORS lists exactly the wrapped colours');
+assert.deepEqual([...blue.LAYOUT_COLORS].sort(), wrapped, 'HariiroTheme.LAYOUT_COLORS lists exactly the wrapped colours');
 
 // ---- 3. TopChrome publishes them -------------------------------------------------------------------
 {
-  const h = createHost({ vars: { 'anna.theme.hue': 'blue' }, overrides: {
+  const h = createHost({ vars: { 'hariiro.theme.hue': 'blue' }, overrides: {
     fb: { ProfilePath: 'C:\\fb\\' }, utils: { Glob: () => [], IsFile: () => false },
     window: { Width: 183, Height: 31, NotifyOthers() {} } } });
   const ctx = panelContext(h);
-  runScript(ctx, 'js/anna_top_chrome.js');
-  const P = ctx.AnnaShared.PVAR.themeColorPrefix;
-  assert.equal(P, 'anna.tc.');
-  for (const c of wrapped) assert.equal(h.state.vars.get(P + c), ctx.AnnaTheme.layoutColor(c), c);
+  runScript(ctx, 'js/hariiro_top_chrome.js');
+  const P = ctx.HariiroShared.PVAR.themeColorPrefix;
+  assert.equal(P, 'hariiro.tc.');
+  for (const c of wrapped) assert.equal(h.state.vars.get(P + c), ctx.HariiroTheme.layoutColor(c), c);
   const frame = h.state.vars.get(P + '236-184-177').split('-').map(Number);
   assert(Math.abs(hue(frame) - 211) <= 2, 'card outline is blue: ' + frame);
   // Choosing pink puts the original colours back.
-  ctx.AnnaTheme.set('pink'); ctx.publishLayoutColors();
+  ctx.HariiroTheme.set('pink'); ctx.publishLayoutColors();
   assert.equal(h.state.vars.get(P + '236-184-177'), '236-184-177');
 }
 

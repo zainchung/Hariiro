@@ -1,10 +1,10 @@
-// Anna GLASS: shared language dictionary for skin-owned labels and popup menus.
+// Hariiro: shared language dictionary for skin-owned labels and popup menus.
 // Native foobar2000/ESLyric/JS Panel menu strings are controlled by their hosts.
 'use strict';
-var AnnaI18n=(function(){
+var HariiroI18n=(function(){
  const ROWS=[
   // key, English, 简体中文, 繁體中文, 日本語 (more languages: MORE below)
-  ['settings','Anna Glass settings','Anna Glass 设置','Anna Glass 設定','Anna Glass 設定'],
+  ['settings','Hariiro settings','Hariiro 设置','Hariiro 設定','Hariiro 設定'],
   ['showtitle','Show Windows title bar','显示 Windows 标题栏','顯示 Windows 標題列','Windows タイトルバーを表示'],
   ['hidetitle','Hide Windows title bar','隐藏 Windows 标题栏','隱藏 Windows 標題列','Windows タイトルバーを非表示'],
   ['showmenu','Show foobar2000 menu bar','显示 foobar2000 菜单栏','顯示 foobar2000 選單列','foobar2000 メニューバーを表示'],
@@ -155,7 +155,7 @@ var AnnaI18n=(function(){
 
  // Round 21: Español, Português, Français, Deutsch, Русский — key: [es, pt, fr, de, ru].
  const MORE={
-  settings:["Ajustes de Anna Glass", "Configurações do Anna Glass", "Paramètres d’Anna Glass", "Anna Glass-Einstellungen", "Настройки Anna Glass"],
+  settings:["Ajustes de Hariiro", "Configurações do Hariiro", "Paramètres d’Hariiro", "Hariiro-Einstellungen", "Настройки Hariiro"],
   showtitle:["Mostrar barra de título de Windows", "Mostrar barra de título do Windows", "Afficher la barre de titre Windows", "Windows-Titelleiste anzeigen", "Показать заголовок окна Windows"],
   hidetitle:["Ocultar barra de título de Windows", "Ocultar barra de título do Windows", "Masquer la barre de titre Windows", "Windows-Titelleiste ausblenden", "Скрыть заголовок окна Windows"],
   showmenu:["Mostrar barra de menús de foobar2000", "Mostrar barra de menus do foobar2000", "Afficher la barre de menus foobar2000", "foobar2000-Menüleiste anzeigen", "Показать меню foobar2000"],
@@ -311,7 +311,7 @@ var AnnaI18n=(function(){
  for(const [key,en,cn,tw,ja] of ROWS){dict.en[key]=en;dict['zh-CN'][key]=cn;dict['zh-TW'][key]=tw;dict.ja[key]=ja;}
  for(const [key,list] of Object.entries(MORE))['es','pt','fr','de','ru'].forEach((l,i)=>{dict[l][key]=list[i];});
  function nativeName(l){return NATIVE[l]||l;}
- function value(){try{return String(panelsui.GetVariable('anna.language','auto')||'auto');}catch(e){return 'auto';}}
+ function value(){try{return String(panelsui.GetVariable('hariiro.language','auto')||'auto');}catch(e){return 'auto';}}
  function normalize(v){let l=String(v||'').toLowerCase();if(l.startsWith('zh'))return /tw|hk|mo|hant/.test(l)?'zh-TW':'zh-CN';
   const base=l.split(/[-_]/)[0];return ['ja','en','es','pt','fr','de','ru'].includes(base)?base:'';}
  function current(){const v=value();if(dict[v])return v;
@@ -321,6 +321,6 @@ var AnnaI18n=(function(){
   return 'ja';
  }
  function t(key){const l=current();return dict[l]?.[key]||dict.en[key]||key;}
- function change(value){if(value!=='auto'&&!LANGS.includes(value))return;try{panelsui.SetVariable('anna.language',value);}catch(e){} }
+ function change(value){if(value!=='auto'&&!LANGS.includes(value))return;try{panelsui.SetVariable('hariiro.language',value);}catch(e){} }
  return {t,current,mode:value,change,dict,LANGS,nativeName};
 })();

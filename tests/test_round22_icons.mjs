@@ -1,5 +1,5 @@
 // Round 22 (4): every colour's pictures are the pink set recoloured by the same rule as the
-// vector colours (AnnaTheme.recolor), pixel for pixel - before, dark and pale pink tints were
+// vector colours (HariiroTheme.recolor), pixel for pixel - before, dark and pale pink tints were
 // skipped, so the other sets kept pink glows, rings and cables. Also the now-playing texts
 // (top right, bottom left) follow the colour.
 import assert from 'node:assert/strict';
@@ -34,10 +34,10 @@ function png(file) {
 const PALETTES = Object.entries(JSON.parse('{"violet":278,"blue":211,"teal":174,"amber":36,"mint":150}'));
 const names = fs.readdirSync(root + '/images/controls/pink').filter(f => f.endsWith('.png'));
 for (const [id, degree] of PALETTES) {
-  const host = createHost({ vars: { 'anna.theme.hue': id, 'anna.theme.degree': String(degree) } });
+  const host = createHost({ vars: { 'hariiro.theme.hue': id, 'hariiro.theme.degree': String(degree) } });
   const ctx = panelContext(host);
-  run(ctx, "include('anna_theme.js');");
-  const T = ctx.AnnaTheme;
+  run(ctx, "include('hariiro_theme.js');");
+  const T = ctx.HariiroTheme;
   for (const n of names) {
     const base = png(`${root}/images/controls/pink/${n}`), mine = png(`${root}/images/controls/${id}/${n}`);
     assert.equal(mine.w, base.w); assert.equal(mine.h, base.h);
@@ -56,13 +56,13 @@ for (const [id, degree] of PALETTES) {
 
 // Now-playing texts: the pale pink ones follow the colour.
 {
-  const host = createHost({ vars: { 'anna.theme.hue': 'blue', 'anna.theme.degree': '211' } });
+  const host = createHost({ vars: { 'hariiro.theme.hue': 'blue', 'hariiro.theme.degree': '211' } });
   const ctx = panelContext(host);
-  run(ctx, "include('anna_theme.js');");
-  const src = read('js/anna_now_details.js');
+  run(ctx, "include('hariiro_theme.js');");
+  const src = read('js/hariiro_now_details.js');
   for (const name of ['COLOR_TITLE', 'COLOR_ARTIST', 'COLOR_CODEC']) {
     const v = Number(src.match(new RegExp(name + '=(0x[0-9a-fA-F]{8})'))[1]);
-    assert.notEqual(ctx.AnnaTheme.recolor(v), v, name + ' follows the colour');
+    assert.notEqual(ctx.HariiroTheme.recolor(v), v, name + ' follows the colour');
   }
 }
 console.log('test_round22_icons: ok');

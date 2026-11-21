@@ -1,13 +1,13 @@
 # NATIVE and GLASS mode — who decides what (Phase E4, 2026-11-21)
 
 The switch above the middle list (GLASS / NATIVE) chooses what fills the middle of the
-window. It sets the Panels UI variable `anna.playlist.experimental` (`1` = GLASS), and
+window. It sets the Panels UI variable `hariiro.playlist.experimental` (`1` = GLASS), and
 `main.txt` then loads one of two panels:
 
 | | GLASS (`1`, default for new installs since Round 20) | NATIVE (`0`) |
 |---|---|---|
-| Middle panel | `GlassPlaylist`, our JS Panel `js/anna_glass_playlist.js` | `Playlist`, foobar2000's **Single Column Playlist** |
-| Scroll strip | drawn by GlassPlaylist | `NativeScroll` (`js/anna_native_scroll.js`), which only calls `EnsurePlaylistItemVisible` |
+| Middle panel | `GlassPlaylist`, our JS Panel `js/hariiro_glass_playlist.js` | `Playlist`, foobar2000's **Single Column Playlist** |
+| Scroll strip | drawn by GlassPlaylist | `NativeScroll` (`js/hariiro_native_scroll.js`), which only calls `EnsurePlaylistItemVisible` |
 | Look | album groups, covers, glass rows, accent colours | the host's renderer, coloured by `color.playlist.*` in `foo_ui_panels.ini` (fixed; not recoloured by the accent menu) |
 
 Everything else in the window (sidebar, Queue, lyrics, footer, header) is the same JS in
@@ -19,21 +19,21 @@ These live in the sidebar, the Queue or the shared modules, so the middle panel 
 matter:
 
 - Sidebar drops: ordinary row → that playlist; blank space → new playlist via the staging
-  list; pinned rows and the Artist tab → rejected (`js/anna_sidebar_drop.js`).
-- Queue drops and clearing, with undo (`js/anna_queue.js`, Round 17).
-- Duplicate removal after an import into an ordinary playlist (`js/anna_dedup_tracker.js`):
+  list; pinned rows and the Artist tab → rejected (`js/hariiro_sidebar_drop.js`).
+- Queue drops and clearing, with undo (`js/hariiro_queue.js`, Round 17).
+- Duplicate removal after an import into an ordinary playlist (`js/hariiro_dedup_tracker.js`):
   it reacts to `on_playlist_items_added`, whoever inserted the tracks.
 - Sort-and-reveal after an import into the playlist shown in the middle (sidebar
   `collectImport` / `finishImport`).
 - Files from File Explorer that foobar2000 put into the active playlist are moved to where
-  they were dropped (`js/anna_drop_fix.js`, Round 15) — sidebar row, blank sidebar, Queue.
+  they were dropped (`js/hariiro_drop_fix.js`, Round 15) — sidebar row, blank sidebar, Queue.
 - Working copies (Music Library, Artist views) carry an `AddItems` lock, so nothing can be
   added to them from anywhere (Round 13).
 - Deleting a playlist from the sidebar, with undo (Round 17).
 
 ## Rules only GLASS enforces
 
-`js/anna_glass_drop.js` decides every drop on the middle list in GLASS mode:
+`js/hariiro_glass_drop.js` decides every drop on the middle list in GLASS mode:
 
 - Drops are accepted only while an ordinary, unlocked playlist is shown; Favorites, search
   results, the Queue buffer and working copies reject with a message.
@@ -62,7 +62,7 @@ the Round 13–15 notes and the Single Column Playlist's known behaviour, not re
 
 ## Default mode
 
-Since Round 20, new installs start in GLASS (`pvar.once.anna.playlist.experimental = 1` in
+Since Round 20, new installs start in GLASS (`pvar.once.hariiro.playlist.experimental = 1` in
 `foo_ui_panels.ini`), the mode the skin is designed around and the only one where all drop
 rules above hold. `pvar.once` sets it only on first run; after that the switch remembers
 the user's choice, so existing installs keep their mode.

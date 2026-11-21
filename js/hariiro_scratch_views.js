@@ -1,14 +1,14 @@
-// Anna Glass: registry of the sidebar's scratch views (the sorted / Artist working
+// Hariiro: registry of the sidebar's scratch views (the sorted / Artist working
 // playlists). Moved out of playlist_browser.js in Phase D1; rules unchanged.
-// Needs include('anna_i18n.js') and include('anna_shared.js') first. The registry is a
+// Needs include('hariiro_i18n.js') and include('hariiro_shared.js') first. The registry is a
 // window property of the including panel (the sidebar), loaded once at include time.
 'use strict';
-var AnnaScratchViews=(function(){
+var HariiroScratchViews=(function(){
  // Only lists created and registered by this panel can be used as scratch space.
  // A user playlist with an identical name must never be cleared accidentally.
- const PROPERTY='Anna.OwnedScratchPlaylists.v1';
- const SORTED_VIEW=AnnaShared.LIST.sortedView,ARTIST_VIEW=AnnaShared.LIST.artistView;
- function isViewName(x){return AnnaShared.isViewName(x,SORTED_VIEW)||AnnaShared.isViewName(x,ARTIST_VIEW);}
+ const PROPERTY='Hariiro.OwnedScratchPlaylists.v1';
+ const SORTED_VIEW=HariiroShared.LIST.sortedView,ARTIST_VIEW=HariiroShared.LIST.artistView;
+ function isViewName(x){return HariiroShared.isViewName(x,SORTED_VIEW)||HariiroShared.isViewName(x,ARTIST_VIEW);}
  function isDuplicate(x){return x.startsWith(SORTED_VIEW+' #')||x.startsWith(ARTIST_VIEW+' #');}
  function load(){
   try{
@@ -48,7 +48,7 @@ var AnnaScratchViews=(function(){
    const dest=plman.FindOrCreatePlaylist(candidate,true);
    if(dest>=0){owned.add(candidate);save();return dest;}
   }
-  throw new Error(AnnaI18n.t('viewSlotsFull'));
+  throw new Error(HariiroI18n.t('viewSlotsFull'));
  }
  let pruning=false;
  // Removes registered numbered duplicates nothing refers to; returns how many.
@@ -78,7 +78,7 @@ var AnnaScratchViews=(function(){
     if(relock){try{plman.SetPlaylistLockedActions(idx,[]);}catch(e){continue;}}
     try{
      if(plman.RemovePlaylist(idx)!==false){owned.delete(name);removed++;continue;}
-    }catch(e){console.log('Anna scratch cleanup skipped: '+String(e));}
+    }catch(e){console.log('Hariiro scratch cleanup skipped: '+String(e));}
     if(relock){try{plman.SetPlaylistLockedActions(idx,['AddItems']);}catch(e){}}
    }
    save();return removed;

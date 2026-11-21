@@ -5,10 +5,10 @@ import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const src=n=>fs.readFileSync(path.join(root,n),'utf8');
-const values=new Map([['anna.nav.mode','library'],['anna.sidebar.editable.name','Personal Playlist'],['anna.search.results.owned','[]']]);
+const values=new Map([['hariiro.nav.mode','library'],['hariiro.sidebar.editable.name','Personal Playlist'],['hariiro.search.results.owned','[]']]);
 const handles=(items=[])=>({get Count(){return items.length},Convert(){return [...items]},Item:i=>items[i],Add(h){items.push(h)}});
 const artistTrack={Path:'art.flac',SubSong:0};
-const records=[{name:'Personal Playlist',items:[{Path:'normal.flac',SubSong:0}]},{name:'Anna - Favorites',items:[]}];
+const records=[{name:'Personal Playlist',items:[{Path:'normal.flac',SubSong:0}]},{name:'Hariiro - Favorites',items:[]}];
 let active=0,dragOut=0,accidentalInsert=0,queueTracks=[],manualFlush=0,maximize=0;
 const plman={
  get PlaylistCount(){return records.length},get ActivePlaylist(){return active},set ActivePlaylist(i){active=i},PlayingPlaylist:-1,
@@ -50,11 +50,11 @@ vm.runInContext("mode='artists'",s);
 s.on_mouse_lbtn_down(54,y(0));s.on_mouse_move(185,y(0),1);
 assert.equal(dragOut,2);assert.equal(queueTracks.at(-1).Path,'art.flac');
 // Source OLE marker explicitly prevents receiving it back in the centre.
-const g=context('GlassPlaylist',{ID:33,Width:650,Height:470});vm.runInContext(src('js/anna_glass_playlist.js'),g);
-values.set('anna.nav.mode','library');values.set('anna.drag.origin','sidebar:-1');
+const g=context('GlassPlaylist',{ID:33,Width:650,Height:470});vm.runInContext(src('js/hariiro_glass_playlist.js'),g);
+values.set('hariiro.nav.mode','library');values.set('hariiro.drag.origin','sidebar:-1');
 let accept={Effect:1};g.on_drag_over(accept,80,130);assert.equal(accept.Effect,0);
 accept={Effect:1};g.on_drag_drop(accept,80,130);assert.equal(accept.Effect,0);
-values.set('anna.drag.origin','');
+values.set('hariiro.drag.origin','');
 // Pointer jitter (< 8px) does not start OLE. Once a real drag distance is
 // crossed - in ANY direction, Round 14 - it begins, and the origin marker
 // prevents self-drop duplication.
@@ -63,23 +63,23 @@ const dragBefore=dragOut;g.on_mouse_move(239,180,1);assert.equal(dragOut,dragBef
 g.on_mouse_move(450,180,1);assert.equal(dragOut,dragBefore+1);
 assert.equal(accidentalInsert,0);
 // Guard on a self-origin drag even when the current playlist changes.
-values.set('anna.drag.origin','glass:999');accept={Effect:1};g.on_drag_over(accept,80,160);assert.equal(accept.Effect,0);
-values.set('anna.drag.origin','');
+values.set('hariiro.drag.origin','glass:999');accept={Effect:1};g.on_drag_over(accept,80,160);assert.equal(accept.Effect,0);
+values.set('hariiro.drag.origin','');
 // Header now clears the actual queue only when explicitly clicked; regular callbacks do not flush it.
-const q=context('AnnaQueue',{ID:55,Width:400,Height:410});vm.runInContext(src('js/anna_queue.js'),q);
+const q=context('HariiroQueue',{ID:55,Width:400,Height:410});vm.runInContext(src('js/hariiro_queue.js'),q);
 q.on_playback_queue_changed();assert.equal(manualFlush,0);
 const before=queueTracks.length;assert(before>=2);
 q.on_mouse_lbtn_up(390,12);assert.equal(manualFlush,1);assert.equal(queueTracks.length,0);
-assert(!src('js/anna_queue.js').includes('function addSelectedToQueue'));
+assert(!src('js/hariiro_queue.js').includes('function addSelectedToQueue'));
 // Caption hit-area is transparent and responds to double-click only.
-const cap=context('CaptionStrip');vm.runInContext(src('js/anna_caption_strip.js'),cap);
+const cap=context('CaptionStrip');vm.runInContext(src('js/hariiro_caption_strip.js'),cap);
 assert.equal(cap.on_mouse_lbtn_dblclk(50,15),true);assert.equal(maximize,1);
 assert(src('main.txt').includes('$panel(CaptionStrip,JS Panel,367,4,$eval(%_width% - 889),37)'));
 assert(src('foo_ui_panels.ini').includes('panel.CaptionStrip.windowless = 1'));
 // Both previously Japanese-only lyric warnings now use the shared locale dictionary.
-assert(src('js/anna_lyrics.js').includes("AnnaI18n.t('lyricRightClickHint')"));
-assert(src('js/anna_lyrics.js').includes("AnnaI18n.t('lyricReleaseJump')"));
-for(const x of ['images/ornaments/anna_corner.png','images/ornaments/frame_tl.png','images/wallpaper_concept_master.png'])
+assert(src('js/hariiro_lyrics.js').includes("HariiroI18n.t('lyricRightClickHint')"));
+assert(src('js/hariiro_lyrics.js').includes("HariiroI18n.t('lyricReleaseJump')"));
+for(const x of ['images/ornaments/hariiro_corner.png','images/ornaments/frame_tl.png','images/wallpaper_concept_master.png'])
  assert(!fs.existsSync(path.join(root,x)),x);
 for(const hue of ['blue','teal','violet']) assert(fs.existsSync(path.join(root,'images/controls',hue,'pause.png')));
 console.log('PASS round12: directional drag, Artist-to-Queue, source guards, clear Queue, caption double-click, lyrics locales and asset pruning');

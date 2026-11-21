@@ -1,8 +1,8 @@
-// Anna Glass — frameless, vector icon navigation with a restrained rose active glow.
+// Hariiro — frameless, vector icon navigation with a restrained rose active glow.
 'use strict';
-include('anna_shared.js');
-include('anna_i18n.js');
-include('anna_theme.js');
+include('hariiro_shared.js');
+include('hariiro_i18n.js');
+include('hariiro_theme.js');
 const FONT=gdi.Font('Yu Gothic UI',12,1);
 const TXT=0xffefebf5, ACTIVE=0xffffe4f1, ICON=0xfff3b8d5;
 const TABS=[
@@ -13,15 +13,15 @@ const TABS=[
 let hovered=-1;
 let active='library';
 let nowPressed=false, pressTimer=0;
-try{const saved=String(window.GetProperty('Anna.NavTabs.LastSelected.v2',''));
+try{const saved=String(window.GetProperty('Hariiro.NavTabs.LastSelected.v2',''));
  if(['artists','library'].includes(saved))active=saved;
- else {const v=String(panelsui.GetVariable(AnnaShared.PVAR.navMode,'library'));
+ else {const v=String(panelsui.GetVariable(HariiroShared.PVAR.navMode,'library'));
        if(['artists','library'].includes(v))active=v;}
 }catch(e){}
 function setActive(v){
  if(!['artists','library'].includes(v))return;
  active=v;
- try{window.SetProperty('Anna.NavTabs.LastSelected.v2',v);}catch(e){}
+ try{window.SetProperty('Hariiro.NavTabs.LastSelected.v2',v);}catch(e){}
  window.Repaint();
 }
 function selected(t){return t.state!=='nowplaying'&&active===t.state;}
@@ -39,7 +39,7 @@ function drawIcon(gr,i,cx,cy,col){
  }
 }
 function on_paint(gr){
- gr=AnnaTheme.graphics(gr);
+ gr=HariiroTheme.graphics(gr);
  for(let i=0;i<TABS.length;i++){
   const t=TABS[i],on=selected(t),over=hovered===i,pressed=i===2&&nowPressed;
   if(on){
@@ -57,7 +57,7 @@ function on_paint(gr){
   }else if(over)gr.FillRoundRect(t.x+3,7,t.w-6,26,9,9,0x365a3a67);
   const col=on||over||pressed?ACTIVE:TXT;
   drawIcon(gr,i,t.x+18,20,on||pressed?0xffffb7d8:ICON);
-  gr.GdiDrawText(AnnaI18n.t(t.label),FONT,col,t.x+36,7,t.w-39,26,0x8024);
+  gr.GdiDrawText(HariiroI18n.t(t.label),FONT,col,t.x+36,7,t.w-39,26,0x8024);
  }
 }
 function tabAt(x){return TABS.findIndex(t=>x>=t.x&&x<t.x+t.w);}
@@ -74,15 +74,15 @@ function on_mouse_lbtn_up(x,y){
     if(typeof window.SetTimeout==='function')pressTimer=window.SetTimeout(clearNowPress,180);
     // Do not touch the Library/Playlist selection when revealing the playing track.
     panelsui.RunAction('JSPANEL:Playlists:nowplaying');
-  }else{setActive(t.state);panelsui.SetVariable(AnnaShared.PVAR.navMode,t.state);panelsui.RunAction('JSPANEL:Playlists:'+t.mode);}
+  }else{setActive(t.state);panelsui.SetVariable(HariiroShared.PVAR.navMode,t.state);panelsui.RunAction('JSPANEL:Playlists:'+t.mode);}
  }
- catch(e){console.log('Anna nav: '+String(e));}
+ catch(e){console.log('Hariiro nav: '+String(e));}
  window.Repaint();
 }
-function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue){window.Repaint();return;}
+function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue){window.Repaint();return;}
 
- if(name===AnnaShared.PVAR.language){window.Repaint();return;}
- if(name!==AnnaShared.PVAR.navMode)return;
+ if(name===HariiroShared.PVAR.language){window.Repaint();return;}
+ if(name!==HariiroShared.PVAR.navMode)return;
  try{const v=String(panelsui.GetVariable(name,active));if(['artists','library'].includes(v))setActive(v);}catch(e){}
 }
 function on_notify_data(name,info){if(name==='NavTabs'){const v=String(info||'');if(['artists','library'].includes(v))setActive(v);}}
