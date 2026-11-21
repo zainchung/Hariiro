@@ -149,6 +149,39 @@ function settingsMenu(x,y){
  }
  window.Repaint();return true;
 }
+// Round 22: the power button looked rough (9° straight segments, and this windowless panel
+// draws without antialiasing - SetSmoothingMode on its gr has no effect). It is drawn once per
+// look at 2x size, antialiased, into a bitmap that is scaled down onto the button area.
+const POWER_SS=2,POWER_H=32,powerLooks=new Map();
+function powerBitmap(w,over){
+ const key=w+'|'+(over?1:0)+'|'+AnnaTheme.key();
+ if(powerLooks.has(key))return powerLooks.get(key);
+ let img=null;
+ try{
+  img=gdi.CreateImage(w*POWER_SS,POWER_H*POWER_SS);
+  const raw=img.GetGraphics();
+  try{
+   raw.SetSmoothingMode(4); // SmoothingModeAntiAlias
+   const g=AnnaTheme.graphics(raw),S=POWER_SS,cx=w/2*S,cy=16*S,red=over?0xffff829d:0xffe5a6bd;
+   g.DrawRoundRect(1*S,4*S,(w-3)*S,25*S,8*S,8*S,1*S,over?0xffff859a:0xa8e9a2b6);
+   let last=null;
+   for(let deg=-38;deg<=218;deg+=2){const a=deg*Math.PI/180,p={x:cx+7*S*Math.cos(a),y:cy+7*S*Math.sin(a)};if(last)g.DrawLine(last.x,last.y,p.x,p.y,2*S,red);last=p;}
+   g.DrawLine(cx,cy-10*S,cx,cy-1*S,2.2*S,red);
+  }finally{img.ReleaseGraphics(raw);}
+ }catch(e){console.log('Anna power button: '+String(e));img=null;}
+ for(const [k,v] of powerLooks)if(k.startsWith(w+'|'+(over?1:0)+'|')){try{v&&v.Dispose();}catch(e){}powerLooks.delete(k);} // old accent
+ powerLooks.set(key,img);return img;
+}
+function drawPower(gr,x,w,over){
+ const img=powerBitmap(w,over);
+ if(img){gr.DrawImage(img,x,0,w,POWER_H,0,0,img.Width,img.Height);return;}
+ // Fallback without bitmaps: the plain vector glyph.
+ const cx=x+w/2,cy=16,red=over?0xffff829d:0xffe5a6bd;
+ gr.DrawRoundRect(x+1,4,w-3,25,8,8,1,over?0xffff859a:0xa8e9a2b6);
+ let last=null;
+ for(let deg=-38;deg<=218;deg+=2){const a=deg*Math.PI/180,p={x:cx+7*Math.cos(a),y:cy+7*Math.sin(a)};if(last)gr.DrawLine(last.x,last.y,p.x,p.y,2,red);last=p;}
+ gr.DrawLine(cx,cy-10,cx,cy-1,2.2,red);
+}
 function on_paint(gr){
  gr=AnnaTheme.graphics(gr);
  const cy=16;
@@ -162,13 +195,7 @@ function on_paint(gr){
   }
   else if(i===1)gr.DrawLine(cx-7,cy,cx+7,cy,1.8,col);
   else if(i===2)gr.DrawRoundRect(cx-7,cy-6,14,12,2,2,1.6,col);
-  else {
-    gr.DrawRoundRect(X[i]+1,4,W[i]-3,25,8,8,1,over?0xffff859a:0xa8e9a2b6);
-    const red=over?0xffff829d:0xffe5a6bd;
-    let last=null;
-    for(let deg=-38;deg<=218;deg+=9){const a=deg*Math.PI/180,p={x:cx+7*Math.cos(a),y:cy+7*Math.sin(a)};if(last)gr.DrawLine(last.x,last.y,p.x,p.y,2,red);last=p;}
-    gr.DrawLine(cx,cy-10,cx,cy-1,2.2,red);
-  }
+  else drawPower(gr,X[i],W[i],over);
  }
 }
 function on_mouse_move(x){const i=hit(x);if(i!==hover){hover=i;window.Repaint();}}

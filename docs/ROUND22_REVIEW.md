@@ -89,7 +89,8 @@ The JS also had a saturation bug (sat = spread/255 times value), which greyed re
 vectors; it now uses real HSV. All 20 pictures of the five other sets were regenerated;
 `main.txt` gained two more followed colours (queue card fill `58-20-59`, footer artist
 `229-214-231`).
- (`foo_ui_panels.ini` `color.*`, NATIVE playlist)
+
+## Native colours (`foo_ui_panels.ini` `color.*`, NATIVE playlist)
 
 Panels UI reads `color.*` only from the ini (its variable-driven keys are `theme.accent_pvar`,
 `theme.index_pvar`, `background.*_pvar`, `font.face_pvar`), and editing the ini does not reload
@@ -99,6 +100,16 @@ live (violet → lavender rows, amber → amber rows, no restart). So both highl
 gone, and the other tinted values (separator, hover, text, dim text, selected text) are now
 neutral cool greys/whites that suit every colour. Rewriting the ini and reloading the skin on
 each change was not chosen: it would restart every panel on each colour change.
+
+## Smooth power button (owner: "looks rough")
+
+The ring was 9° straight segments with flat ends, and the windowless title-bar panel draws
+without antialiasing: a first fix with `SetSmoothingMode(4)` on the panel's `gr` changed
+nothing on screen (checked with a physical-pixel capture), and the frame was just as jagged.
+Now the button (frame + glyph, 35 × 32) is drawn once per look (normal / hover, per accent)
+at 2x size into a bitmap whose own graphics are antialiased (2° segments), then scaled down
+onto the button area. The capture shows smooth edges on frame and ring; without bitmaps the
+old vector drawing remains as a fallback. Test: `tests/test_round22_power.mjs`.
 
 ## Tests
 
@@ -113,7 +124,7 @@ corner paths, `themeDegree` owned by anna_theme.js). `tests/test_round22_unified
 `tests/test_round22_native_colours.mjs` (failed first): no highlight lines, no tinted `color.*`.
 `tests/test_round22_icons.mjs` (failed first): every picture of every set equals the pink one put
 through `AnnaTheme.recolor` pixel by pixel (±2), alpha kept; the now-playing texts follow.
-`npm test`: 33/33.
+`npm test`: 34/34.
 
 ## Windows check (2026-11-21)
 

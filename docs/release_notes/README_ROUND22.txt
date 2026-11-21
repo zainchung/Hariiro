@@ -12,6 +12,7 @@ Anna Glass V2 — Round 22 (2026-11-21)
 - The player buttons, butterfly, volume and corners of every colour are
   remade from the pink set by one rule: no pink glows or rings left. The
   now-playing texts (top right, bottom left) follow the colour as well.
+- The power button in the title bar is drawn smoothly (it looked jagged).
 - NATIVE playlist: selected rows use the accent colour; its other colours are
   neutral, so it fits every accent.
 

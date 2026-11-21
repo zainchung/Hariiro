@@ -28,7 +28,7 @@ assert(!ini.includes('color.playlist.highlight = 205 145 92'));
 assert(main.includes('$panel(TopChrome,JS Panel'));
 assert(ini.includes('panel.TopChrome.script = js/anna_top_chrome.js'));
 assert(chrome.includes('function settingsMenu(x,y)'));
-assert(chrome.includes('const red=over?'));
+assert(chrome.includes('red=over?')); // Round 22: inside drawPower / powerBitmap
 const geom=[];
 for(const w of [960,1280,1536,1920]){
  const outerX=w*.72-10, artX=w*.72+4;
