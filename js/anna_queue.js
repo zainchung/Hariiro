@@ -8,6 +8,7 @@ include('anna_theme.js');
 include('anna_shared.js');
 include('anna_dpi.js');
 include('anna_drop_fix.js');
+include('anna_undo.js');
 const ROW=35, TOP=29, TXT=0xfff7eaf3, MUTED=0xffc5c5df, PINK=0xffffbbd8;
 const FONT=AnnaDpi.font('Yu Gothic UI',11,0), BOLD=AnnaDpi.font('Yu Gothic UI',11,1);
 const SMALL=AnnaDpi.font('Segoe UI',9,0), DT=0x8024;
@@ -25,6 +26,21 @@ let rows=[], scroll=0,hover=-1,buffer=-1,processed=0,acceptingDrop=false,error='
 let dragIndex=-1,dragTarget=-1,dragStartY=0,movingRow=false;
 let dragY=0,trashHover=false;
 function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+const queueUndo=AnnaUndo.create(()=>window.Repaint()); // Round 17: undo "clear queue"
+// Clears the queue and offers to put it back. Items queued later stay, after the old ones
+// (the API can only append).
+function clearQueue(){
+    const old=plman.GetPlaybackQueueHandles().Convert();
+    if(!old.length){refresh();return;}
+    plman.FlushPlaybackQueue();
+    refresh();
+    queueUndo.offer(AnnaI18n.t('queueCleared')+' '+old.length,()=>{
+        const later=plman.GetPlaybackQueueHandles().Convert();
+        plman.FlushPlaybackQueue();
+        for(const h of old.concat(later))plman.AddItemToPlaybackQueue(h);
+        refresh();
+    });
+}
 function publishBufferName(){
     try {
         if(typeof panelsui!=='undefined' && ownedBufferName &&
@@ -100,6 +116,10 @@ function moveOrRemove(index,delta){
 }
 function on_paint(gr){
  gr=AnnaTheme.graphics(gr);
+    paintQueue(gr);
+    queueUndo.paint(gr,AnnaDpi.width(),AnnaDpi.height(),SMALL,BOLD);
+}
+function paintQueue(gr){
     const w=AnnaDpi.width(),h=AnnaDpi.height();if(w<10||h<10)return;
     // Queue mode is deliberately visually distinct from lyrics: opaque rose/navy.
     // Only an explicit user click on the clear button flushes the playback queue.
@@ -216,9 +236,16 @@ function on_playlist_items_added(p){
     refresh();
 }
 function on_mouse_lbtn_down(x,y){
+    if(queueUndo.hit(x,y,AnnaDpi.width(),AnnaDpi.height())){dragIndex=-1;movingRow=false;return;}
     dragIndex=rowAt(y);dragStartY=y;dragTarget=dragIndex;dragY=y;trashHover=false;movingRow=false;
 }
 function on_mouse_lbtn_up(x,y){
+    const notice=queueUndo.hit(x,y,AnnaDpi.width(),AnnaDpi.height());
+    if(notice){
+        dragIndex=-1;movingRow=false;dragTarget=-1;trashHover=false;
+        if(notice==='undo'){try{queueUndo.undo();}catch(e){error=AnnaI18n.t('undoFailed')+': '+String(e);}}
+        window.Repaint();return true;
+    }
     const from=dragIndex, wasMoving=movingRow;
     dragIndex=-1;movingRow=false;dragTarget=-1;trashHover=false;
     if(wasMoving&&from>=0){
@@ -228,8 +255,7 @@ function on_mouse_lbtn_up(x,y){
         window.Repaint();return true;
     }
     if(y>=0&&y<TOP&&x>=AnnaDpi.width()-123){
-        if(rows.length)plman.FlushPlaybackQueue();
-        refresh();return true;
+        clearQueue();return true;
     }
     if(trashHit(x,y))return true;
     return false;
@@ -262,7 +288,7 @@ function on_mouse_rbtn_up(x,y){
     if(cmd===10)moveOrRemove(i,-1);
     else if(cmd===11)moveOrRemove(i,1);
     else if(cmd===12)moveOrRemove(i,null);
-    else if(cmd===13){plman.FlushPlaybackQueue();refresh();}
+    else if(cmd===13)clearQueue();
     return true;
 }
 function on_size(){refresh();}

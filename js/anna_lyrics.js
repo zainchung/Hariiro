@@ -4,6 +4,7 @@
 include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
+include('anna_lyric_tools.js');
 
 const F_MAIN = gdi.Font('Yu Gothic UI', 16, 0);
 const F_ACTIVE = gdi.Font('Yu Gothic UI', 17, 1);
@@ -41,6 +42,14 @@ const WATCH_INTERVAL_MS=4000;
 const TF_WEB_ARTIST=fb.TitleFormat('$if2(%artist%,$if2(%album artist%,))');
 const TF_WEB_TITLE=fb.TitleFormat('$if2(%title%,)');
 const TF_ALBUM=fb.TitleFormat('[$meta(album)]');
+const TF_ALBUM_ARTIST=fb.TitleFormat('[$meta(album artist)]');
+const TF_TRACK=fb.TitleFormat('[$num(%tracknumber%,2)]');
+// Round 18: per-track timing offset (+ = lyrics earlier), set from the context menu.
+const trackOffsets=AnnaLyricTools.createOffsets('Anna.Lyrics.TrackOffsets.v1');
+function lyricOffset(){return trackOffsets.get(lastTrack);}
+// Playback time on the lyrics' clock.
+function lyricNow(){return (Number(fb.PlaybackTime)||0)+lyricOffset();}
+function offsetLabel(v){return (v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(1)+' s';}
 
 function norm(s) { return String(s === null || s === undefined ? '' : s); }
 function lrcSeconds(tag,offset){
@@ -132,10 +141,11 @@ function embeddedLyrics(handle) {
     } catch (e) { console.log('Anna lyrics: embedded metadata unavailable: ' + String(e)); }
     return null;
 }
+// Local file path of a track ('' for streams). Handles portable file-relative:// paths.
+function trackFilePath(path){return AnnaLyricTools.localPath(path,fb.FoobarPath);}
 function sidecars(trackPath) {
-    let p = norm(trackPath).replace(/^file:\/\//i, '');
-    if (/^\/[A-Za-z]:[\\/]/.test(p)) p = p.slice(1); // file:///C:/Music/... on Windows
-    if (!p || /^(https?|navidrome):/i.test(p) || p.indexOf('://') >= 0) return [];
+    const p = trackFilePath(trackPath);
+    if (!p) return [];
     const sep = Math.max(p.lastIndexOf('\\'), p.lastIndexOf('/'));
     const dot = p.lastIndexOf('.');
     const stem = dot > sep ? p.slice(0, dot) : p;
@@ -158,12 +168,7 @@ function cleanLyricFilename(s) {
     return norm(s).replace(/[<>:"/\\|?*\x00-\x1f]/g,'_')
         .replace(/[. ]+$/g,'').replace(/\s+/g,' ').trim().slice(0,160);
 }
-function localTrackPath(handle){
-    let path=norm(handle&&handle.Path).replace(/^file:\/\//i,'');
-    if(/^\/[A-Za-z]:[\\/]/.test(path))path=path.slice(1);
-    if(!path||/^(?:https?|navidrome):/i.test(path)||path.includes('://'))return '';
-    return path;
-}
+function localTrackPath(handle){return trackFilePath(handle&&handle.Path);}
 function savedLyricFolders(handle){
     const mode=lyricLocationMode();
     if(mode==='tags')return [];
@@ -189,18 +194,11 @@ function extraLyricSidecars(handle) {
     const album=cleanLyricFilename(TF_ALBUM.EvalWithMetadb(handle));
     const file=localTrackPath(handle).split(/[\\/]/).pop()||'';
     const stem=cleanLyricFilename(file.replace(/\.[^.]+$/,''));
+    const albumArtist=cleanLyricFilename(TF_ALBUM_ARTIST.EvalWithMetadb(handle));
+    const track=cleanLyricFilename(TF_TRACK.EvalWithMetadb(handle));
     // ESLyric's Filename field is independently configurable, so search the
-    // common %title%, %artist% - %title%, audio stem, and nested schemes.
-    const names=[
-        artist&&title?artist+' - '+title:'',
-        artist&&title?artist+'-'+title:'',
-        title&&artist?title+' - '+artist:'',
-        title,stem,
-        artist&&title?artist+'\\'+title:'',
-        artist&&title?artist+'\\'+artist+' - '+title:'',
-        album&&title?album+'\\'+title:'',
-        artist&&album&&title?artist+'\\'+album+'\\'+title:''
-    ].filter(Boolean);
+    // common %title%, %artist% - %title%, audio stem, numbered and nested schemes.
+    const names=AnnaLyricTools.fileNames({artist,albumArtist,album,title,track,stem});
     const files=[];
     for(const dir of savedLyricFolders(handle)){
         const root=dir.replace(/[\\/]+$/,'')+'\\';
@@ -273,7 +271,7 @@ function watchSavedLyrics(){
 function currentIndex() {
     const lines = state.lines;
     if (!lines.length) return -1;
-    const t = fb.PlaybackTime || 0;
+    const t = lyricNow();
     let lo = 0, hi = lines.length - 1, found = -1;
     while (lo <= hi) {
         const mid = (lo + hi) >> 1;
@@ -340,7 +338,7 @@ function paintKaraokeLine(gr,cue,index,x,y,w,h){
     if(lineSets.length===2&&width+charW>w)break; // same clipping budget as ordinary lyrics
     lineSets[lineSets.length-1].push({ ...g, width:charW });width+=charW;
  }
- const rowH=h/lineSets.length,t=Number(fb.PlaybackTime)||0;
+ const rowH=h/lineSets.length,t=lyricNow();
  for(let row=0;row<lineSets.length;row++){
    const group=lineSets[row],length=group.reduce((v,g)=>v+g.width,0);
    let cx=x+(w-length)/2,cy=y+row*rowH;
@@ -353,13 +351,16 @@ function paintKaraokeLine(gr,cue,index,x,y,w,h){
  }
 }
 // Plain LRC has only [mm:ss] line-start stamps. The progress below is
-// deliberately an ESTIMATE over that line's interval, not exact karaoke timing.
-// Reveal all glyphs, including the last one, by the next real timestamp.
+// deliberately an ESTIMATE, not exact karaoke timing. Round 18: it runs over the time
+// the line takes to sing (AnnaLyricTools.singSeconds), so a short line before a long
+// instrumental gap is not stretched over the gap; all glyphs are still revealed by the
+// next real timestamp.
 function paintEstimatedLine(gr,cue,index,x,y,w,h){
   const next=state.lines[index+1];
   const songEnd=Number(fb.PlaybackLength)||cue.time+6;
-  const finish=next&&Number.isFinite(next.time)?next.time:Math.max(cue.time+3,songEnd);
-  const duration=Math.max(.1,finish-cue.time),now=Number(fb.PlaybackTime)||0;
+  const lineEnd=next&&Number.isFinite(next.time)?next.time:Math.max(cue.time+3,songEnd);
+  const finish=Math.min(lineEnd,cue.time+AnnaLyricTools.singSeconds(cue.text));
+  const duration=Math.max(.1,finish-cue.time),now=lyricNow();
   const fraction=Math.max(0,Math.min(1,(now-cue.time)/duration));
   const font=F_ACTIVE,chars=Array.from(cue.text),groups=[[]];let width=0;
   for(const ch of chars){
@@ -440,7 +441,7 @@ function on_mouse_lbtn_up(x,y){
  if(target>=0&&state.lines[target]&&Number.isFinite(state.lines[target].time)){
    // Scrubbing should land directly on the chosen line, without an unrelated flyover.
    smoothFocus=target;lastAnimTime=Date.now();
-   fb.PlaybackTime=Math.max(0,Math.min(fb.PlaybackLength,state.lines[target].time));
+   fb.PlaybackTime=Math.max(0,Math.min(fb.PlaybackLength,state.lines[target].time-lyricOffset()));
  }
  window.Repaint();
 }
@@ -462,7 +463,7 @@ function paintCue(gr,cue,index,focus,y,lineH,W,dragging){
    // Subtle time-progress line, derived only from real LRC line timestamps.
    if(!dragging&&state.lines[index+1]&&Number.isFinite(state.lines[index+1].time)){
      const dur=state.lines[index+1].time-cue.time;
-     if(dur>0){const fraction=Math.max(0,Math.min(1,((fb.PlaybackTime||0)-cue.time)/dur));
+     if(dur>0){const fraction=Math.max(0,Math.min(1,(lyricNow()-cue.time)/dur));
        if(fraction>0)gr.FillRoundRect(12,y+lineH-5,Math.max(2,(W-24)*fraction),3,1,1,0xb6ffc9e4);
      }
    }
@@ -497,6 +498,8 @@ function on_paint(gr){
    }
    return;
  }
+ const offset=lyricOffset();
+ if(offset)gr.GdiDrawText(AnnaI18n.t('lyricOffset')+' '+offsetLabel(offset),F_SMALL,MUTED,6,6,W-12,20,0x8026);
  syncSmoothFocus(false);
  const focus=previewCue>=0?previewCue:Math.max(0,currentIndex());
  const display=shownFocus();
@@ -649,6 +652,12 @@ function on_mouse_rbtn_up(x,y) {
     m.AppendMenuItem(0,5,AnnaI18n.t('lyricRefresh'));
     m.AppendMenuItem(0,6,AnnaI18n.t('lyricRefreshConfig'));
     m.AppendMenuSeparator();
+    // Round 18: timing offset for this track (only meaningful for timed lyrics).
+    const offsetFlags=state.kind==='synced'&&lastTrack?0:1; // MF_GRAYED
+    m.AppendMenuItem(offsetFlags,30,AnnaI18n.t('lyricEarlier'));
+    m.AppendMenuItem(offsetFlags,31,AnnaI18n.t('lyricLater'));
+    m.AppendMenuItem(offsetFlags,32,AnnaI18n.t('lyricOffsetReset')+' ('+offsetLabel(lyricOffset())+')');
+    m.AppendMenuSeparator();
     const selected=lyricLocationMode();
     const labels=[
         AnnaI18n.t('lyricTags'),
@@ -667,6 +676,10 @@ function on_mouse_rbtn_up(x,y) {
     if(cmd===5){reloadESLyricDisplay(true);reloadLyrics();return true;}
     if(cmd===6){configureReloadMenu();return true;}
     if(cmd>=20&&cmd<=22)return selectLocationMode(SAVE_LOCATIONS[cmd-20]);
+    if(cmd>=30&&cmd<=32){
+        if(cmd===32)trackOffsets.reset(lastTrack);else trackOffsets.nudge(lastTrack,cmd===30?1:-1);
+        syncSmoothFocus(true);lastDrawnCue=-2;window.Repaint();return true;
+    }
     if(cmd===23){
         // The JS Panel host does not expose the native Windows folder picker.
         // Browse opens a small folder-path input instead of a broken shell API.

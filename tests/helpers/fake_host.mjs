@@ -95,16 +95,16 @@ export function createHost({ playlists = [], active = 0, playing = -1, queue = [
     GetPlaybackQueueContents: () => state.queue.slice(),
     GetPlaybackQueueHandles: () => handleList(state.queue.map(q => q.Handle).filter(Boolean)),
     AddItemToPlaybackQueue(h) { state.queue.push({ Handle: h, PlaylistIndex: -1, PlaylistItemIndex: -1 }); },
+    FlushPlaybackQueue() { state.queue = []; },
+    RemoveItemFromPlaybackQueue(i) { state.queue.splice(i, 1); },
     GetPlayingItemLocation: () => ({ IsValid: false }),
     SortByFormatV2: () => true,
-    ...overrides.plman,
   };
   const fb = {
     CreateHandleList: () => handleList([]),
     TitleFormat: () => ({ Eval: () => '', EvalWithMetadb: () => '', EvalWithMetadbs: l => l.Convert().map(() => '') }),
     GetNowPlaying: () => null,
     GetLibraryItems: () => handleList([]),
-    ...overrides.fb,
   };
   const window = {
     ID: 1, Width: 200, Height: 400, IsVisible: true,
@@ -115,28 +115,32 @@ export function createHost({ playlists = [], active = 0, playing = -1, queue = [
     ClearTimeout(id) { state.timers.delete(id); },
     SetInterval() { return 0; }, ClearInterval() {},
     NotifyOthers() {},
-    ...overrides.window,
   };
   const panelsui = {
     GetVariable: (k, d) => (state.vars.has(k) ? state.vars.get(k) : d),
     SetVariable(k, v) { state.vars.set(k, v); },
     RunAction(a) { state.actions.push(a); },
     GetPanelRect: () => ({ X: 0, Y: 0, Width: window.Width, Height: window.Height }),
-    ...overrides.panelsui,
   };
+  const gdi = { Font: (name, size, style = 0) => ({ Name: name, Size: size, Style: style, Height: size }) };
+  const utils = { IsKeyPressed: () => false, InputBox: () => '' };
+  // Overrides keep their getters/setters (a spread would freeze them into values).
+  const merge = (base, extra) => (extra ? Object.defineProperties(base, Object.getOwnPropertyDescriptors(extra)) : base);
+  merge(plman, overrides.plman); merge(fb, overrides.fb); merge(window, overrides.window);
+  merge(panelsui, overrides.panelsui); merge(gdi, overrides.gdi); merge(utils, overrides.utils);
   // Run every pending timer once (in creation order); returns how many ran.
   function flushTimers() {
     const due = [...state.timers]; state.timers.clear();
     for (const [, cb] of due) cb();
     return due.length;
   }
-  return { plman, fb, window, panelsui, state, flushTimers };
+  return { plman, fb, window, panelsui, gdi, utils, state, flushTimers };
 }
 
 // vm context exposing the host's globals plus the built-ins the skin uses.
 export function panelContext(host, extra = {}) {
   return vm.createContext({
-    plman: host.plman, fb: host.fb, window: host.window, panelsui: host.panelsui,
+    plman: host.plman, fb: host.fb, window: host.window, panelsui: host.panelsui, gdi: host.gdi, utils: host.utils,
     console: { log() {} }, JSON, Math, Date, Map, Set, Object, Array, String, Number, Error, RegExp, Symbol, Proxy,
     parseInt, parseFloat, isNaN,
     ...extra,

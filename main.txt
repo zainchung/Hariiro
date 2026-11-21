@@ -11,7 +11,9 @@ $if($strcmp($getpvar(anna.chrome.hidden),1),$windowstyle(hidetitlebar),$windowst
 $drawrect(0,0,%_width%,%_height%,brushcolor-24-25-30 pencolor-null)
 // Stage 2B base: transparent JS left browser; wallpaper retained from 2A — draw the shared wallpaper beneath the existing panels.
 // The registered wallpaper lets supported native panels re-use the same canvas snapshot.
-$imageabs(0,0,%_width%,%_height%,images/wallpaper.jpg)
+// Round 19: the file is the anna.glass.v2.wallpaper variable (settings menu → Wallpaper),
+// relative to images/, as for background.image_pvar in foo_ui_panels.ini.
+$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpaper.jpg))
 // Light-touch navy tint keeps the wallpaper luminous; each transparent row adds its own contrast.
 $drawrect(0,0,%_width%,%_height%,brushcolor-9-14-28 pencolor-null alpha-56)
 
@@ -112,7 +114,7 @@ $drawstring($if(%isplaying%,%codec%[ · %bitrate% kbps],),112,$eval(%_height% - 
 // Newly designed transport vectors: independent clean-line icons; no legacy raster/filled skip controls.
 $panel(FooterTransport,JS Panel,$eval(%_width% * 52 / 100 - 214),$eval(%_height% - 103),428,67)
 // Right footer lower row: speaker and volume rail, no percent; QUEUE retains its x/y.
-$if($strcmp($getpvar(anna.theme.hue),violet),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/violet/speaker.png),$if($strcmp($getpvar(anna.theme.hue),blue),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/blue/speaker.png),$if($strcmp($getpvar(anna.theme.hue),teal),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/teal/speaker.png),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/pink/speaker.png))))
+$if($strcmp($getpvar(anna.theme.hue),violet),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/violet/speaker.png),$if($strcmp($getpvar(anna.theme.hue),blue),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/blue/speaker.png),$if($strcmp($getpvar(anna.theme.hue),teal),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/teal/speaker.png),$if($strcmp($getpvar(anna.theme.hue),amber),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/amber/speaker.png),$if($strcmp($getpvar(anna.theme.hue),mint),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/mint/speaker.png),$imageabs($eval(%_width% - 238),$eval(%_height% - 44),22,22,images/controls/pink/speaker.png))))))
 $panel(FooterVolume,JS Panel,$eval(%_width% - 209),$eval(%_height% - 43),168,22)
 $panel(DesktopLyrics,JS Panel,$eval(%_width% - 209),$eval(%_height% - 94),84,24)
 $panel(FooterQueueToggle,JS Panel,$eval(%_width% - 117),$eval(%_height% - 94),84,24)

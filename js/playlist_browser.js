@@ -10,6 +10,7 @@ include('anna_scratch_views.js');
 include('anna_dedup_tracker.js');
 include('anna_import_staging.js');
 include('anna_sidebar_drop.js');
+include('anna_undo.js');
 include('anna_dpi.js');
 include('anna_drop_fix.js');
 
@@ -348,6 +349,7 @@ function on_paint(gr) {
         gr.GdiDrawText(error,SMALL,0xffffd2e0,8,Math.max(TABS+4,h-43),
             Math.max(20,w-16),34,0x10);
     }
+    sidebarUndo.paint(gr,w,h,SMALL,BOLD);
     if(trackDropInProgress){
       if(trackDropTarget>=0){
        const top=TABS+trackDropTarget*ROW-scroll;
@@ -428,6 +430,7 @@ function ordinaryPlaylistForDedup(p){
  return true;
 }
 const dedup=AnnaDedupTracker.create(ordinaryPlaylistForDedup);
+const sidebarUndo=AnnaUndo.create(()=>window.Repaint()); // Round 17: undo a playlist delete
 function setEditable(p){
  watchIndex=p;watchName=p>=0?plman.GetPlaylistName(p):'';
  knownTracks=keyCounts(p);pendingAdds=[];
@@ -547,6 +550,7 @@ function openDragAsHandles(source){
 function on_mouse_lbtn_down(x,y){
  pressedAt={x,y};pressedMoved=false;
  playlistDrag=null;playlistWasDragged=false;playlistReorder=null;playlistDropTarget=-1;
+ if(sidebarUndo.hit(x,y,AnnaDpi.width(),AnnaDpi.height())){pressedAt=null;return;}
  const bar=sidebarScrollbar();
  if(bar&&x>=bar.x){scrollingThumb=true;
   scrollThumbGrab=y>=bar.y&&y<=bar.y+bar.thumb?y-bar.y:bar.thumb/2;
@@ -565,6 +569,12 @@ function on_mouse_lbtn_down(x,y){
  }
 }
 function on_mouse_lbtn_up(x,y){
+ const notice=sidebarUndo.hit(x,y,AnnaDpi.width(),AnnaDpi.height());
+ if(notice){
+  pressedAt=null;pressedMoved=false;playlistDrag=null;playlistReorder=null;
+  if(notice==='undo'){try{sidebarUndo.undo();}catch(e){error=AnnaI18n.t('undoFailed')+': '+String(e);}}
+  window.Repaint();return;
+ }
  const moved=pressedMoved||(pressedAt&&(Math.abs(x-pressedAt.x)>9||Math.abs(y-pressedAt.y)>9));
  pressedAt=null;pressedMoved=false;
  if(scrollingThumb){scrollingThumb=false;window.Repaint();return;}
@@ -602,9 +612,25 @@ function confirmRemove(item,x=20,y=20){
  const remove=typeof plman.RemovePlaylist==='function'?'RemovePlaylist':
    typeof plman.RemovePlaylistSwitch==='function'?'RemovePlaylistSwitch':'';
  if(!remove)throw new Error(AnnaI18n.t('cannotDeleteApi'));
+ // Round 17: keep what is needed to put the list back from the undo notice.
+ const removed={name:item.name,index:p,items:plman.GetPlaylistItems(p)};
  const result=plman[remove](p);
  if(result===false)throw new Error(AnnaI18n.t('cannotDeleteRefused'));
- picked=-1;setEditable(-1);error='';window.Repaint();
+ picked=-1;setEditable(-1);error='';
+ sidebarUndo.offer(AnnaI18n.t('playlistDeleted')+' '+removed.name,()=>restorePlaylist(removed));
+ window.Repaint();
+}
+// Recreates a deleted playlist at its old place (under a free name if it is taken now).
+function restorePlaylist(s){
+ let name=s.name,n=2;
+ while(plman.FindPlaylist(name)>=0)name=s.name+' ('+(n++)+')';
+ const p=plman.CreatePlaylist(Math.min(s.index,plman.PlaylistCount),name);
+ if(p<0)throw new Error(AnnaI18n.t('playlistCreateFailed'));
+ plman.InsertPlaylistItems(p,0,s.items);
+ dedup.refresh(p); // a restore is not an import: keep the tracks exactly as they were
+ plman.ActivePlaylist=p;setEditable(p);
+ picked=entries().findIndex(e=>editablePlaylistRow(e)&&e.index===p);
+ error='';window.Repaint();
 }
 function on_mouse_rbtn_up(x,y){
  try{
@@ -734,7 +760,7 @@ function on_notify_data(name, info) {
         if(action==='library') {
             mode='playlists'; picked=0;setEditable(-1);
             try {loadSortedView(fb.GetLibraryItems(),SORTED_VIEW);}catch(e){error=AnnaI18n.t('libraryFailed')+': '+String(e);}
-        } else {mode = action; picked=-1;setEditable(-1);}
+        } else {mode = action; picked=-1;setEditable(-1);if(mode==='artists')sidebarUndo.dismiss();}
         scroll=0; hover=-1;
     } else if (action === 'favorites') {
         mode = 'playlists'; scroll=0; hover=-1; picked=-1;setEditable(-1);

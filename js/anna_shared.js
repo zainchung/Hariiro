@@ -20,7 +20,8 @@ var AnnaShared=(function(){
   queueOpen:'anna.queue.open',
   chromeHidden:'anna.chrome.hidden',
   favoriteCurrent:'anna.favorite.current',
-  playlistExperimental:'anna.playlist.experimental'
+  playlistExperimental:'anna.playlist.experimental',
+  wallpaper:'anna.glass.v2.wallpaper' // Round 19; also background.image_pvar in the ini
  });
  // Playlists created and owned by the skin. Users never drop into these.
  const LIST=Object.freeze({

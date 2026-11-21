@@ -90,12 +90,17 @@ see `docs/PHASE_D_REVIEW.md`):
 What stays in `playlist_browser.js` is panel glue: paint, mouse, menus, tab switching and the
 post-import sort, all of which read and write the panel's own state.
 
-### Phase E — Feature backlog (only after B/C are green)
+### Phase E — Feature backlog (done 2026-11-21; Windows check in `docs/PHASE_E_REVIEW.md`)
 - E1. Lyrics: more ESLyric file-name patterns, per-track offset, better plain-LRC progress.
+  **Done** as Round 18 (`docs/ROUND18_REVIEW.md`).
 - E2. Playlist: undo for destructive operations (delete playlist, clear Queue).
+  **Done** as Round 17: an 8-second Undo notice (`docs/ROUND17_REVIEW.md`).
 - E3. Theming: additional accent sets beyond pink/blue/teal/violet; wallpaper selector.
+  **Done** as Round 19: Amber, Mint, ☰ → Wallpaper from `images/wallpapers/` (`docs/ROUND19_REVIEW.md`).
 - E4. NATIVE mode parity: document exactly which Glass rules the host decides; consider a Glass-only default.
-- E5. 16:9: decide whether `experiment/16x9-freeze` becomes a documented optional add-on (its own CI/release) or stays frozen.
+  **Done**: `docs/NATIVE_VS_GLASS.md`. Default stays NATIVE for new installs; switching it
+  to GLASS is suggested there and left to the owner.
+- E5. 16:9: **done 2026-11-20** — dropped by the owner; branch `experiment/16x9-freeze` deleted (last commit `815cb3f`).
 
 ## 4. Working rules
 - Every round: failing test first, `npm test` green, review doc `docs/ROUNDnn_REVIEW.md`, short release note, ZIP via `package_ui_preview.py`.

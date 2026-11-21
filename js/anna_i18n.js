@@ -148,6 +148,19 @@ var AnnaI18n=(function(){
   ["deskConfigPrompt", "Full path to ESLyric desktop lyrics command", "ESLyric 桌面歌词命令完整路径", "ESLyric 桌面歌詞指令完整路徑", "ESLyric デスクトップ歌詞のコマンドパス"],
   ["deskConfigTitle", "ESLyric menu integration", "ESLyric 菜单集成", "ESLyric 選單整合", "ESLyric メニュー連携"],
   ["deviceUnsupported", "Output device selection is unavailable in this JS Panel", "当前 JS Panel 不支持输出设备切换", "目前 JS Panel 不支援輸出裝置切換", "この JS Panel は出力デバイス切り替えに対応していません"],
+  ["undo", "Undo", "撤销", "復原", "元に戻す"],
+  ["playlistDeleted", "Deleted playlist:", "已删除列表：", "已刪除清單：", "削除したプレイリスト："],
+  ["queueCleared", "Cleared playback queue:", "已清空播放队列：", "已清空播放佇列：", "再生キューをクリア："],
+  ["undoFailed", "Undo failed", "撤销失败", "復原失敗", "元に戻せませんでした"],
+  ["lyricEarlier", "Show lyrics earlier (+0.5 s)", "歌词提前 0.5 秒", "歌詞提前 0.5 秒", "歌詞を 0.5 秒早く"],
+  ["lyricLater", "Show lyrics later (−0.5 s)", "歌词延后 0.5 秒", "歌詞延後 0.5 秒", "歌詞を 0.5 秒遅く"],
+  ["lyricOffsetReset", "Reset lyric offset", "重置歌词偏移", "重設歌詞偏移", "歌詞のずれをリセット"],
+  ["lyricOffset", "Offset", "偏移", "偏移", "ずれ"],
+  ["themeAmber", "Amber", "琥珀", "琥珀", "アンバー"],
+  ["themeMint", "Mint", "薄荷绿", "薄荷綠", "ミント"],
+  ["wallpaper", "Wallpaper", "壁纸", "桌布", "壁紙"],
+  ["wallpaperDefault", "Default (Anna)", "默认（Anna）", "預設（Anna）", "既定（Anna）"],
+  ["wallpaperHint", "Add images to images\\wallpapers in the skin folder", "把图片放进皮肤目录的 images\\wallpapers", "把圖片放進皮膚資料夾的 images\\wallpapers", "スキンフォルダーの images\\wallpapers に画像を追加"]
  ];
  const dict={en:{},'zh-CN':{},'zh-TW':{},ja:{}};
  for(const [key,en,cn,tw,ja] of ROWS){dict.en[key]=en;dict['zh-CN'][key]=cn;dict['zh-TW'][key]=tw;dict.ja[key]=ja;}

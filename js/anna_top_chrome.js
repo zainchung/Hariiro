@@ -16,9 +16,46 @@ function windowAction(kind){
  }catch(e){console.log('Anna Glass window: '+String(e));}
  try{fb.ShowPopupMessage(T('missingScriptWindowControl'),'Anna Glass');}catch(e){}
 }
+// Round 19: wallpaper choice. Images live in <skin>\images\wallpapers\; the value is
+// relative to images\ (main.txt and background.image_pvar in foo_ui_panels.ini read it).
+const DEFAULT_WALLPAPER='wallpaper.jpg';
+const SKIN_NAMES=['Anna_Glass','Anna Glass','Anna-Glass','Anna_Glass_V2','Anna-Glass-V2'];
+const BS='\\';
+function skinFolder(){
+ try{
+  const root=String(fb.ProfilePath||'').replace(/[\\/]+$/,'')+BS+'foo_ui_panels-skins'+BS;
+  let dirs=[];
+  try{dirs=utils.Glob(root+'*',0,0x10)||[];}catch(e){} // folders, where the host supports masks
+  for(const d of [...dirs.map(String),...SKIN_NAMES.map(n=>root+n)]){
+   const dir=d.replace(/[\\/]+$/,'')+BS;
+   if(utils.IsFile(dir+'js'+BS+'anna_top_chrome.js'))return dir;
+  }
+ }catch(e){console.log('Anna wallpaper: '+String(e));}
+ return '';
+}
+function wallpaperChoices(){
+ const out=[{file:DEFAULT_WALLPAPER,label:T('wallpaperDefault')}];
+ const skin=skinFolder();if(!skin)return out;
+ let found=[];
+ try{found=utils.Glob(skin+'images'+BS+'wallpapers'+BS+'*')||[];}catch(e){console.log('Anna wallpaper: '+String(e));}
+ const names=found.map(p=>String(p).split(/[\\/]/).pop())
+  .filter(n=>/^[^\\/:*?"<>|]+\.(jpe?g|png|bmp)$/i.test(n));
+ names.sort((x,y)=>x.toLowerCase().localeCompare(y.toLowerCase()));
+ for(const n of names)out.push({file:'wallpapers/'+n,label:n.replace(/\.[^.]+$/,'')});
+ return out;
+}
+function currentWallpaper(){
+ try{return String(panelsui.GetVariable(AnnaShared.PVAR.wallpaper,DEFAULT_WALLPAPER)||DEFAULT_WALLPAPER);}
+ catch(e){return DEFAULT_WALLPAPER;}
+}
+// Only a file from wallpaperChoices() is accepted.
+function setWallpaper(file){
+ if(!wallpaperChoices().some(w=>w.file===file))return false;
+ try{panelsui.SetVariable(AnnaShared.PVAR.wallpaper,file);return true;}catch(e){return false;}
+}
 function chromeFlag(key){try{return String(panelsui.GetVariable(key,'0'))==='1';}catch(e){return false;}}
 function settingsMenu(x,y){
- const menu=window.CreatePopupMenu(),language=window.CreatePopupMenu(),colors=window.CreatePopupMenu();
+ const menu=window.CreatePopupMenu(),language=window.CreatePopupMenu(),colors=window.CreatePopupMenu(),walls=window.CreatePopupMenu();
  const hidden=chromeFlag(AnnaShared.PVAR.chromeHidden),mb=chromeFlag('menubar');
  menu.AppendMenuItem(0,11,T(hidden?'showtitle':'hidetitle'));
  menu.AppendMenuItem(0,12,T(mb?'hidemenu':'showmenu'));
@@ -36,12 +73,19 @@ function settingsMenu(x,y){
   colors.AppendMenuItem(0,230+i,(activeHue===item.id?'✓ ':'   ')+T(item.label));
  }
  colors.AppendTo(menu,0,T('theme'));
+ const wallpapers=wallpaperChoices(),wallNow=currentWallpaper();
+ for(let i=0;i<wallpapers.length&&i<60;i++)
+  walls.AppendMenuItem(0,300+i,(wallNow===wallpapers[i].file?'✓ ':'   ')+wallpapers[i].label);
+ walls.AppendMenuSeparator();
+ walls.AppendMenuItem(1,299,T('wallpaperHint')); // MF_GRAYED: a hint, not a command
+ walls.AppendTo(menu,0,T('wallpaper'));
  const cmd=menu.TrackPopupMenu(x,y);
  if(cmd===11)runAction('PVAR:TOGGLE:'+AnnaShared.PVAR.chromeHidden);
  else if(cmd===12)runAction('MENUBAR:toggle');
  else if(cmd===13)runAction('PREFERENCES');
  else if(cmd===14)runAction('MENU');
  else if(cmd>=200&&cmd<205)AnnaI18n.change(langs[cmd-200][0]);
+ else if(cmd>=300&&cmd<300+wallpapers.length)setWallpaper(wallpapers[cmd-300].file);
  else if(cmd>=230&&cmd<230+AnnaTheme.PRESETS.length){
   if(AnnaTheme.set(AnnaTheme.PRESETS[cmd-230].id)){
    try{window.NotifyOthers('Anna.ThemeChanged',AnnaTheme.selected());}catch(e){}

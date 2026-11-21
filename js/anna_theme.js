@@ -5,7 +5,10 @@ var AnnaTheme=(function(){
   {id:'rose',label:'themeRose',accent:'249-165-210',hue:326},
   {id:'violet',label:'themeViolet',accent:'190-151-255',hue:278},
   {id:'blue',label:'themeBlue',accent:'118-183-255',hue:211},
-  {id:'teal',label:'themeTeal',accent:'118-224-213',hue:174}
+  {id:'teal',label:'themeTeal',accent:'118-224-213',hue:174},
+  // Round 19
+  {id:'amber',label:'themeAmber',accent:'255-196-122',hue:36},
+  {id:'mint',label:'themeMint',accent:'132-226-170',hue:150}
  ];
  const byId=Object.fromEntries(PRESETS.map(p=>[p.id,p]));
  let cachedId='',cached=new Map();

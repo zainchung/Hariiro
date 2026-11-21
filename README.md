@@ -51,6 +51,7 @@ file referenced by the sources is missing, or an image has an invalid header.
 - Each round: failing test first, then the fix, `npm test` green, `docs/ROUNDnn_REVIEW.md`,
   and a short note in `docs/release_notes/`.
 - Images and Markdown are tracked. Only ZIPs, checksums, `dist/` and OS files are ignored.
-- The 16:9 DLL experiment lives on branch `experiment/16x9-freeze` and is not part of the skin.
+- The 16:9 DLL experiment (branch `experiment/16x9-freeze`, last commit `815cb3f`) was dropped
+  in Phase E5 (2026-11-20); the branch is deleted.
 
 See `docs/DEVELOPMENT_PLAN.md` for the roadmap.
