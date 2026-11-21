@@ -102,7 +102,7 @@ post-import sort, all of which read and write the panel's own state.
 - E5. 16:9: **done 2026-11-20** — dropped by the owner; branch `experiment/16x9-freeze` deleted (last commit `815cb3f`).
 
 ## 4. Working rules
-- Every round: failing test first, `npm test` green, review doc `docs/ROUNDnn_REVIEW.md`, short release note, ZIP via `package_ui_preview.py`.
+- Every round: failing test first, `npm test` green, review doc `docs/ROUNDnn_REVIEW.md`, short release note, ZIP via `npm run package` (`tools/package_skin.py`); bump `package.json` and the header of `docs/USER_README.txt` for a release.
 - Never ship without stating what is *not* verified on Windows.
 - Back up `playlists-v2.0` and the skin folder before any acceptance run.
 - Commit images and docs normally (`.gitignore` only excludes ZIPs/checksums/OS files).
