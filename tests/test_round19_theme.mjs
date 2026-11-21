@@ -48,7 +48,7 @@ const files = {
 let menuPick = 0;
 const appended = [];
 const menu = () => ({ AppendMenuItem: (f, id, text) => appended.push([id, text, f]), AppendMenuSeparator() {}, AppendTo() {}, TrackPopupMenu: () => menuPick });
-const h2 = createHost({ vars: { 'anna.glass.v2.wallpaper': 'wallpaper.jpg' }, overrides: {
+const h2 = createHost({ vars: { 'anna.glass.v2.wallpaper': 'wallpapers/wallpaper.jpg' }, overrides: {
   fb: { ProfilePath: 'C:\\fb\\profile\\' },
   utils: { Glob: p => { globs.push(p); return (files[p] || []).slice(); },
     IsFile: p => p === SKIN + 'js\\anna_top_chrome.js' },
@@ -57,7 +57,7 @@ const h2 = createHost({ vars: { 'anna.glass.v2.wallpaper': 'wallpaper.jpg' }, ov
 const chrome = panelContext(h2);
 runScript(chrome, 'js/anna_top_chrome.js');
 const list = [...chrome.wallpaperChoices()];
-assert.deepEqual([...list.map(w => w.file)], ['wallpaper.jpg', 'wallpapers/dawn.PNG', 'wallpapers/Night Sky.jpg'], 'default first, then images by name');
+assert.deepEqual([...list.map(w => w.file)], ['wallpapers/wallpaper.jpg', 'wallpapers/dawn.PNG', 'wallpapers/Night Sky.jpg'], 'default first, then images by name');
 assert.deepEqual(list.map(w => w.label).slice(1), ['dawn', 'Night Sky']);
 // Choosing one from the settings menu sets the Panels UI variable main.txt and the ini read.
 chrome.settingsMenu(10, 10);
@@ -69,9 +69,9 @@ assert.equal(h2.state.vars.get('anna.glass.v2.wallpaper'), 'wallpapers/Night Sky
 assert.equal(chrome.setWallpaper('..\\..\\evil.jpg'), false);
 assert.equal(chrome.setWallpaper('wallpapers/missing.jpg'), false);
 assert.equal(h2.state.vars.get('anna.glass.v2.wallpaper'), 'wallpapers/Night Sky.jpg');
-assert.equal(chrome.setWallpaper('wallpaper.jpg'), true);
+assert.equal(chrome.setWallpaper('wallpapers/wallpaper.jpg'), true); // Round 20: moved into wallpapers/
 // main.txt draws the chosen file, falling back to the bundled one.
-assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpaper.jpg))'));
+assert(main.includes('$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/wallpaper.jpg))'));
 assert(fs.existsSync(root + '/images/wallpapers/README.md'), 'folder exists in the package with a note');
 // The menu hint names the folder with its separator (Windows check found "imageswallpapers").
 for (const lang of ['en', 'zh-CN', 'zh-TW', 'ja'])

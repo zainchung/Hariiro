@@ -18,7 +18,8 @@ function windowAction(kind){
 }
 // Round 19: wallpaper choice. Images live in <skin>\images\wallpapers\; the value is
 // relative to images\ (main.txt and background.image_pvar in foo_ui_panels.ini read it).
-const DEFAULT_WALLPAPER='wallpaper.jpg';
+const DEFAULT_WALLPAPER='wallpapers/wallpaper.jpg'; // Round 20: all wallpapers in one folder
+const LEGACY_WALLPAPER='wallpaper.jpg'; // where builds before Round 20 kept it
 const SKIN_NAMES=['Anna_Glass','Anna Glass','Anna-Glass','Anna_Glass_V2','Anna-Glass-V2'];
 const BS='\\';
 function skinFolder(){
@@ -41,9 +42,19 @@ function wallpaperChoices(){
  const names=found.map(p=>String(p).split(/[\\/]/).pop())
   .filter(n=>/^[^\\/:*?"<>|]+\.(jpe?g|png|bmp)$/i.test(n));
  names.sort((x,y)=>x.toLowerCase().localeCompare(y.toLowerCase()));
- for(const n of names)out.push({file:'wallpapers/'+n,label:n.replace(/\.[^.]+$/,'')});
+ for(const n of names){
+  const file='wallpapers/'+n;
+  if(file.toLowerCase()!==DEFAULT_WALLPAPER)out.push({file,label:n.replace(/\.[^.]+$/,'')});
+ }
  return out;
 }
+// A choice saved by a build before Round 20 points at images\wallpaper.jpg, which moved.
+function migrateWallpaper(){
+ try{if(String(panelsui.GetVariable(AnnaShared.PVAR.wallpaper,''))===LEGACY_WALLPAPER)
+  panelsui.SetVariable(AnnaShared.PVAR.wallpaper,DEFAULT_WALLPAPER);}
+ catch(e){console.log('Anna wallpaper: '+String(e));}
+}
+migrateWallpaper();
 function currentWallpaper(){
  try{return String(panelsui.GetVariable(AnnaShared.PVAR.wallpaper,DEFAULT_WALLPAPER)||DEFAULT_WALLPAPER);}
  catch(e){return DEFAULT_WALLPAPER;}

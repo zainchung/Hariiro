@@ -4,7 +4,7 @@ The switch above the middle list (GLASS / NATIVE) chooses what fills the middle 
 window. It sets the Panels UI variable `anna.playlist.experimental` (`1` = GLASS), and
 `main.txt` then loads one of two panels:
 
-| | GLASS (`1`) | NATIVE (`0`, default for new installs) |
+| | GLASS (`1`, default for new installs since Round 20) | NATIVE (`0`) |
 |---|---|---|
 | Middle panel | `GlassPlaylist`, our JS Panel `js/anna_glass_playlist.js` | `Playlist`, foobar2000's **Single Column Playlist** |
 | Scroll strip | drawn by GlassPlaylist | `NativeScroll` (`js/anna_native_scroll.js`), which only calls `EnsurePlaylistItemVisible` |
@@ -62,8 +62,7 @@ the Round 13–15 notes and the Single Column Playlist's known behaviour, not re
 
 ## Default mode
 
-New installs start in NATIVE (`pvar.once.anna.playlist.experimental = 0` in
-`foo_ui_panels.ini`); after that the switch remembers the user's choice. GLASS is the mode
-the skin is designed around and the only one where all drop rules above hold, so making it
-the default for new installs is worth considering. It would change only first-run behaviour
-(`pvar.once` does not touch existing settings) and is left to the owner.
+Since Round 20, new installs start in GLASS (`pvar.once.anna.playlist.experimental = 1` in
+`foo_ui_panels.ini`), the mode the skin is designed around and the only one where all drop
+rules above hold. `pvar.once` sets it only on first run; after that the switch remembers
+the user's choice, so existing installs keep their mode.

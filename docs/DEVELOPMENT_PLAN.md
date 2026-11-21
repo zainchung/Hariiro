@@ -98,8 +98,7 @@ post-import sort, all of which read and write the panel's own state.
 - E3. Theming: additional accent sets beyond pink/blue/teal/violet; wallpaper selector.
   **Done** as Round 19: Amber, Mint, ☰ → Wallpaper from `images/wallpapers/` (`docs/ROUND19_REVIEW.md`).
 - E4. NATIVE mode parity: document exactly which Glass rules the host decides; consider a Glass-only default.
-  **Done**: `docs/NATIVE_VS_GLASS.md`. Default stays NATIVE for new installs; switching it
-  to GLASS is suggested there and left to the owner.
+  **Done**: `docs/NATIVE_VS_GLASS.md`. Round 20: new installs start in GLASS (owner's decision).
 - E5. 16:9: **done 2026-11-20** — dropped by the owner; branch `experiment/16x9-freeze` deleted (last commit `815cb3f`).
 
 ## 4. Working rules
