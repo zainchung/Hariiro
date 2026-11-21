@@ -13,11 +13,13 @@ $drawrect(0,0,%_width%,%_height%,brushcolor-24-25-30 pencolor-null)
 // The registered wallpaper lets supported native panels re-use the same canvas snapshot.
 // Round 19: the file is the anna.glass.v2.wallpaper variable (settings menu → Wallpaper),
 // relative to images/, as for background.image_pvar in foo_ui_panels.ini.
-$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/wallpaper.jpg))
+$imageabs(0,0,%_width%,%_height%,images/$if2($getpvar(anna.glass.v2.wallpaper),wallpapers/Anna.jpg))
 // Light-touch navy tint keeps the wallpaper luminous; each transparent row adds its own contrast.
 $drawrect(0,0,%_width%,%_height%,brushcolor-9-14-28 pencolor-null alpha-56)
 
 // Frameless vector tabs reproduce the original concept's navigation hierarchy.
+// Round 21: skin-drawn labels follow anna.language.shown (the resolved language,
+// published by TopChrome) in nine languages.
 // Content semantics: ライブラリ browses artists; プレイリスト browses saved playlists.
 $drawrect(0,0,%_width%,44,brushcolor-15-24-49 pencolor-null alpha-120)
 $drawrect(0,43,%_width%,1,brushcolor-239-170-200 pencolor-null alpha-150)
@@ -39,9 +41,9 @@ $font(Yu Gothic UI,11,bold)
 // Left pane intentionally has a title only. Global top-bar Artist/Library
 // controls remain the working navigation, with no duplicate sidebar buttons.
 $font(Yu Gothic UI,12,bold,249-220-235)
-$drawstring($if($strcmp($getpvar(anna.language),zh-CN),艺术家/媒体库,$if($strcmp($getpvar(anna.language),zh-TW),藝人/媒體庫,$if($strcmp($getpvar(anna.language),en),Artists / Library,アーティスト/ライブラリ))),50,64,173,21,249-220-235)
+$drawstring($if($strcmp($getpvar(anna.language.shown),zh-CN),艺术家/媒体库,$if($strcmp($getpvar(anna.language.shown),zh-TW),藝人/媒體庫,$if($strcmp($getpvar(anna.language.shown),en),Artists / Library,$if($strcmp($getpvar(anna.language.shown),es),Artistas / Biblioteca,$if($strcmp($getpvar(anna.language.shown),pt),Artistas / Biblioteca,$if($strcmp($getpvar(anna.language.shown),fr),Artistes / Bibliothèque,$if($strcmp($getpvar(anna.language.shown),de),Künstler / Bibliothek,$if($strcmp($getpvar(anna.language.shown),ru),Артисты / Медиатека,アーティスト/ライブラリ)))))))),50,64,173,21,249-220-235)
 $font(Yu Gothic UI,11,bold)
-$drawstring($if($strcmp($getpvar(anna.language),zh-CN),专辑 / 曲目,$if($strcmp($getpvar(anna.language),zh-TW),專輯 / 曲目,$if($strcmp($getpvar(anna.language),en),ALBUMS / TRACKS,アルバム / 曲目))),275,64,$eval(%_width% * 72 / 100 - 324),20,249-220-217)
+$drawstring($if($strcmp($getpvar(anna.language.shown),zh-CN),专辑 / 曲目,$if($strcmp($getpvar(anna.language.shown),zh-TW),專輯 / 曲目,$if($strcmp($getpvar(anna.language.shown),en),ALBUMS / TRACKS,$if($strcmp($getpvar(anna.language.shown),es),ÁLBUMES / PISTAS,$if($strcmp($getpvar(anna.language.shown),pt),ÁLBUNS / FAIXAS,$if($strcmp($getpvar(anna.language.shown),fr),ALBUMS / PISTES,$if($strcmp($getpvar(anna.language.shown),de),ALBEN / TITEL,$if($strcmp($getpvar(anna.language.shown),ru),АЛЬБОМЫ / ТРЕКИ,アルバム / 曲目)))))))),275,64,$eval(%_width% * 72 / 100 - 324),20,249-220-217)
 // Native renderer remains available. Draw an iOS-style switch with PVAR-selected panels.
 $if($strcmp($getpvar(anna.playlist.experimental),1),$panel(SwitchGlass,JS Panel,$eval(%_width% * 72 / 100 - 115),61,74,24),$panel(SwitchNative,JS Panel,$eval(%_width% * 72 / 100 - 115),61,74,24))
 
@@ -72,7 +74,7 @@ $panel(Spectrum,Spectrum,$eval(%_width% * 72 / 100 + 4),$ifgreater(%_width%,1500
 $if($strcmp($getpvar(anna.queue.open),1),$drawrect($eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466),brushcolor-58-20-59 pencolor-255-160-211 alpha-126),$drawrect($eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466),brushcolor-null pencolor-236-184-177 alpha-94))
 $if($strcmp($getpvar(anna.queue.open),1),$drawrect($eval(%_width% * 72 / 100 - 10),334,$eval(%_width% * 28 / 100 - 6),4,brushcolor-252-146-204 pencolor-null alpha-238),)
 $font(Yu Gothic UI,11,bold,253-216-227)
-$if($strcmp($getpvar(anna.queue.open),1),$drawstring($if($strcmp($getpvar(anna.language),zh-CN),♫ 队列 · 即将播放,$if($strcmp($getpvar(anna.language),zh-TW),♫ 佇列 · 即將播放,$if($strcmp($getpvar(anna.language),en),♫ QUEUE · NEXT UP,♫ QUEUE · 次に再生))),$eval(%_width% * 72 / 100 - 1),344,162,22,253-216-227),)
+$if($strcmp($getpvar(anna.queue.open),1),$drawstring($if($strcmp($getpvar(anna.language.shown),zh-CN),♫ 队列 · 即将播放,$if($strcmp($getpvar(anna.language.shown),zh-TW),♫ 佇列 · 即將播放,$if($strcmp($getpvar(anna.language.shown),en),♫ QUEUE · NEXT UP,$if($strcmp($getpvar(anna.language.shown),es),♫ COLA · SIGUIENTES,$if($strcmp($getpvar(anna.language.shown),pt),♫ FILA · A SEGUIR,$if($strcmp($getpvar(anna.language.shown),fr),♫ FILE · À SUIVRE,$if($strcmp($getpvar(anna.language.shown),de),♫ WARTESCHLANGE,$if($strcmp($getpvar(anna.language.shown),ru),♫ ОЧЕРЕДЬ · ДАЛЕЕ,♫ QUEUE · 次に再生)))))))),$eval(%_width% * 72 / 100 - 1),344,162,22,253-216-227),)
 $if($strcmp($getpvar(anna.queue.open),1),$panel(AnnaQueue,JS Panel,$eval(%_width% * 72 / 100 - 4),369,$eval(%_width% * 28 / 100 - 20),$eval(%_height% - 498)),$panel(AnnaLyrics,JS Panel,$eval(%_width% * 72 / 100 - 10),337,$eval(%_width% * 28 / 100 - 6),$eval(%_height% - 466)))
 // Footer DESK and QUEUE share an 84px pill footprint and remain visible together.
 // Draw these controls AFTER footer backing to prevent the Desk ON tint washing out.
@@ -107,7 +109,7 @@ $drawrect(34,$eval(%_height% - 99),67,67,brushcolor-null pencolor-226-173-197)
 $font(Yu Gothic UI,11,bold)
 $drawstring($if(%isplaying%,%title%,Anna Glass V2),112,$eval(%_height% - 96),$eval(%_width% * 16 / 100 - 25),23,253-228-240)
 $font(Yu Gothic UI,10)
-$drawstring($if(%isplaying%,%artist%,$if($strcmp($getpvar(anna.language),zh-CN),已停止,$if($strcmp($getpvar(anna.language),zh-TW),已停止,$if($strcmp($getpvar(anna.language),en),Stopped,停止中)))),112,$eval(%_height% - 69),$eval(%_width% * 16 / 100 - 25),19,229-214-231)
+$drawstring($if(%isplaying%,%artist%,$if($strcmp($getpvar(anna.language.shown),zh-CN),已停止,$if($strcmp($getpvar(anna.language.shown),zh-TW),已停止,$if($strcmp($getpvar(anna.language.shown),en),Stopped,$if($strcmp($getpvar(anna.language.shown),es),Detenido,$if($strcmp($getpvar(anna.language.shown),pt),Parado,$if($strcmp($getpvar(anna.language.shown),fr),Arrêté,$if($strcmp($getpvar(anna.language.shown),de),Gestoppt,$if($strcmp($getpvar(anna.language.shown),ru),Остановлено,停止中))))))))),112,$eval(%_height% - 69),$eval(%_width% * 16 / 100 - 25),19,229-214-231)
 $font(Segoe UI,9)
 $drawstring($if(%isplaying%,%codec%[ · %bitrate% kbps],),112,$eval(%_height% - 48),$eval(%_width% * 16 / 100 - 25),18,198-198-220)
 

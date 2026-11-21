@@ -1,8 +1,11 @@
 // Stage 3I.3 — seek slider previews position during drag and seeks only on release.
-// The parent skin hosts this SAME script in two different windowless JS Panels.
+// The parent skin hosts this SAME script in two JS Panels: FooterVolume (windowless) and,
+// since Round 21, FooterSeek as a child window, so its animation does not redraw the layout.
 'use strict';
 include('anna_shared.js');
 include('anna_theme.js');
+include('anna_dpi.js');
+include('anna_paint_cache.js');
 const SEEK = panelsui.PanelName === 'FooterSeek';
 const TRACK = 0xa0443b59;
 const FILL = 0xffefa7c1;
@@ -17,10 +20,12 @@ function loadAssets(){
  try{VOLUME_THUMB=gdi.Image(folder+'volume_thumb.png');}catch(e){VOLUME_THUMB=null;}
 }
 let breathPhase=0,breathTimer=0;
+// Round 21: thumbs are resized once (AnnaPaintCache). FooterSeek is a child window and
+// knows its exact scale; FooterVolume is windowless and scaled by the host (2x: sharp to 200 %).
 function drawAsset(gr,img,x,y,size,alpha=255){
  if(!img)return;
- gr.DrawImage(img,Math.round(x-size/2),Math.round(y-size/2),size,size,
-              0,0,img.Width,img.Height,0,alpha);
+ const factor=SEEK?AnnaDpi.scale():2;
+ AnnaPaintCache.drawIcon(gr,img,Math.round(x-size/2),Math.round(y-size/2),size,size,alpha,factor);
 }
 let dragging = false;
 let over = false;
@@ -41,7 +46,7 @@ function frac() {
 function on_paint(gr) {
  gr=AnnaTheme.graphics(gr);
     loadAssets();
-    const w=Math.max(1,window.Width),h=Math.max(1,window.Height);
+    const w=Math.max(1,AnnaDpi.width()),h=Math.max(1,AnnaDpi.height());
     const y=Math.floor((h-5)/2);
     const trackWidth=Math.max(20,w-12);
     const f=frac(), px=Math.round(f*trackWidth)+6;
@@ -77,7 +82,7 @@ function on_paint(gr) {
     }
 }
 function fractionAt(x) {
-    const trackWidth=Math.max(20,window.Width-12);
+    const trackWidth=Math.max(20,AnnaDpi.width()-12);
     return clamp((x-6)/trackWidth);
 }
 // The seek thumb is a visual preview; no audio seek occurs here.
@@ -149,13 +154,16 @@ if(SEEK) breathTimer=window.SetInterval(function(){
     // No timer-driven paints for a hidden panel or when playback is stopped.
     if(window.IsVisible===false || !fb.IsPlaying)return;
     breathPhase+=0.24; // about a 3.1-second breathing cycle
-    const trackWidth=Math.max(20,window.Width-12);
-    const x=Math.max(23,Math.min(window.Width-23,Math.round(frac()*trackWidth)+6));
+    const trackWidth=Math.max(20,AnnaDpi.width()-12);
+    const x=Math.max(23,Math.min(AnnaDpi.width()-23,Math.round(frac()*trackWidth)+6));
     // Repaint only the thumb's glow, not every pixel of the seekbar.
-    window.RepaintRect(Math.max(0,x-25),0,50,window.Height);
+    AnnaDpi.repaintRect(Math.max(0,x-25),0,50,AnnaDpi.height());
 },120);
 function on_script_unload(){if(breathTimer)window.ClearInterval(breathTimer);}
 
 function on_mouse_rbtn_up(){return true;}
 
 function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.themeHue||name===AnnaShared.PVAR.language)window.Repaint();}
+
+// Child-window DPI adapter (FooterSeek): must stay the last statement (wraps the callbacks above).
+AnnaDpi.install();

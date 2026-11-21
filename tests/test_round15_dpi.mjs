@@ -20,7 +20,9 @@ for (const name of Object.keys(PANELS)) {
 // Every child-window JS panel (windowless = 0) gets physical pixels, so all of
 // them go through AnnaDpi - the three drop targets plus the search box and the
 // NATIVE-mode scroll strip, which were child windows already.
-const CHILD = { ...PANELS, GlassSearch: 'js/anna_search.js', NativeScroll: 'js/anna_native_scroll.js' };
+// Round 21: the lyrics card and the seek bar animate; as child windows their repaints stay local.
+const CHILD = { ...PANELS, GlassSearch: 'js/anna_search.js', NativeScroll: 'js/anna_native_scroll.js',
+  AnnaLyrics: 'js/anna_lyrics.js', FooterSeek: 'js/anna_footer_slider.js' };
 for (const name of ['GlassSearch', 'NativeScroll']) assert(ini.includes(`panel.${name}.windowless = 0`), name);
 for (const m of ini.matchAll(/^panel\.(\w+)\.windowless = 0$/gm))
   assert(CHILD[m[1]], `${m[1]} is a child window but is not covered by AnnaDpi`);

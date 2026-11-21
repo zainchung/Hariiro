@@ -4,8 +4,8 @@ A transparent "glass" skin for foobar2000 built on **Panels UI (reborn)** and JS
 Glass playlist with album art and reflections, Artist/Library/Playlist navigation,
 playback Queue with undo, local lyrics (ESLyric-saved files and tags, per-track offset),
 image-based transport controls, six accent palettes (pink, blue, teal, violet, amber, mint),
-a wallpaper selector (`images/wallpapers/`) and four UI languages
-(English, 简体中文, 繁體中文, 日本語). New installs start in GLASS mode.
+a wallpaper selector (`images/wallpapers/`) and nine UI languages
+(English, Español, Português, 简体中文, 繁體中文, 日本語, Français, Deutsch, Русский). New installs start in GLASS mode.
 
 Current release: **1.0.0** (Round 20, 2026-11-21). Tested with foobar2000 2.26.2,
 foo_js_panel 1.9.0 and Panels UI (reborn).

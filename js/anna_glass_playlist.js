@@ -8,6 +8,7 @@ include('anna_theme.js');
 include('anna_shared.js');
 include('anna_glass_drop.js');
 include('anna_dpi.js');
+include('anna_paint_cache.js');
 include('anna_drop_fix.js');
 const VK_UP=0x26, VK_DOWN=0x28, VK_RETURN=0x0D, VK_DELETE=0x2e, VK_HOME=0x24, VK_END=0x23;
 const VK_PRIOR=0x21, VK_NEXT=0x22, VK_A=0x41, VK_ESCAPE=0x1b;
@@ -184,13 +185,19 @@ function getCover(g){
     if(covers.has(g.key))return covers.get(g.key);
     let image=null,reflection=null;
     try{
-        image=utils.GetAlbumArtV2(g.handle,0);
-        if(image&&image.Width>0&&image.Height>0){
+        const art=utils.GetAlbumArtV2(g.handle,0);
+        if(art&&art.Width>0&&art.Height>0){
             // Compute once per cover: a vertically flipped 78px bitmap reused by
             // every repaint. The parent draws its alpha falloff in three slices.
-            reflection=image.Resize(COVER_SIZE,COVER_SIZE);
+            reflection=art.Resize(COVER_SIZE,COVER_SIZE);
             reflection.RotateFlip(6); // GDI+ RotateNoneFlipY
-        }
+            // Round 21: keep the cover at drawn size (physical pixels of this child window),
+            // not the full-resolution art: up to 18 of those cost tens of MB each, and
+            // scaling them down again on every repaint cost CPU.
+            const f=Math.min(1,COVER_SIZE*AnnaDpi.scale()/Math.max(art.Width,art.Height));
+            image=f<1?art.Resize(Math.max(1,Math.round(art.Width*f)),Math.max(1,Math.round(art.Height*f))):art;
+            if(image!==art&&typeof art.Dispose==='function')art.Dispose();
+        }else image=art;
     }catch(e){
         console.log('Anna album art reflection: '+String(e));
         if(reflection&&typeof reflection.Dispose==='function')reflection.Dispose();
@@ -243,7 +250,7 @@ function nodeAt(y){
 }
 function drawCover(gr,g,x,y){
     const entry=getCover(g),img=entry.image,S=COVER_SIZE;
-    gr.FillRoundRect(x,y,S,S,6,6,0xb2152547);
+    AnnaPaintCache.shape(gr,'glassCoverBg',x,y,S,S,1,(g,cx,cy)=>g.FillRoundRect(cx,cy,S,S,6,6,0xb2152547));
     if(img && img.Width>0 && img.Height>0){
         const factor=Math.min(S/img.Width,S/img.Height);
         const w=Math.max(1,Math.floor(img.Width*factor)),h=Math.max(1,Math.floor(img.Height*factor));
@@ -261,7 +268,7 @@ function drawCover(gr,g,x,y){
                 Math.round(part.opacity*255));
         }
     }else gr.GdiDrawText('♪',HEAD,GOLD,x,y,S,S,0x1|0x4|0x20);
-    gr.DrawRoundRect(x,y,S,S,6,6,1,0xc8d8a88f);
+    AnnaPaintCache.shape(gr,'glassCoverFrame',x,y,S,S,1,(g,cx,cy)=>g.DrawRoundRect(cx,cy,S,S,6,6,1,0xc8d8a88f));
 }
 function on_paint(gr){gr=AnnaTheme.graphics(gr);
     const w=AnnaDpi.width(),h=AnnaDpi.height(),p=current();
@@ -279,19 +286,22 @@ function on_paint(gr){gr=AnnaTheme.graphics(gr);
             const activeAlbum=playing.IsValid&&playing.PlaylistIndex===p&&
                 playing.PlaylistItemIndex>=n.index&&
                 playing.PlaylistItemIndex<n.index+n.count;
-            gr.FillRoundRect(gx,gy,gw,gh,8,8,activeAlbum?0x64263b64:0x52132242);
-            gr.DrawRoundRect(gx,gy,gw,gh,8,8,1,
-                activeAlbum?0xffeeb3d4:GROUP_FRAME);
-            if(activeAlbum)gr.FillRoundRect(gx+3,gy+14,3,gh-28,2,2,0xfff6b5d8);
-            // A faint highlight anchors the album without covering the wallpaper.
-            gr.FillRoundRect(gx+12,gy+1,Math.max(1,gw-24),2,1,1,0x89e9afca);
-            // Discreet upper-corner highlights; decoration never overlaps the title/cover.
-            if(gw>145){
-                gr.FillSolidRect(gx+9,gy+3,18,1,0x96f1ceab);
-                gr.FillSolidRect(gx+4,gy+9,1,11,0x75f1ceab);
-                gr.FillSolidRect(gx+gw-27,gy+3,18,1,0x96f1ceab);
-                gr.FillSolidRect(gx+gw-5,gy+9,1,11,0x75f1ceab);
-            }
+            // Round 21: the album box is a fixed look, drawn once into a cached bitmap.
+            AnnaPaintCache.shape(gr,'glassAlbum|'+(activeAlbum?1:0),gx,gy,gw,gh,2,(g,x,y)=>{
+                g.FillRoundRect(x,y,gw,gh,8,8,activeAlbum?0x64263b64:0x52132242);
+                g.DrawRoundRect(x,y,gw,gh,8,8,1,
+                    activeAlbum?0xffeeb3d4:GROUP_FRAME);
+                if(activeAlbum)g.FillRoundRect(x+3,y+14,3,gh-28,2,2,0xfff6b5d8);
+                // A faint highlight anchors the album without covering the wallpaper.
+                g.FillRoundRect(x+12,y+1,Math.max(1,gw-24),2,1,1,0x89e9afca);
+                // Discreet upper-corner highlights; decoration never overlaps the title/cover.
+                if(gw>145){
+                    g.FillSolidRect(x+9,y+3,18,1,0x96f1ceab);
+                    g.FillSolidRect(x+4,y+9,1,11,0x75f1ceab);
+                    g.FillSolidRect(x+gw-27,y+3,18,1,0x96f1ceab);
+                    g.FillSolidRect(x+gw-5,y+9,1,11,0x75f1ceab);
+                }
+            });
             drawCover(gr,n,16,y+8);
             const tx=120,tw=Math.max(40,w-168);
             gr.GdiDrawText(n.album,HEAD,TXT,tx,y+18,tw,36,DT);
@@ -307,16 +317,21 @@ function on_paint(gr){gr=AnnaTheme.graphics(gr);
             hover===n.index?AnnaTheme.COLORS.rowHover:AnnaTheme.COLORS.rowNormal;
         const fr=selected?0xffffc3e3:isPlaying?0xffffafda:
             hover===n.index?0x97d0abc2:FRAME;
-        // A selected or playing track receives the reference-style pink halo.
-        if(selected||isPlaying){
-            gr.DrawRoundRect(x0-3,y0-3,rw+6,rh+6,9,9,1,GLOW_FAR);
-            gr.DrawRoundRect(x0-2,y0-2,rw+4,rh+4,8,8,1,GLOW_MID);
-            gr.DrawRoundRect(x0-1,y0-1,rw+2,rh+2,8,8,1,GLOW_NEAR);
-        }
-        gr.FillRoundRect(x0,y0,rw,rh,7,7,bg);
-        gr.DrawRoundRect(x0,y0,rw,rh,7,7,1,fr);
-        if(isPlaying)gr.FillRoundRect(x0+3,y0+7,3,Math.max(8,rh-14),1,1,0xffffbed9);
-        else if(focus===n.index)gr.FillRoundRect(x0+3,y0+7,3,Math.max(8,rh-14),1,1,0xffe4b3cd);
+        // Round 21: the row background is a fixed look per state, drawn once into a
+        // cached bitmap (round rects cost ~0.4 ms each on every host redraw).
+        const halo=selected||isPlaying, mark=isPlaying?1:focus===n.index?2:0;
+        AnnaPaintCache.shape(gr,'glassRow|'+bg+'|'+fr+'|'+(halo?1:0)+'|'+mark,x0,y0,rw,rh,4,(g,x,y)=>{
+            // A selected or playing track receives the reference-style pink halo.
+            if(halo){
+                g.DrawRoundRect(x-3,y-3,rw+6,rh+6,9,9,1,GLOW_FAR);
+                g.DrawRoundRect(x-2,y-2,rw+4,rh+4,8,8,1,GLOW_MID);
+                g.DrawRoundRect(x-1,y-1,rw+2,rh+2,8,8,1,GLOW_NEAR);
+            }
+            g.FillRoundRect(x,y,rw,rh,7,7,bg);
+            g.DrawRoundRect(x,y,rw,rh,7,7,1,fr);
+            if(mark===1)g.FillRoundRect(x+3,y+7,3,Math.max(8,rh-14),1,1,0xffffbed9);
+            else if(mark===2)g.FillRoundRect(x+3,y+7,3,Math.max(8,rh-14),1,1,0xffe4b3cd);
+        });
         const f=(isPlaying||selected)?BOLD:FONT;
         // The number is a separate column; missing TRACKNUMBER stays blank.
         gr.GdiDrawText(n.number||'',SMALL,isPlaying?0xffffd6e7:SOFT,
@@ -351,8 +366,9 @@ function on_paint(gr){gr=AnnaTheme.graphics(gr);
     }
     const bar=glassScrollbar();
     if(bar){
-        gr.FillRoundRect(w-15,0,12,h,5,5,0x46252243);
-        gr.FillRoundRect(w-12,bar.y,6,bar.thumb,3,3,scrollingThumb?0xffffdeef:0xc6eebed8);
+        AnnaPaintCache.shape(gr,'glassBarTrack',w-15,0,12,h,1,(g,x,y)=>g.FillRoundRect(x,y,12,h,5,5,0x46252243));
+        const thumbColor=scrollingThumb?0xffffdeef:0xc6eebed8;
+        AnnaPaintCache.shape(gr,'glassBarThumb|'+thumbColor,w-12,bar.y,6,bar.thumb,1,(g,x,y)=>g.FillRoundRect(x,y,6,bar.thumb,3,3,thumbColor));
     }
     // Hover preview is painted last so later rows cannot occlude it.
     if (tipIndex>=0 && hover===tipIndex && !downAt) {
@@ -572,7 +588,14 @@ miniEqTimer=window.SetInterval(function(){
         if(!window.IsVisible||!fb.IsPlaying||fb.IsPaused)return;
         const loc=plman.GetPlayingItemLocation();
         if(!loc||!loc.IsValid||loc.PlaylistIndex!==current())return;
-        miniEqFrame=(miniEqFrame+1)%360;window.Repaint();
+        // Round 21: repaint only the three-bar glyph, and nothing while its row is
+        // collapsed or scrolled out of view.
+        const n=trackNodes[loc.PlaylistItemIndex];
+        if(!n)return;
+        const y=n.y-scroll;
+        if(y+ROW_H<=0||y>=AnnaDpi.height())return;
+        miniEqFrame=(miniEqFrame+1)%360;
+        AnnaDpi.repaintRect(58,y+2,20,ROW_H-4);
     }catch(e){/* host may be switching playlists */}
 },160);
 function on_script_unload(){if(miniEqTimer)window.ClearInterval(miniEqTimer);if(importMessageTimer)window.ClearTimeout(importMessageTimer);if(clearGlassOriginTimer)window.ClearTimeout(clearGlassOriginTimer);}

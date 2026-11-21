@@ -25,7 +25,7 @@ for(const [mode,txt] of [['ja','スキンの言語'],['en','Skin language'],['zh
  commands=[];menuCalls=[];answer=0;
  i18n.on_mouse_lbtn_up(13,15);assert(menuCalls.some(x=>x[1]===txt),mode+' language submenu');
 }
-vars.set('anna.language','auto');answer=204;commands=[];i18n.on_mouse_rbtn_up(13,15);
+vars.set('anna.language','auto');answer=201;commands=[];i18n.on_mouse_rbtn_up(13,15); // Round 21 order: auto, English, ...
 assert.equal(vars.get('anna.language'),'en','language picked by right click must persist in shared PVAR');
 answer=11;vars.set('anna.chrome.hidden','1');i18n.on_mouse_lbtn_up(13,15);
 assert(actions.includes('PVAR:TOGGLE:anna.chrome.hidden'));
@@ -39,7 +39,7 @@ assert(footer.includes('$panel(TopChrome,JS Panel,'));
 assert(!/\$panel\(TopChrome(?:None|Sys|Mb|Both),/.test(footer));
 assert.equal((footer.match(/\$panel\(TopChrome,JS Panel,/g)||[]).length,1);
 assert(ini.includes('pvar.once.anna.language = auto'));
-assert(footer.includes('$getpvar(anna.language)'));
+assert(footer.includes('$getpvar(anna.language.shown)')); // Round 21: resolved language
 const side=read('js/playlist_browser.js');
 assert(!side.includes('function confirmDeletePlaylist'));
 assert(!side.includes('confirmDeletePlaylist('));

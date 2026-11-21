@@ -5,6 +5,7 @@ const POS=[25,88,151,214,277,340,403];
 include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
+include('anna_paint_cache.js');
 const ORDER_LABELS=['orderDefault','orderRepeatPlaylist','orderRepeatTrack','orderRandom','orderShuffleTracks','orderShuffleAlbums'];
 const ORDER_IMAGES=['order_default','order_repeat_playlist','order_repeat_track',
  'order_random','order_shuffle_tracks','order_shuffle_albums'];
@@ -23,10 +24,13 @@ function loadIcons(){
  }
 }
 let hot=-1;
+// Round 21: icons are resized once (AnnaPaintCache), not from 192 px on every paint.
+// A windowless panel is scaled by the host, so keep 2 device px per layout px: sharp up
+// to 200 % display scaling.
+const ICON_FACTOR=2;
 function icon(gr,key,cx,cy,size,alpha=255){
  const img=PNG[key];if(!img)return;
- gr.DrawImage(img,Math.round(cx-size/2),Math.round(cy-size/2),size,size,
-              0,0,img.Width,img.Height,0,alpha);
+ AnnaPaintCache.drawIcon(gr,img,Math.round(cx-size/2),Math.round(cy-size/2),size,size,alpha,ICON_FACTOR);
 }
 function nearest(x){let found=-1,dist=22;for(let i=0;i<POS.length;i++){
  const d=Math.abs(POS[i]-x);if(d<dist){dist=d;found=i;}}return found;}

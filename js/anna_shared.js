@@ -16,6 +16,9 @@ var AnnaShared=(function(){
   themeHue:'anna.theme.hue',
   themeAccent:'anna.glass.v2.accent',
   language:'anna.language',
+  // Round 21: the language actually shown ("auto" resolved); written by the title-bar
+  // panel, read by main.txt.
+  languageShown:'anna.language.shown',
   // Skin toggles; main.txt and foo_ui_panels.ini read them by name too.
   queueOpen:'anna.queue.open',
   chromeHidden:'anna.chrome.hidden',

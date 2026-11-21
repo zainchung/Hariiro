@@ -12,6 +12,7 @@ include('anna_import_staging.js');
 include('anna_sidebar_drop.js');
 include('anna_undo.js');
 include('anna_dpi.js');
+include('anna_paint_cache.js');
 include('anna_drop_fix.js');
 
 const ROW = 30;
@@ -312,19 +313,24 @@ function on_paint(gr) {
         const x=2, y0=y+1, width=Math.max(1,w-7), height=ROW-2;
         const fill = selected ? SELECTED : playing ? PLAYING : i===hover ? HOT : NORMAL_BG;
         const frame = selected ? SELECTED_BORDER : playing ? PLAYING_BORDER : BORDER;
-        if (selected && width>10){
-            gr.DrawRoundRect(x-2,y0-2,width+4,height+4,6,6,1,0x35ff91ce);
-            gr.DrawRoundRect(x-1,y0-1,width+2,height+2,5,5,1,GLOW);
-        }
-        gr.FillRoundRect(x,y0,width,height,4,4,fill);
-        if(selected){
-            // Fine enamel highlight, close to the reference without turning
-            // the whole row opaque over the cherry-blossom wallpaper.
-            gr.FillSolidRect(x+11,y0+2,Math.max(1,width-22),1,0x8affe0ef);
-        }
-        gr.DrawRoundRect(x,y0,width,height,4,4,1,frame);
-        if (playing) gr.FillSolidRect(4,y+6,3,ROW-12,PLAYING_BORDER);
-        else if (selected) gr.FillSolidRect(4,y+6,3,ROW-12,SELECTED_BORDER);
+        // Round 21: the row background is a fixed look per state, drawn once into a
+        // cached bitmap (round rects cost ~0.3 ms each on every host redraw).
+        const mark = playing ? PLAYING_BORDER : selected ? SELECTED_BORDER : 0;
+        AnnaPaintCache.shape(gr,'sideRow|'+fill+'|'+frame+'|'+(selected?1:0)+'|'+mark,x,y0,width,height,3,(g,rx,ry)=>{
+            if (selected && width>10){
+                g.DrawRoundRect(rx-2,ry-2,width+4,height+4,6,6,1,0x35ff91ce);
+                g.DrawRoundRect(rx-1,ry-1,width+2,height+2,5,5,1,GLOW);
+            }
+            g.FillRoundRect(rx,ry,width,height,4,4,fill);
+            if(selected){
+                // Fine enamel highlight, close to the reference without turning
+                // the whole row opaque over the cherry-blossom wallpaper.
+                g.FillSolidRect(rx+11,ry+2,Math.max(1,width-22),1,0x8affe0ef);
+            }
+            g.DrawRoundRect(rx,ry,width,height,4,4,1,frame);
+            // Side mark at x = 4, y + 6 of the row (y0 = y + 1).
+            if (mark) g.FillSolidRect(rx+2,ry+5,3,ROW-12,mark);
+        });
         // Count is always the real number of tracks from the library/playlist,
         // not a playback count, rating, or a made-up category statistic.
         const isLibrary=mode==='playlists' && item.kind==='library';
@@ -372,8 +378,9 @@ function on_paint(gr) {
     }
     const bar=sidebarScrollbar();
     if(bar){
-        gr.FillRoundRect(w-13,bar.top,10,bar.height,5,5,0x46312749);
-        gr.FillRoundRect(w-11,bar.y,6,bar.thumb,3,3,scrollingThumb?0xffffd5e9:0xc3edbad3);
+        AnnaPaintCache.shape(gr,'sideBarTrack',w-13,bar.top,10,bar.height,1,(g,x,y)=>g.FillRoundRect(x,y,10,bar.height,5,5,0x46312749));
+        const thumbColor=scrollingThumb?0xffffd5e9:0xc3edbad3;
+        AnnaPaintCache.shape(gr,'sideBarThumb|'+thumbColor,w-11,bar.y,6,bar.thumb,1,(g,x,y)=>g.FillRoundRect(x,y,6,bar.thumb,3,3,thumbColor));
     }
 }
 // Stable sort by album, then disc number, then track number. A source playlist

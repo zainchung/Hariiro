@@ -18,8 +18,9 @@ function windowAction(kind){
 }
 // Round 19: wallpaper choice. Images live in <skin>\images\wallpapers\; the value is
 // relative to images\ (main.txt and background.image_pvar in foo_ui_panels.ini read it).
-const DEFAULT_WALLPAPER='wallpapers/wallpaper.jpg'; // Round 20: all wallpapers in one folder
-const LEGACY_WALLPAPER='wallpaper.jpg'; // where builds before Round 20 kept it
+// Round 21: every image there is a peer, listed by file name. Anna.jpg is only the file
+// main.txt and new installs start with; once deleted it is gone from the menu like any other.
+const DEFAULT_WALLPAPER='wallpapers/Anna.jpg';
 const SKIN_NAMES=['Anna_Glass','Anna Glass','Anna-Glass','Anna_Glass_V2','Anna-Glass-V2'];
 const BS='\\';
 function skinFolder(){
@@ -35,26 +36,37 @@ function skinFolder(){
  return '';
 }
 function wallpaperChoices(){
- const out=[{file:DEFAULT_WALLPAPER,label:T('wallpaperDefault')}];
+ const out=[];
  const skin=skinFolder();if(!skin)return out;
  let found=[];
  try{found=utils.Glob(skin+'images'+BS+'wallpapers'+BS+'*')||[];}catch(e){console.log('Anna wallpaper: '+String(e));}
  const names=found.map(p=>String(p).split(/[\\/]/).pop())
   .filter(n=>/^[^\\/:*?"<>|]+\.(jpe?g|png|bmp)$/i.test(n));
  names.sort((x,y)=>x.toLowerCase().localeCompare(y.toLowerCase()));
- for(const n of names){
-  const file='wallpapers/'+n;
-  if(file.toLowerCase()!==DEFAULT_WALLPAPER)out.push({file,label:n.replace(/\.[^.]+$/,'')});
- }
+ for(const n of names)out.push({file:'wallpapers/'+n,label:n.replace(/\.[^.]+$/,'')});
  return out;
 }
-// A choice saved by a build before Round 20 points at images\wallpaper.jpg, which moved.
-function migrateWallpaper(){
- try{if(String(panelsui.GetVariable(AnnaShared.PVAR.wallpaper,''))===LEGACY_WALLPAPER)
-  panelsui.SetVariable(AnnaShared.PVAR.wallpaper,DEFAULT_WALLPAPER);}
- catch(e){console.log('Anna wallpaper: '+String(e));}
+// The saved choice must be an existing image: a deleted file, or wallpaper.jpg saved by
+// builds before Round 21, moves to Anna.jpg if it exists, else to the first image.
+// Nothing is written when the folder cannot be read or is empty.
+function ensureWallpaper(choices){
+ try{
+  if(!choices.length)return;
+  const now=currentWallpaper().toLowerCase();
+  if(choices.some(w=>w.file.toLowerCase()===now))return;
+  const pick=choices.find(w=>w.file.toLowerCase()===DEFAULT_WALLPAPER.toLowerCase())||choices[0];
+  panelsui.SetVariable(AnnaShared.PVAR.wallpaper,pick.file);
+ }catch(e){console.log('Anna wallpaper: '+String(e));}
 }
-migrateWallpaper();
+ensureWallpaper(wallpaperChoices());
+// Round 21: main.txt draws a few labels itself and cannot resolve "auto"; publish the
+// language the skin actually shows. Written on load and whenever the setting changes.
+function publishLanguage(){
+ try{const shown=AnnaI18n.current();
+  if(String(panelsui.GetVariable(AnnaShared.PVAR.languageShown,''))!==shown)panelsui.SetVariable(AnnaShared.PVAR.languageShown,shown);
+ }catch(e){console.log('Anna language: '+String(e));}
+}
+publishLanguage();
 function currentWallpaper(){
  try{return String(panelsui.GetVariable(AnnaShared.PVAR.wallpaper,DEFAULT_WALLPAPER)||DEFAULT_WALLPAPER);}
  catch(e){return DEFAULT_WALLPAPER;}
@@ -74,9 +86,11 @@ function settingsMenu(x,y){
  menu.AppendMenuItem(0,13,T('preferences'));
  menu.AppendMenuItem(0,14,T('foobarMenu'));
  menu.AppendMenuSeparator();
- const langs=[['auto','auto'],['zh-CN','langZhCN'],['zh-TW','langZhTW'],['ja','langJa'],['en','langEn']];
+ // Round 21: nine languages, each by its own name, in the owner's reference order.
+ const langs=['auto','en','es','pt','zh-CN','zh-TW','ja','fr','de','ru'];
  const chosen=AnnaI18n.mode();
- for(let i=0;i<langs.length;i++)language.AppendMenuItem(0,200+i,(chosen===langs[i][0]?'✓ ':'   ')+T(langs[i][1]));
+ for(let i=0;i<langs.length;i++)language.AppendMenuItem(0,200+i,(chosen===langs[i]?'✓ ':'   ')+
+  (langs[i]==='auto'?T('auto'):AnnaI18n.nativeName(langs[i])));
  language.AppendTo(menu,0,T('language'));
  const activeHue=AnnaTheme.selected();
  for(let i=0;i<AnnaTheme.PRESETS.length;i++){
@@ -84,10 +98,12 @@ function settingsMenu(x,y){
   colors.AppendMenuItem(0,230+i,(activeHue===item.id?'✓ ':'   ')+T(item.label));
  }
  colors.AppendTo(menu,0,T('theme'));
- const wallpapers=wallpaperChoices(),wallNow=currentWallpaper();
+ const wallpapers=wallpaperChoices();
+ ensureWallpaper(wallpapers); // files may have been deleted while foobar2000 runs
+ const wallNow=currentWallpaper().toLowerCase();
  for(let i=0;i<wallpapers.length&&i<60;i++)
-  walls.AppendMenuItem(0,300+i,(wallNow===wallpapers[i].file?'✓ ':'   ')+wallpapers[i].label);
- walls.AppendMenuSeparator();
+  walls.AppendMenuItem(0,300+i,(wallNow===wallpapers[i].file.toLowerCase()?'✓ ':'   ')+wallpapers[i].label);
+ if(wallpapers.length)walls.AppendMenuSeparator();
  walls.AppendMenuItem(1,299,T('wallpaperHint')); // MF_GRAYED: a hint, not a command
  walls.AppendTo(menu,0,T('wallpaper'));
  const cmd=menu.TrackPopupMenu(x,y);
@@ -95,7 +111,7 @@ function settingsMenu(x,y){
  else if(cmd===12)runAction('MENUBAR:toggle');
  else if(cmd===13)runAction('PREFERENCES');
  else if(cmd===14)runAction('MENU');
- else if(cmd>=200&&cmd<205)AnnaI18n.change(langs[cmd-200][0]);
+ else if(cmd>=200&&cmd<200+langs.length){AnnaI18n.change(langs[cmd-200]);publishLanguage();}
  else if(cmd>=300&&cmd<300+wallpapers.length)setWallpaper(wallpapers[cmd-300].file);
  else if(cmd>=230&&cmd<230+AnnaTheme.PRESETS.length){
   if(AnnaTheme.set(AnnaTheme.PRESETS[cmd-230].id)){
@@ -137,4 +153,5 @@ function select(x,y){const i=hit(x);
 }
 function on_mouse_lbtn_up(x,y){return select(x,y);}
 function on_mouse_rbtn_up(x,y){return hit(x)===0?settingsMenu(x,y):true;}
-function on_panelsui_variable_changed(name){if([AnnaShared.PVAR.language,AnnaShared.PVAR.chromeHidden,'menubar',AnnaShared.PVAR.themeHue].includes(name))window.Repaint();}
+function on_panelsui_variable_changed(name){if(name===AnnaShared.PVAR.language)publishLanguage();
+ if([AnnaShared.PVAR.language,AnnaShared.PVAR.chromeHidden,'menubar',AnnaShared.PVAR.themeHue].includes(name))window.Repaint();}

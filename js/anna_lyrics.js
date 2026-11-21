@@ -5,11 +5,12 @@ include('anna_shared.js');
 include('anna_i18n.js');
 include('anna_theme.js');
 include('anna_lyric_tools.js');
+include('anna_dpi.js'); // Round 21: a child window (windowless = 0), see foo_ui_panels.ini
 
-const F_MAIN = gdi.Font('Yu Gothic UI', 16, 0);
-const F_ACTIVE = gdi.Font('Yu Gothic UI', 17, 1);
-const F_SMALL = gdi.Font('Segoe UI', 11, 0);
-const F_HINT = gdi.Font('Yu Gothic UI', 13, 0);
+const F_MAIN = AnnaDpi.font('Yu Gothic UI', 16, 0);
+const F_ACTIVE = AnnaDpi.font('Yu Gothic UI', 17, 1);
+const F_SMALL = AnnaDpi.font('Segoe UI', 11, 0);
+const F_HINT = AnnaDpi.font('Yu Gothic UI', 13, 0);
 // Enhanced LRC files may emit the SAME full lyric on many nearby timestamps.
 // Merge only adjacent, near-in-time identical lyrics; preserve distant repeats.
 const NEAR_DUP_SECONDS = 3.0;
@@ -410,16 +411,16 @@ function shownFocus(){
  return smoothFocus;
 }
 function currentViewportStart(){
- const v=lyricViewport(window.Height);
+ const v=lyricViewport(AnnaDpi.height());
  return Math.floor(shownFocus()-(v.centerY-v.top)/v.lineH);
 }
 function cueAtY(y){
- const v=lyricViewport(window.Height);
+ const v=lyricViewport(AnnaDpi.height());
  return Math.max(0,Math.min(state.lines.length-1,
      Math.round(shownFocus()+(y-v.centerY)/v.lineH)));
 }
 function on_mouse_lbtn_down(x,y){
- const {top,bottom}=lyricViewport(window.Height);
+ const {top,bottom}=lyricViewport(AnnaDpi.height());
  if(state.kind!=='synced'||y<top||y>=bottom||!fb.PlaybackLength)return;
  lyricDrag={y,first:cueAtY(y),moved:false};previewCue=-1;
 }
@@ -428,7 +429,7 @@ function on_mouse_move(x,y,mask){
  const delta=lyricDrag.y-y;
  if(Math.abs(delta)>DRAG_THRESHOLD_PX)lyricDrag.moved=true;
  if(!lyricDrag.moved)return;
- const {lineH}=lyricViewport(window.Height);
+ const {lineH}=lyricViewport(AnnaDpi.height());
  const next=Math.max(0,Math.min(state.lines.length-1,
        lyricDrag.first+Math.round(delta/lineH)));
  if(next!==previewCue){previewCue=next;window.Repaint();}
@@ -479,7 +480,7 @@ function paintCue(gr,cue,index,focus,y,lineH,W,dragging){
 }
 function on_paint(gr){
  gr=AnnaTheme.graphics(gr);
- const W=window.Width,H=window.Height;
+ const W=AnnaDpi.width(),H=AnnaDpi.height();
  if(W<4||H<4)return;
  if(state.kind==='empty'){
    lastDrawnCue=-1;
@@ -667,7 +668,7 @@ function on_mouse_rbtn_up(x,y) {
     ];
     for(let i=0;i<labels.length;i++)
         m.AppendMenuItem(0,20+i,(selected===SAVE_LOCATIONS[i]?'✓ ':'   ')+labels[i]);
-    const cmd=m.TrackPopupMenu(x,y);
+    const cmd=AnnaDpi.popup(m,x,y);
     if(cmd===1){reloadLyrics();return true;}
     if(cmd===7){openCurrentLyricsLocation();return true;}
     if(cmd===2){esLyricSearch();return true;}
@@ -703,7 +704,7 @@ function on_mouse_rbtn_up(x,y) {
 }
 function on_mouse_wheel(step){
     if(state.kind!=='plain')return;
-    const {visible}=lyricViewport(window.Height);
+    const {visible}=lyricViewport(AnnaDpi.height());
     plainScroll=Math.max(0,Math.min(Math.max(0,state.lines.length-visible),plainScroll-step*2));
     window.Repaint();
 }
@@ -749,3 +750,6 @@ function on_drag_enter(action){action.Effect=0;}
 function on_drag_over(action){action.Effect=0;}
 function on_drag_drop(action){action.Effect=0;}
 function on_drag_leave(){}
+
+// Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
+AnnaDpi.install();

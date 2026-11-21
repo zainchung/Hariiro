@@ -23,9 +23,11 @@ Features
 - Lyrics from files saved by ESLyric or from tags; right-click the lyrics to move
   them 0.5 s earlier or later for the current track.
 - Menu ☰ → Accent colour: pink, blue, teal, violet, amber, mint.
-- Menu ☰ → Wallpaper: put .jpg / .png / .bmp files in images\wallpapers in the
-  skin folder; "Default (Anna)" is the bundled picture.
-- Languages: English, 简体中文, 繁體中文, 日本語.
+- Menu ☰ → Wallpaper: every .jpg / .png / .bmp file in images\wallpapers in the
+  skin folder, listed by file name ("Anna" is the bundled picture). Delete a file
+  and it leaves the menu; if it was in use, another one is chosen.
+- Languages: English, Español, Português, 简体中文, 繁體中文, 日本語, Français,
+  Deutsch, Русский (menu ☰ → Skin language; "Auto" follows Windows).
 
 Known limits
 - ESLyric's own panel cannot be embedded; the skin shows lyrics ESLyric has
