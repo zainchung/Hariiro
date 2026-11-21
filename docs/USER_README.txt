@@ -42,10 +42,12 @@ Updating from a test build
 - 1.0.0 is the first release under the name Hariiro. Settings, window
   properties and the skin's own playlists of earlier test builds (which used
   another name) are not carried over: the skin starts with its defaults and
-  creates new "Hariiro - ..." playlists.
+  creates its own playlists "Favorites", "Queue Buffer", "Search Results",
+  "Sorted Library View", "Artist View" and "Import Staging". A playlist of yours
+  with one of these names is used by the skin as that list.
 - The old playlists of a test build stay in foobar2000 as normal playlists.
   To keep your favourites, copy the tracks of the old Favorites playlist into
-  "Hariiro - Favorites", then delete the old playlists you no longer need.
+  "Favorites", then delete the old playlists you no longer need.
 - Install into a new, empty skin folder (for example foo_ui_panels-skins\Hariiro)
   and choose it in Panels UI, rather than over a test build.
 

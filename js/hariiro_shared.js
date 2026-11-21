@@ -30,12 +30,12 @@ var HariiroShared=(function(){
  });
  // Playlists created and owned by the skin. Users never drop into these.
  const LIST=Object.freeze({
-  favorites:'Hariiro - Favorites',
+  favorites:'Favorites',
   library:'Music Library',
-  queueBuffer:'Hariiro - Queue Buffer',
-  sortedView:'Hariiro - Sorted Library View',
-  artistView:'Hariiro - Artist View',
-  importStaging:'Hariiro - Import Staging'
+  queueBuffer:'Queue Buffer',
+  sortedView:'Sorted Library View',
+  artistView:'Artist View',
+  importStaging:'Import Staging'
  });
  // OLE origin markers (value of PVAR.dragOrigin while a drag is in progress):
  //   glass:<playlist>          tracks selected in the Glass (middle) list

@@ -4,7 +4,7 @@
 
 Found during the Windows smoke test of Phase D1 step 2 (`HariiroScratchViews`, see the end of
 `docs/ROUND15_REVIEW.md`): with the Artist view playing, opening another artist creates
-`Hariiro - Artist View #2`. After switching to Music Library (which runs the cleanup) `#2`
+`Artist View #2`. After switching to Music Library (which runs the cleanup) `#2`
 was neither active nor playing nor queued, but it stayed — also in the state foobar2000
 saved on exit. The copy was reused for the next view that needed a slot, so it did not
 pile up, but it stayed in the playlist list.
@@ -46,7 +46,7 @@ never removed; the unnumbered base views are kept.
 
 Same sequence as the smoke test: Artist view playing, another artist opened → `Hariiro -
 Artist View #2` created; switched to the Playlists tab and opened Music Library (runs the
-cleanup) → `#2` removed, the playing `Hariiro - Artist View` kept, no script errors.
+cleanup) → `#2` removed, the playing `Artist View` kept, no script errors.
 Playlists restored from a backup afterwards.
 
 Not checked on Windows: a view locked by another component (no such component installed;

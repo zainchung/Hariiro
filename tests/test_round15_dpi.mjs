@@ -208,7 +208,7 @@ function recorder() {
   const mk = (a = []) => ({ get Count() { return a.length; }, Convert: () => [...a], Item: i => a[i], Add(h) { a.push(h); }, AddRange(o) { a.push(...o.Convert()); } });
   const records = [
     { name: 'User A', items: [{ Path: 'a.flac' }] }, { name: 'User B', items: [{ Path: 'b.flac' }] },
-    { name: 'Hariiro - Favorites', items: [{ Path: 'fav.flac' }] }];
+    { name: 'Favorites', items: [{ Path: 'fav.flac' }] }];
   const vars = new Map([['hariiro.nav.mode', 'library'], ['hariiro.drag.origin', 'glass:0'], ['hariiro.theme.hue', 'rose']]);
   let active = 0; const fontSizes = []; const drawn = [];
   const plman = {

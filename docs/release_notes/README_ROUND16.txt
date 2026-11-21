@@ -2,7 +2,7 @@ Hariiro — Round 16 (2026-11-20)
 
 Fix: extra Artist / Music Library working lists are cleaned up again.
 - Opening another artist while the Artist view is playing creates a second
-  working list ("Hariiro - Artist View #2"). Once nothing plays or shows it, the
+  working list ("Artist View #2"). Once nothing plays or shows it, the
   skin removes it again. Since Round 13 these copies stayed, because the skin's
   own read-only lock on them also stopped the cleanup.
 - Lists locked by another component, and the list that is playing, shown or

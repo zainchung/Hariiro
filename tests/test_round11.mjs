@@ -9,14 +9,14 @@ const key=(x)=>x.Path;
 const handles=(list=[])=>({get Count(){return list.length},Convert:()=>list.slice(),Item:i=>list[i],Add(x){list.push(x);},AddRange(other){list.push(...other.Convert());}});
 const rows=[
  {name:'Real Playlist',items:[{Path:'normal.flac'}]},
- {name:'Hariiro - Favorites',items:[{Path:'favorite.flac'}]},
- {name:'Hariiro - Search Results',items:[{Path:'search.flac'}]},
- {name:'Hariiro - Artist View #2',items:[{Path:'cached.flac'}]},
- {name:'Hariiro - Artist View #3',items:[{Path:'queued.flac'}]},
- {name:'Hariiro - Artist View #4',items:[{Path:'playing.flac'}]}
+ {name:'Favorites',items:[{Path:'favorite.flac'}]},
+ {name:'Search Results',items:[{Path:'search.flac'}]},
+ {name:'Artist View #2',items:[{Path:'cached.flac'}]},
+ {name:'Artist View #3',items:[{Path:'queued.flac'}]},
+ {name:'Artist View #4',items:[{Path:'playing.flac'}]}
 ];
-const variables=new Map([['hariiro.nav.mode','library'],['hariiro.search.results.name','Hariiro - Search Results'],['hariiro.search.results.owned','["Hariiro - Search Results"]'],['hariiro.theme.hue','rose']]);
-const props=new Map([['Hariiro.OwnedScratchPlaylists.v1','["Hariiro - Artist View #2","Hariiro - Artist View #3","Hariiro - Artist View #4"]']]);
+const variables=new Map([['hariiro.nav.mode','library'],['hariiro.search.results.name','Search Results'],['hariiro.search.results.owned','["Search Results"]'],['hariiro.theme.hue','rose']]);
+const props=new Map([['Hariiro.OwnedScratchPlaylists.v1','["Artist View #2","Artist View #3","Artist View #4"]']]);
 let active=0,playing=5,queueRefs=[{PlaylistIndex:4}],queued=[],dragCount=0,sidebarSelfEffects=[],clock=0;
 let sidebar,queue;
 const plman={
@@ -93,9 +93,9 @@ assert.equal(vm.runInContext('importStatus',glass),glass.HariiroI18n.t('dropToIm
 // Safe cleanup prunes ONLY owned scratch #2, preserving queued #3 and playing #4.
 vm.runInContext("mode='playlists';",sidebar);
 assert.equal(sidebar.pruneScratchViews(),1);
-assert.equal(plman.FindPlaylist('Hariiro - Artist View #2'),-1);
-assert(plman.FindPlaylist('Hariiro - Artist View #3')>=0);
-assert(plman.FindPlaylist('Hariiro - Artist View #4')>=0);
+assert.equal(plman.FindPlaylist('Artist View #2'),-1);
+assert(plman.FindPlaylist('Artist View #3')>=0);
+assert(plman.FindPlaylist('Artist View #4')>=0);
 // Both new hue and manual language choices are shared between panels.
 const chrome=makePanel('TopChrome',{window:{Width:183,Height:31,Repaint(){},NotifyOthers(){},CreatePopupMenu(){return{AppendMenuItem(){},AppendMenuSeparator(){},AppendTo(){},TrackPopupMenu(){return 235;}}}}});
 vm.runInContext(read('js/hariiro_top_chrome.js'),chrome);

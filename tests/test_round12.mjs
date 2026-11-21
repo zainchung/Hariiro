@@ -8,7 +8,7 @@ const src=n=>fs.readFileSync(path.join(root,n),'utf8');
 const values=new Map([['hariiro.nav.mode','library'],['hariiro.sidebar.editable.name','Personal Playlist'],['hariiro.search.results.owned','[]']]);
 const handles=(items=[])=>({get Count(){return items.length},Convert(){return [...items]},Item:i=>items[i],Add(h){items.push(h)}});
 const artistTrack={Path:'art.flac',SubSong:0};
-const records=[{name:'Personal Playlist',items:[{Path:'normal.flac',SubSong:0}]},{name:'Hariiro - Favorites',items:[]}];
+const records=[{name:'Personal Playlist',items:[{Path:'normal.flac',SubSong:0}]},{name:'Favorites',items:[]}];
 let active=0,dragOut=0,accidentalInsert=0,queueTracks=[],manualFlush=0,maximize=0;
 const plman={
  get PlaylistCount(){return records.length},get ActivePlaylist(){return active},set ActivePlaylist(i){active=i},PlayingPlaylist:-1,

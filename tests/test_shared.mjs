@@ -33,9 +33,9 @@ S.clearOriginIf('glass:'); assert.equal(S.getOrigin(), '');
 assert.equal(vm.runInNewContext(read('js/hariiro_shared.js') + ';HariiroShared.getOrigin()', {}), ''); // no panelsui
 
 // Reserved names.
-for (const n of ['Hariiro - Favorites', 'Music Library', 'Hariiro - Queue Buffer', 'Hariiro - Sorted Library View',
-  'Hariiro - Artist View #2', 'Hariiro - Import Staging', 'Hariiro - Import Staging #3']) assert(S.isReservedName(n), n);
-for (const n of ['My list', 'Hariiro - Artist Viewer', 'Music Library 2', 'Favorites']) assert(!S.isReservedName(n), n);
+for (const n of ['Favorites', 'Music Library', 'Queue Buffer', 'Sorted Library View',
+  'Artist View #2', 'Import Staging', 'Import Staging #3']) assert(S.isReservedName(n), n);
+for (const n of ['My list', 'Artist Viewer', 'Music Library 2', 'My Favorites']) assert(!S.isReservedName(n), n);
 assert(Object.isFrozen(S) && Object.isFrozen(S.LIST) && Object.isFrozen(S.PVAR));
 
 // Drift guard: the panels that include HariiroShared must not re-hard-code its values.

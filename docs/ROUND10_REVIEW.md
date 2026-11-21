@@ -14,11 +14,11 @@ The scripts **do not directly create, open or append to** `profile/playlists-v2.
 
 | Script | Persisted entity | When produced | Reuse / growth risk |
 | --- | --- | --- | --- |
-| `playlist_browser.js` | `Hariiro - Artist View` or `Hariiro - Artist View #N` | Artist/library view sorting | If current view is playing/queued, `findSafeView()` protects it and may create another numbered slot (up to 64 candidates per base name). |
-| `playlist_browser.js` | `Hariiro - Sorted Library View` or `#N` | Music Library sorted view | Same protection/reuse policy. |
-| `hariiro_search.js` | `Hariiro - Search Results` or `#N` | Searches | `safeResultsPlaylist()` protects currently playing or queued results; may create another numbered slot (up to 128 candidates). |
-| `hariiro_queue.js` | `Hariiro - Queue Buffer` or `#N` | First queue drag requiring a buffer | Reuses a registered owned buffer; compacts only after 400 items if neither playing nor queued references make it unsafe. |
-| `playlist_browser.js`, `hariiro_glass_playlist.js` | `Hariiro - Favorites` | First favorite add | Persistent user collection, **not** a disposable cache. |
+| `playlist_browser.js` | `Artist View` or `Artist View #N` | Artist/library view sorting | If current view is playing/queued, `findSafeView()` protects it and may create another numbered slot (up to 64 candidates per base name). |
+| `playlist_browser.js` | `Sorted Library View` or `#N` | Music Library sorted view | Same protection/reuse policy. |
+| `hariiro_search.js` | `Search Results` or `#N` | Searches | `safeResultsPlaylist()` protects currently playing or queued results; may create another numbered slot (up to 128 candidates). |
+| `hariiro_queue.js` | `Queue Buffer` or `#N` | First queue drag requiring a buffer | Reuses a registered owned buffer; compacts only after 400 items if neither playing nor queued references make it unsafe. |
+| `playlist_browser.js`, `hariiro_glass_playlist.js` | `Favorites` | First favorite add | Persistent user collection, **not** a disposable cache. |
 | `playlist_browser.js` | User-created/duplicated playlists | User action | Deliberate permanent content; not cache. |
 
 The scripts also call `window.SetProperty` for search query, scratch ownership, queue buffer ownership, lyric search and source preferences, nav tab state, and historical folder-view settings. JS Panel stores these properties under the profile's JS Panel property storage. `panelsui.SetVariable` sets skin state, not raw SQLite files. No application-authored `.tmp`, `.db`, `.sqlite` or `.log` writes were found in this version of Hariiro's JS sources.

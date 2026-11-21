@@ -35,11 +35,11 @@ const plain = x => JSON.parse(JSON.stringify(x));
 {
   const host = createHost({ playlists: [
     { name: 'Mix', items: [handle('C:/A.flac'), handle('C:/A.flac'), handle('C:/B.flac')] },
-    { name: 'Hariiro - Favorites', items: [handle('C:/A.flac')] }, { name: 'Mix', items: [handle('D:/X.flac')] }] });
+    { name: 'Favorites', items: [handle('C:/A.flac')] }, { name: 'Mix', items: [handle('D:/X.flac')] }] });
   const st = host.state, items = p => st.playlists[p].items;
   const ctx = panelContext(host);
   run(ctx, "include('hariiro_playlist_dedup.js');include('hariiro_dedup_tracker.js');");
-  const T = ctx.HariiroDedupTracker.create(p => st.playlists[p].name !== 'Hariiro - Favorites');
+  const T = ctx.HariiroDedupTracker.create(p => st.playlists[p].name !== 'Favorites');
   assert(Object.isFrozen(T));
   let removingSeen = false;
   const remove = host.plman.RemovePlaylistSelection;
@@ -73,16 +73,16 @@ const plain = x => JSON.parse(JSON.stringify(x));
 
 // ---- HariiroImportStaging ----------------------------------------------------------------
 {
-  const host = createHost({ playlists: [{ name: 'User' }, { name: 'Hariiro - Import Staging' }] });
+  const host = createHost({ playlists: [{ name: 'User' }, { name: 'Import Staging' }] });
   const ctx = panelContext(host), names = () => host.state.playlists.map(p => p.name);
   run(ctx, "include('hariiro_i18n.js');include('hariiro_shared.js');include('hariiro_import_staging.js');");
   const S = ctx.HariiroImportStaging;
   assert(Object.isFrozen(S));
   assert.equal(S.name(), ''); assert.equal(S.find(), -1);
   assert.equal(S.playlist(), 2, 'a foreign list with the base name is skipped');
-  assert.equal(names()[2], 'Hariiro - Import Staging #2');
-  assert.equal(S.name(), 'Hariiro - Import Staging #2'); assert.equal(S.find(), 2);
-  assert.equal(host.state.props.get('Hariiro.Sidebar.ImportStaging.v1'), 'Hariiro - Import Staging #2', 'remembered across restarts');
+  assert.equal(names()[2], 'Import Staging #2');
+  assert.equal(S.name(), 'Import Staging #2'); assert.equal(S.find(), 2);
+  assert.equal(host.state.props.get('Hariiro.Sidebar.ImportStaging.v1'), 'Import Staging #2', 'remembered across restarts');
   assert.equal(S.playlist(), 2, 'reused');
 }
 

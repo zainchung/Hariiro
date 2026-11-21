@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { read } from './helpers/js_panel.mjs';
 import { createHost, panelContext, run } from './helpers/fake_host.mjs';
 
-const names = ['User A', 'User B', 'Hariiro - Favorites', 'Hariiro - Artist View', 'Hariiro - Queue Buffer #2', 'Hariiro - Search Results'];
+const names = ['User A', 'User B', 'Favorites', 'Artist View', 'Queue Buffer #2', 'Search Results'];
 const host = createHost({ playlists: names.map(name => ({ name })) }), st = host.state;
 let now = 1000;
 const ctx = panelContext(host, { Date: { now: () => now } });
@@ -14,8 +14,8 @@ let vars; // = host.state.vars after reset()
 const lock = i => { st.playlists[i].locked = { owner: 'js', actions: ['AddItems'] }; };
 const reset = () => {
   st.active = 0; st.playlists.forEach(p => { p.locked = null; }); now = 1000; st.vars.clear(); vars = st.vars;
-  vars.set(S.PVAR.navMode, 'library'); vars.set(S.PVAR.queueBuffer, 'Hariiro - Queue Buffer #2');
-  vars.set(S.PVAR.searchOwned, '["Hariiro - Search Results"]');
+  vars.set(S.PVAR.navMode, 'library'); vars.set(S.PVAR.queueBuffer, 'Queue Buffer #2');
+  vars.set(S.PVAR.searchOwned, '["Search Results"]');
 };
 const idle = { active: false, guardUntil: 0 };
 const ev = (own = idle) => JSON.parse(JSON.stringify(G.evaluate(own)));

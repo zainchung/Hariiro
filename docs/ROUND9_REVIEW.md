@@ -5,7 +5,7 @@ Branch: `feature/hariiro-ui-reference-refresh`. Keep `main` unchanged until Wind
 ## Changes
 
 - GLASS/NATIVE, DesktopLyrics and QUEUE switches now use identical **fully opaque** on/off backgrounds, outlines and knobs. Their former translucent backgrounds appeared different against different portions of the wallpaper.
-- Remove playlist directly from the left sidebar (no secondary confirmation). Fixed Music Library, Hariiro - Favorites and Hariiro - Search Result, plus playing/queued/locked playlists remain protected. Removing a playlist does not delete its media files.
+- Remove playlist directly from the left sidebar (no secondary confirmation). Fixed Music Library, Favorites and Search Result, plus playing/queued/locked playlists remain protected. Removing a playlist does not delete its media files.
 - Removed the left-sidebar `Remove selected tracks` action. Multiple selections are removable only from the middle GLASS playlist context menu or Delete key. This uses `plman.RemovePlaylistSelection(p, false)` and retains original media files.
 - Repainted `images/controls/seek_backward_5.png` and `seek_forward_5.png` with a visible `5s` text label. Increased the music-note and disc badges in the two late Shuffle icons. Assets remain independent transparent RGBA files.
 - `Shuffle (folders)` is a native foobar2000 playback order (index 6), **not** a skin invention. Removed its option and image from Hariiro's skin menu without altering the host. If the host is already in native mode 6, the skin shows the generic Shuffle icon until the user selects a different mode from Hariiro's menu.

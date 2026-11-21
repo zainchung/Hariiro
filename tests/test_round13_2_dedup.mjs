@@ -20,13 +20,13 @@ const handle=(path,subsong=0)=>({Path:path,SubSong:subsong});
 const data=[
  {name:'Mix A',items:[handle('C:\\MUSIC\\Album\\Song.FLAC'),handle('C:\\music\\Album\\Song.FLAC')]},
  {name:'Mix B',items:[handle('D:\\Music\\Original.mp3')]},
- {name:'Hariiro - Favorites',items:[handle('C:\\Music\\fav.flac')]},
- {name:'Hariiro - Search Results',items:[handle('C:\\Music\\search.flac')]},
- {name:'Hariiro - Queue Buffer',items:[handle('C:\\Music\\queue.flac')]}
+ {name:'Favorites',items:[handle('C:\\Music\\fav.flac')]},
+ {name:'Search Results',items:[handle('C:\\Music\\search.flac')]},
+ {name:'Queue Buffer',items:[handle('C:\\Music\\queue.flac')]}
 ];
 let active=0,playing=-1,selected=new Map(),focus=new Map(),backups=0,removalCalls=0,sortCalls=0,filesRemoved=0;
-const windows=[],vars=new Map([['hariiro.nav.mode','library'],['hariiro.queue.buffer.name','Hariiro - Queue Buffer'],
- ['hariiro.search.results.owned',JSON.stringify(['Hariiro - Search Results'])]]);
+const windows=[],vars=new Map([['hariiro.nav.mode','library'],['hariiro.queue.buffer.name','Queue Buffer'],
+ ['hariiro.search.results.owned',JSON.stringify(['Search Results'])]]);
 function list(values){return{get Count(){return values.length},Convert(){return values.slice()},Item:i=>values[i],Add(x){values.push(x)},Find(x){return values.indexOf(x)}};}
 const pendingTimers=new Map();let nextTimer=0;
 const win={ID:1,Width:196,Height:500,Repaint(){},GetProperty:(k,v)=>v,SetProperty(){},

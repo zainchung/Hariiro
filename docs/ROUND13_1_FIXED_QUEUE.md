@@ -3,7 +3,7 @@
 This is a narrowly scoped correction to Round 13.
 
 - Music Library exports all media-library handles to Playback Queue when dragged rightwards.
-- Hariiro - Favorites and Hariiro - Search Result export all their current playlist tracks, when those lists are populated.
+- Favorites and Search Result export all their current playlist tracks, when those lists are populated.
 - Empty / unavailable fixed lists do not start an OLE drag.
 - Fixed lists remain read-only drop targets: no external file import, no centre-to-fixed copy, and no sidebar reordering.
 - An OLE drag that returns to the source sidebar or lands over the Glass middle panel must be declined.

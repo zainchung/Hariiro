@@ -12,7 +12,7 @@ const GLYPH=HariiroDpi.font('Segoe UI Symbol',18,0), CLEAR_FONT=HariiroDpi.font(
 const GLASS=0xa8142347,FRAME=0xbfeab5d4,INK=0xfff6e8f4,MUTED=0xffbdacc5,PINK=0xffffb9d7;
 const OWNED_PROPERTY='Hariiro.OwnedSearchResults.v1';
 const QUERY_PROPERTY='Hariiro.Search.LastQuery.v1';
-const RESULT_ROOT='Hariiro - Search Results';
+const RESULT_ROOT='Search Results';
 const SORT_EXPR='$lower($if2(%album%,~Singles))|'+
     '$num(%discnumber%,4)|$num(%tracknumber%,5)|'+
     '$lower($if2(%album artist%,$if2(%artist%,Unknown Artist)))';

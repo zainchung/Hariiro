@@ -277,7 +277,7 @@ function entries() {
  const out=[
    {kind:'library',name:HariiroShared.LIST.library,index:-1,count:libraryCount},
    {kind:'fixedFavorites',name:FAVORITES,index:fav,count:fav>=0?plman.PlaylistItemCount(fav):0},
-   {kind:'fixedSearch',name:'Hariiro - Search Result',index:search,count:search>=0?plman.PlaylistItemCount(search):0}
+   {kind:'fixedSearch',name:'Search Result',index:search,count:search>=0?plman.PlaylistItemCount(search):0}
  ];
  const buffer=typeof panelsui!=='undefined'?String(panelsui.GetVariable(HariiroShared.PVAR.queueBuffer,'')||''):'';
  const searchOwned=searchOwnedNames();

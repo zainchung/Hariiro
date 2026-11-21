@@ -19,7 +19,7 @@ function reset() {
   records = [
     { name: 'User A', items: [H('a.flac')] },
     { name: 'User B', items: [H('b.flac'), H('b2.flac')] },
-    { name: 'Hariiro - Favorites', items: [H('fav.flac')] }];
+    { name: 'Favorites', items: [H('fav.flac')] }];
   sel = records.map(() => new Set());
   active = 0; queue = []; now = 1000; lbutton = false;
   vars = new Map([['hariiro.nav.mode', 'library'], ['hariiro.theme.hue', 'rose'], ['hariiro.drag.origin', '']]);
@@ -104,7 +104,7 @@ assert.equal(vars.get('hariiro.drop.pending'), '', 'pending redirect is consumed
 
 // 2. Sidebar pinned row (Favorites) is read-only: the files are taken back out again.
 reset();
-externalDropOn(sidebar, 80, rowY('Hariiro - Favorites'));
+externalDropOn(sidebar, 80, rowY('Favorites'));
 hostFallbackDrop(['x.flac', 'y.flac']);
 assert.deepEqual(paths(0), ['a.flac']);
 assert.deepEqual(paths(2), ['fav.flac']);
@@ -114,7 +114,7 @@ reset();
 externalDropOn(sidebar, 80, 400);
 hostFallbackDrop(['n1.flac', 'n2.flac']);
 assert.deepEqual(paths(0), ['a.flac']);
-const staging = records.findIndex(r => r.name.startsWith('Hariiro - Import Staging'));
+const staging = records.findIndex(r => r.name.startsWith('Import Staging'));
 assert(staging >= 0, 'staging playlist used');
 assert.deepEqual(paths(staging), ['n1.flac', 'n2.flac'], 'staged; the sidebar turns it into a playlist when idle');
 

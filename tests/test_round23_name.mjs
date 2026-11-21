@@ -19,15 +19,16 @@ function* walk(dir) {
     else yield join(dir, e.name);
   }
 }
+const relOf = file => relative(ROOT, file).replace(/\\/g, '/');
+const linesOf = file => readFileSync(file, 'utf8').split(/\r?\n/);
 
 const badNames = [], badText = [];
 for (const file of walk(ROOT)) {
-  const rel = relative(ROOT, file).replace(/\\/g, '/');
+  const rel = relOf(file);
   if (LOCAL_ONLY.has(rel)) continue;
   if (OLD.test(rel)) badNames.push(rel);
   if (BINARY.has(extname(file).toLowerCase())) continue;
-  const lines = readFileSync(file, 'utf8').split(/\r?\n/);
-  lines.forEach((line, i) => { if (OLD.test(line)) badText.push(`${rel}:${i + 1}`); });
+  linesOf(file).forEach((line, i) => { if (OLD.test(line)) badText.push(`${rel}:${i + 1}`); });
 }
 assert.deepEqual(badNames, [], 'file names still use the old name');
 assert.deepEqual(badText.slice(0, 20), [], `text still uses the old name (${badText.length} lines)`);
@@ -36,8 +37,19 @@ const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
 assert.equal(pkg.name, 'hariiro');
 assert.equal(pkg.version, '1.0.0');
 
+// Reserved playlists carry no product prefix (owner, after the rename): "Favorites", not
+// "Hariiro - Favorites". No script, layout or test names one with the prefix.
 const shared = readFileSync(join(ROOT, 'js', 'hariiro_shared.js'), 'utf8');
 for (const list of ['Favorites', 'Queue Buffer', 'Sorted Library View', 'Artist View', 'Import Staging'])
-  assert(shared.includes(`'Hariiro - ${list}'`), `reserved playlist "Hariiro - ${list}"`);
+  assert(shared.includes(`'${list}'`), `reserved playlist "${list}"`);
+const PREFIXED = /Hariiro - (Favorites|Queue Buffer|Sorted Library View|Artist View|Import Staging|Search Result)/;
+const SCOPE = /^(js\/|tests\/|main\.txt$|foo_ui_panels\.ini$)/;
+const prefixed = [];
+for (const file of walk(ROOT)) {
+  const rel = relOf(file);
+  if (!SCOPE.test(rel) || rel.endsWith('test_round23_name.mjs')) continue;
+  linesOf(file).forEach((line, i) => { if (PREFIXED.test(line)) prefixed.push(`${rel}:${i + 1}`); });
+}
+assert.deepEqual(prefixed.slice(0, 20), [], `reserved playlist names with the prefix (${prefixed.length} lines)`);
 
 console.log('test_round23_name: ok');

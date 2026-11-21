@@ -15,13 +15,13 @@ new excess copies, preserving any duplicates already present when the feature
 started or that were present before the current import. It also preserves the
 selection where possible and lets the existing import sort/focus logic continue.
 
-Blank-sidebar drops first use the hidden `Hariiro - Import Staging` playlist. Before
+Blank-sidebar drops first use the hidden `Import Staging` playlist. Before
 moving imported tracks into a newly created ordinary playlist, this path filters
 duplicate files within the same batch.
 
 ## Exclusions and limitations
 
-- Music Library (fixed view), Hariiro - Favorites, owned search results, Artist
+- Music Library (fixed view), Favorites, owned search results, Artist
   scratch views, and the Queue buffer are not deduplicated or modified.
 - This never deletes source audio files. Removing a duplicate only removes the
   playlist entry via `plman.RemovePlaylistSelection`.

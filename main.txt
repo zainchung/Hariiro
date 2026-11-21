@@ -60,7 +60,7 @@ $drawrect($eval(%_width% * 72 / 100 - 10),58,$eval(%_width% * 28 / 100 - 6),265,
 $panel(Cover,Album Art,$eval(%_width% * 72 / 100 + 4),72,$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)))
 $drawrect($eval(%_width% * 72 / 100 + 4),72,$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),$ifgreater(%_width%,1500,180,$eval(%_width% * 12 / 100)),brushcolor-null pencolor-$if2($getpvar(hariiro.tc.245-190-213),245-190-213))
 $font(Segoe UI Symbol,18,,$if2($getpvar(hariiro.tc.250-181-211),250-181-211))
-$textbutton($eval(%_width% - 57),68,36,33,$if($strcmp($getpvar(hariiro.favorite.current),1),♥,♡),,JSPANEL:Playlists:togglefavorite,TOOLTIP,'現在の曲を Hariiro - Favorites へ追加 / 解除')
+$textbutton($eval(%_width% - 57),68,36,33,$if($strcmp($getpvar(hariiro.favorite.current),1),♥,♡),,JSPANEL:Playlists:togglefavorite,TOOLTIP,'現在の曲を Favorites へ追加 / 解除')
 // One JS metadata panel computes line wrapping and a single vertical flow.
 // It keeps the original fonts and reserves the first-line heart target.
 $panel(NowDetails,JS Panel,$ifgreater(%_width%,1500,$eval(%_width% * 72 / 100 + 198),$eval(%_width% * 84 / 100 + 18)),72,$ifgreater(%_width%,1500,$eval(%_width% * 28 / 100 - 219),$eval(%_width% * 16 / 100 - 42)),190)

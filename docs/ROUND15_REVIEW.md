@@ -6,7 +6,7 @@ Drops onto the sidebar or the middle list did not do what the on-screen hint sai
 
 | Drag | Hint shown | Actual result |
 |---|---|---|
-| Middle track → sidebar ordinary playlist | "拖入：Default Playlist" | Track appended to the playlist **open in the middle list** (e.g. Hariiro - Favorites) |
+| Middle track → sidebar ordinary playlist | "拖入：Default Playlist" | Track appended to the playlist **open in the middle list** (e.g. Favorites) |
 | Sidebar pinned list (Favorites) → middle list | read-only warning | All of Favorites appended to the open playlist anyway |
 | Middle track → sidebar ordinary playlist, middle showing an ordinary list | "拖入：…" | Nothing visible: the track went into the open list and the Round 13.2 dedup removed it again |
 
@@ -56,7 +56,7 @@ drop target per window and the sidebar received a real `on_drag_drop` (verified)
    - `HariiroDpi.width()/height()` replace `window.Width/Height`; `HariiroDpi.install()` is the
      last statement of each of the three scripts.
 3. Sidebar row names get 6 more layout px (`w-80`): real 24 px GDI text is a few percent
-   wider than the host's scaled 12 px text, which had truncated "Hariiro - Search Result".
+   wider than the host's scaled 12 px text, which had truncated "Search Result".
 4. The two panels that were child windows already — `GlassSearch` (search box) and
    `NativeScroll` (NATIVE-mode scroll strip) — drew at half size too and now use `HariiroDpi`
    as well (`HariiroDpi.repaintRect` for the caret blink, `HariiroDpi.textWidth` for click-to-caret).
@@ -130,7 +130,7 @@ be redirected. A drop on a gap that is not a panel keeps the host's default (act
 | Middle track → Queue | ✅ QUEUE · 1 |
 | Sidebar Default Playlist → Queue | ✅ +14 |
 | Right-click menus (middle, sidebar) | ✅ open at the pointer |
-| Layout | ✅ same size as before; "Hariiro - Search Result" no longer truncated |
+| Layout | ✅ same size as before; "Search Result" no longer truncated |
 | Search box at 200 % | ✅ magnifier and placeholder at full size |
 | Layout at 2560×1440 / 100 % (display changed during testing) | ✅ panels match the host-drawn frames |
 
@@ -168,9 +168,9 @@ middle → sidebar drop, pinned → middle rejection and an external file onto t
 behave as in Round 15. Playlists were restored from a backup afterwards.
 
 D1 step 2 (`HariiroScratchViews`, same day): skin loads with no script errors. Music Library
-and an artist reuse the registered `Hariiro - Sorted Library View` / `Hariiro - Artist View`
+and an artist reuse the registered `Sorted Library View` / `Artist View`
 (no new lists). Opening another artist while the Artist view is playing creates
-`Hariiro - Artist View #2` and leaves the playing list untouched. Playlists restored afterwards.
+`Artist View #2` and leaves the playing list untouched. Playlists restored afterwards.
 
 Seen, not changed (same before the move): `#2` is not removed by the cleanup once it is
 no longer active or playing, because the sidebar locks every populated view (`AddItems`,

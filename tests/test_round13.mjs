@@ -10,11 +10,11 @@ const library=[{Path:'artist1.flac'},{Path:'artist2.mp3'}];
 const records=[
  {name:'User A',items:[{Path:'a.flac'},{Path:'b.flac'}]},
  {name:'User B',items:[{Path:'c.flac'}]},
- {name:'Hariiro - Favorites',items:[{Path:'fav.flac'}]},
- {name:'Hariiro - Search Results',items:[{Path:'search.flac'}]}
+ {name:'Favorites',items:[{Path:'fav.flac'}]},
+ {name:'Search Results',items:[{Path:'search.flac'}]}
 ];
 const vars=new Map([['hariiro.nav.mode','library'],['hariiro.sidebar.editable.name','User A'],
- ['hariiro.search.results.name','Hariiro - Search Results'],['hariiro.search.results.owned','["Hariiro - Search Results"]'],['hariiro.theme.hue','rose']]);
+ ['hariiro.search.results.name','Search Results'],['hariiro.search.results.owned','["Search Results"]'],['hariiro.theme.hue','rose']]);
 let active=0,selected=[0,1],imports=[],queue=[],createCount=0,moveCount=0,dragStarts=0;
 const callbacks=[]; const panels=new Map();
 const plman={
@@ -73,8 +73,8 @@ const startLeft=(name,from=50)=>{const y=yOf(name);sidebar.on_mouse_lbtn_down(fr
 sourceTarget='HariiroQueue';sourceDropOn={x:25,y:110};
 for(const [name,expected] of [
  ['Music Library',['artist1.flac','artist2.mp3']],
- ['Hariiro - Favorites',['fav.flac']],
- ['Hariiro - Search Result',['search.flac']]
+ ['Favorites',['fav.flac']],
+ ['Search Result',['search.flac']]
 ]){
  const old=dragStarts,oldQueue=queue.length;
  startLeft(name);
@@ -84,15 +84,15 @@ for(const [name,expected] of [
 }
 const pinnedDragCount=dragStarts;
 // A pinned source with no tracks must not open a native drag session.
-const favRecord=records[plman.FindPlaylist('Hariiro - Favorites')];
+const favRecord=records[plman.FindPlaylist('Favorites')];
 const originalFavorites=favRecord.items.slice();favRecord.items.length=0;
-startLeft('Hariiro - Favorites');assert.equal(dragStarts,pinnedDragCount);
+startLeft('Favorites');assert.equal(dragStarts,pinnedDragCount);
 favRecord.items.push(...originalFavorites);
 // A pinned source cannot be reordered within the sidebar.
 const moveBefore=moveCount;
-sidebar.on_mouse_lbtn_down(55,yOf('Hariiro - Favorites'));
-sidebar.on_mouse_move(55,yOf('Hariiro - Favorites')+35,1);
-sidebar.on_mouse_lbtn_up(55,yOf('Hariiro - Favorites')+35);
+sidebar.on_mouse_lbtn_down(55,yOf('Favorites'));
+sidebar.on_mouse_move(55,yOf('Favorites')+35,1);
+sidebar.on_mouse_lbtn_up(55,yOf('Favorites')+35);
 assert.equal(moveCount,moveBefore);assert.equal(dragStarts,pinnedDragCount);
 // Fixed-row clicks can activate a sorted media-library view; disregard that
 // legitimate scratch-view refresh when counting unsolicited drag insertions.
@@ -126,7 +126,7 @@ const before=imports.length;sourceTarget='GlassPlaylist';sourceDropOn={x:190,y:2
 vm.runInContext('downAt={x:250,y:180,i:0,deferred:false};',glass);
 glass.on_mouse_move(300,180,1);assert.equal(imports.length,before);
 // Pinned and Artist targets reject; no new playlist created.
-sourceTarget='Playlists';sourceDropOn={x:40,y:yOf('Hariiro - Favorites')};
+sourceTarget='Playlists';sourceDropOn={x:40,y:yOf('Favorites')};
 vm.runInContext('downAt={x:250,y:180,i:0,deferred:false};',glass);glass.on_mouse_move(300,180,1);
 assert.equal(imports.length,before);
 vm.runInContext("mode='artists';artists=[{name:'Artist 1',indices:[0,1]}];",sidebar);
@@ -152,12 +152,12 @@ assert.equal(sidebar.entries().some(r=>r.name.startsWith(importedTracksName)),fa
 plman.InsertPlaylistItems(empty.Playlist,0,mkHandles([{Path:'imported.flac'}]));sidebar.on_playlist_items_added(empty.Playlist);
 for(const [k,fn] of [...timers]){timers.delete(k);if(typeof fn==='function')fn();}
 assert.equal(sidebar.entries().some(r=>r.name.startsWith(importedTracksName)),true);
-assert.equal(records[plman.FindPlaylist('Hariiro - Import Staging')].items.length,0);
+assert.equal(records[plman.FindPlaylist('Import Staging')].items.length,0);
 // Centre mode: only a regular playlist allows file/dir imports.
 vars.set('hariiro.nav.mode','library');vars.set('hariiro.sidebar.editable.name','User A');active=plman.FindPlaylist('User A');vm.runInContext('localGlassGuardUntil=0;',glass);
 let a={Effect:0};glass.on_drag_over(a,40,120);assert.equal(a.Effect,1);
 vars.set('hariiro.nav.mode','artists');a={Effect:1};glass.on_drag_over(a,40,120);assert.equal(a.Effect,0);
-vars.set('hariiro.nav.mode','library');vars.set('hariiro.sidebar.editable.name','Hariiro - Favorites');active=plman.FindPlaylist('Hariiro - Favorites');a={Effect:1};glass.on_drag_over(a,40,120);assert.equal(a.Effect,0);
+vars.set('hariiro.nav.mode','library');vars.set('hariiro.sidebar.editable.name','Favorites');active=plman.FindPlaylist('Favorites');a={Effect:1};glass.on_drag_over(a,40,120);assert.equal(a.Effect,0);
 // 4. Host routing/caption/assets/paint stacking.
 // Round 15 reversed Round 13's windowless routing: Panels UI misrouted drops.
 for(const name of ['Playlists','GlassPlaylist','HariiroQueue'])

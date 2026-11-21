@@ -13,11 +13,11 @@ const ROW=35, TOP=29, TXT=0xfff7eaf3, MUTED=0xffc5c5df, PINK=0xffffbbd8;
 const FONT=HariiroDpi.font('Yu Gothic UI',11,0), BOLD=HariiroDpi.font('Yu Gothic UI',11,1);
 const SMALL=HariiroDpi.font('Segoe UI',9,0), DT=0x8024;
 const TRASH_FONT=HariiroDpi.font('Segoe UI Emoji',14,0);
-const BUFFER='Hariiro - Queue Buffer';
+const BUFFER='Queue Buffer';
 const BUFFER_PROPERTY='Hariiro.OwnedQueueBuffer.v1';
 // Do not reuse a pre-existing playlist simply because its name matches BUFFER.
 let ownedBufferName=String(window.GetProperty(BUFFER_PROPERTY,'')||'');
-if(ownedBufferName!==BUFFER && !/^Hariiro - Queue Buffer #(?!1$)[1-9][0-9]*$/.test(ownedBufferName))
+if(ownedBufferName!==BUFFER && !/^Queue Buffer #(?!1$)[1-9][0-9]*$/.test(ownedBufferName))
     ownedBufferName='';
 const BUFFER_LIMIT=400; // compact only when all queue items are independent handles
 const TF_TITLE=fb.TitleFormat('$if(%tracknumber%,$ifgreater($num(%discnumber%,1),1,$num(%discnumber%,1)-$num(%tracknumber%,2),$num(%tracknumber%,2)). ,)$if2(%title%,Untitled)');

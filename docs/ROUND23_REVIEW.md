@@ -17,7 +17,8 @@ migrated. The second bundled wallpaper is brought to its nominal 2560×1440.
     `hariiro.wallpaper`, without the old product part; the others only changed their prefix), `hariiro.tc.<r-g-b>` in
     `main.txt`, the `pvar.once` defaults in the ini;
   - window properties `Hariiro.*` (search query, tab, scratch ownership, lyric offsets, …);
-  - reserved playlists `Hariiro - Favorites / Queue Buffer / Sorted Library View /
+  - reserved playlists, **without a name prefix** (owner, after a first pass that used
+    "Hariiro - …"): `Favorites / Queue Buffer / Search Results / Sorted Library View /
     Artist View / Import Staging`.
   An install of a test build starts with defaults; its old reserved playlists stay as normal
   playlists. `docs/USER_README.txt` tells users how to move their favourites by hand.
@@ -27,6 +28,12 @@ migrated. The second bundled wallpaper is brought to its nominal 2560×1440.
   `-SkinFolder` (or `$env:HARIIRO_SKIN_FOLDER`, default `Hariiro`) for an installed skin folder
   with another name.
 - Historical docs and release notes use the new name as well; git history keeps the old one.
+
+Without the prefix the names are generic: a user playlist called "Favorites" (or "Queue
+Buffer", "Search Results", …) is taken as the skin's list of that name, and one starting
+with "Sorted Library View #" / "Artist View #" / "Import Staging" counts as reserved. The
+scratch views are only deleted when the skin owns them (`HariiroScratchViews`, ownership
+property), so a user playlist with such a name is hidden from drops but never removed.
 
 ## Wallpaper
 
@@ -39,7 +46,7 @@ picture is not visibly stretched. This adds pixels, not detail; an AI upscaler o
 
 `tests/test_round23_name.mjs` (failed before the rename): no file name or text file of the
 project contains the old name (only the uncommitted `CLAUDE.local.md` is skipped),
-`package.json` is `hariiro` 1.0.0, and the reserved playlists are `Hariiro - …`. Four older
+`package.json` is `hariiro` 1.0.0, the reserved playlists have no prefix, and no script, layout or test names one with it. Four older
 suites matched the escaped ini keys and now expect `hariiro\.accent` / `hariiro\.wallpaper`;
 `test_round22_unified_colours` looks 40 characters back for `$getpvar(hariiro.tc.…)` (was
 30, too short for the longer prefix). `npm test`: 35/35. `npm run package`: 160 files, no old
@@ -54,7 +61,7 @@ log and Panels UI log without errors or missing images after the start. The conf
 now holds the `hariiro.*` defaults written by `pvar.once`: accent pink, `theme.hue=pink`
 (colour folder found), GLASS mode, language Auto (shown as Japanese, the Windows language),
 wallpaper `wallpapers/Hariiro_UI_2560x1440.png`. The values saved under the old prefix stay unused in the
-configuration. No `Hariiro - …` playlist was created at start (they are created on first
+configuration. No reserved playlist was created at start (they are created on first
 use); the playlist index is identical to the backup, so no restore was needed.
 
 Not checked: the screen itself (screen control was not granted for this pass), the first

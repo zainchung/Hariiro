@@ -41,9 +41,9 @@ assert(read('js/hariiro_theme.js').includes('0xff93547d'));
 // Mock foobar playlists as actual editable entities, not scratch views.
 let rows=[
  {name:'Default Playlist',items:[{Path:'a.mp3',SubSong:0,album:'A',disc:1,track:1}]},
- {name:'Hariiro - Favorites',items:[]},
+ {name:'Favorites',items:[]},
  {name:'User Mix',items:[{Path:'old.mp3',SubSong:0,album:'B',disc:1,track:2}]},
- {name:'Hariiro - Search Results',items:[{Path:'q.mp3',SubSong:0,album:'A',disc:1,track:1}]}
+ {name:'Search Results',items:[{Path:'q.mp3',SubSong:0,album:'A',disc:1,track:1}]}
 ];
 let active=0,focus=-1,locked=new Map(),select=[],timerId=0,clock=new Map(),menuNext=0,notice=[],dragged=[],actions=[];
 const handles=arr=>({Count:arr.length,Convert:()=>[...arr],Item:i=>arr[i],Add:h=>arr.push(h),Find:h=>arr.indexOf(h)});
@@ -68,7 +68,7 @@ const fb={
  GetLibraryItems:()=>handles(lib),CreateHandleList:()=>handles([]),GetNowPlaying:()=>null,GetSelection:()=>handles([]),
  DoDragDrop(_win,list){dragged.push(list.Count)},RunMainMenuCommand(){return true},ShowPopupMessage(message){notice.push(message)}
 };
-const vars=new Map([['hariiro.nav.mode','library'],['hariiro.search.results.name','Hariiro - Search Results'],['hariiro.search.results.owned',JSON.stringify(['Hariiro - Search Results'])]]);
+const vars=new Map([['hariiro.nav.mode','library'],['hariiro.search.results.name','Search Results'],['hariiro.search.results.owned',JSON.stringify(['Search Results'])]]);
 const panelsui={GetVariable:(k,d)=>vars.get(k)??d,SetVariable:(k,v)=>vars.set(k,String(v)),RunAction:s=>{actions.push(s);return true;}};
 const utils={InputBox(){return 'Fresh Playlist'},MessageBox(){return 6},IsKeyPressed(){return false}};
 const window={ID:1,Width:196,Height:430,GetProperty:(_k,d)=>d,SetProperty(){},Repaint(){},
@@ -77,9 +77,9 @@ const window={ID:1,Width:196,Height:430,GetProperty:(_k,d)=>d,SetProperty(){},Re
 const ctx=vm.createContext({gdi:{Font:()=>({})},plman,fb,panelsui,utils,window,console:{log(){}}});
 vm.runInContext(sidebarCode,ctx);
 const initial=ctx.entries();
-assert.equal(initial[0].name,'Music Library');assert.equal(initial[1].name,'Hariiro - Favorites');
-assert.equal(initial[2].name,'Hariiro - Search Result');assert(initial.slice(3).every(x=>x.kind==='playlist'));
-assert(!initial.slice(3).some(x=>x.name==='Hariiro - Search Results'));
+assert.equal(initial[0].name,'Music Library');assert.equal(initial[1].name,'Favorites');
+assert.equal(initial[2].name,'Search Result');assert(initial.slice(3).every(x=>x.kind==='playlist'));
+assert(!initial.slice(3).some(x=>x.name==='Search Results'));
 const mix=initial.findIndex(x=>x.name==='User Mix');ctx.choose(32,8+mix*30+15,false);
 assert.equal(plman.ActivePlaylist,2,'Selecting regular playlist should select original, not scratch');
 assert.equal(ctx.editableDestination(),2);
@@ -95,7 +95,7 @@ ctx.on_mouse_lbtn_down(43,8+oldIndex*30+15);
 ctx.on_mouse_move(43,8+otherIndex*30+15,1);
 assert.equal(vm.runInContext("playlistDropTarget",ctx),otherIndex);ctx.on_paint(gr);
 assert(shapes.length>0);ctx.on_mouse_lbtn_up(20,8+otherIndex*30+15);
-assert.equal(ctx.entries()[0].name,'Music Library');assert.equal(ctx.entries()[1].name,'Hariiro - Favorites');
+assert.equal(ctx.entries()[0].name,'Music Library');assert.equal(ctx.entries()[1].name,'Favorites');
 const after=ctx.entries();assert(after.findIndex(e=>e.name==='Default Playlist')>after.findIndex(e=>e.name==='User Mix'));
 // Context create makes actual playlist, with no folder prompts.
 menuNext=1;ctx.on_mouse_rbtn_up(30,70);assert(plman.FindPlaylist('Fresh Playlist')>=0);

@@ -60,8 +60,8 @@ for(const f of ['js/hariiro_mode_switch.js','js/hariiro_queue_toggle.js','js/har
 // Mock the actual foobar playlist API; deliberately omit utils.MessageBox and
 // plman.RemovePlaylist to reproduce old "TypeError: not a function" conditions.
 let rows=[{name:'Normal',items:[{Path:'a.flac',SubSong:0}]},
- {name:'Hariiro - Favorites',items:[{Path:'fav.flac',SubSong:0}]},
- {name:'Hariiro - Search Results',items:[{Path:'result.flac',SubSong:0}]},
+ {name:'Favorites',items:[{Path:'fav.flac',SubSong:0}]},
+ {name:'Search Results',items:[{Path:'result.flac',SubSong:0}]},
  {name:'Editable',items:[{Path:'song1.flac',SubSong:0}]},
  {name:'To Delete',items:[{Path:'song2.flac',SubSong:0}]}];
 let active=3,selected=[0],focus=-1,removedPlaylist=-1,calledRemove=0;
@@ -89,7 +89,7 @@ const fb={
  ShowPopupMessage:m=>notice.push(m),DoDragDrop(){},RunMainMenuCommand:()=>true,
  GetSelection:()=>handles([])
 };
-const vars=new Map([['hariiro.nav.mode','library'],['hariiro.search.results.owned','["Hariiro - Search Results"]'],['hariiro.search.results.name','Hariiro - Search Results']]);
+const vars=new Map([['hariiro.nav.mode','library'],['hariiro.search.results.owned','["Search Results"]'],['hariiro.search.results.name','Search Results']]);
 const ctx=vm.createContext({gdi:{Font:()=>({})},plman,fb,utils:{IsKeyPressed(){return false}},
  panelsui:{GetVariable:(k,d)=>vars.get(k)??d,SetVariable:(k,v)=>vars.set(k,v),RunAction:a=>{actions.push(a);return true}},
  window:{ID:1,Width:196,Height:420,Repaint(){},GetProperty:(k,d)=>d,SetProperty(){},
@@ -97,7 +97,7 @@ const ctx=vm.createContext({gdi:{Font:()=>({})},plman,fb,utils:{IsKeyPressed(){r
  SetTimeout(fn){cb.set(++counter,fn);return counter},ClearTimeout(id){cb.delete(id)}},console:{log(){}}});
 vm.runInContext(nav,ctx);
 const hit=(name)=>{const i=ctx.entries().findIndex(r=>r.name===name);assert(i>=0,name);return 8+i*30+10;};
-for(const fixed of ['Music Library','Hariiro - Favorites','Hariiro - Search Result']){
+for(const fixed of ['Music Library','Favorites','Search Result']){
  const action={Effect:77};ctx.on_drag_over(action,15,hit(fixed));assert.equal(action.Effect,0,fixed+' rejects a drop');
 }
 const hover={Effect:0};ctx.on_drag_over(hover,20,hit('Editable'));
@@ -115,7 +115,7 @@ assert.equal(rows[3].items[0].Path,'song1.flac','existing audio file handle must
 assert.equal(typeof ctx.removeSelectedTracks,'undefined');
 assert.equal(calledRemove,0);
 assert.equal(rows[3].items[0].Path,'song1.flac');
-for(const fixed of ['Music Library','Hariiro - Favorites','Hariiro - Search Result']){
+for(const fixed of ['Music Library','Favorites','Search Result']){
  const item=ctx.entries().find(x=>x.name===fixed);assert.equal(ctx.editablePlaylistRow(item),false);
 }
 assert(glass.includes("HariiroI18n.t('removeSelected')"));

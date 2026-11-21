@@ -10,11 +10,11 @@ const library=[{Path:'artist1.flac'},{Path:'artist2.mp3'}];
 const records=[
  {name:'User A',items:[{Path:'a.flac'},{Path:'b.flac'}]},
  {name:'User B',items:[{Path:'c.flac'}]},
- {name:'Hariiro - Favorites',items:[{Path:'fav.flac'}]},
- {name:'Hariiro - Search Results',items:[{Path:'search.flac'}]}
+ {name:'Favorites',items:[{Path:'fav.flac'}]},
+ {name:'Search Results',items:[{Path:'search.flac'}]}
 ];
 const vars=new Map([['hariiro.nav.mode','library'],['hariiro.sidebar.editable.name','User A'],
- ['hariiro.search.results.name','Hariiro - Search Results'],['hariiro.search.results.owned','["Hariiro - Search Results"]'],['hariiro.theme.hue','rose']]);
+ ['hariiro.search.results.name','Search Results'],['hariiro.search.results.owned','["Search Results"]'],['hariiro.theme.hue','rose']]);
 let active=0,selected=[0,1],imports=[],queue=[],createCount=0,moveCount=0,dragStarts=0;
 const callbacks=[]; const panels=new Map();
 const plman={
@@ -71,7 +71,7 @@ const yOf=(name)=>{const i=sidebar.entries().findIndex(r=>r.name===name);assert(
 const startLeft=(name,from=50)=>{const y=yOf(name);sidebar.on_mouse_lbtn_down(from,y);sidebar.on_mouse_move(from+64,y,1)};
 
 // ===== Round 14: the user's drag-and-drop rules, end to end =====
-const A=plman.FindPlaylist('User A'),B=plman.FindPlaylist('User B'),FAV=plman.FindPlaylist('Hariiro - Favorites');
+const A=plman.FindPlaylist('User A'),B=plman.FindPlaylist('User B'),FAV=plman.FindPlaylist('Favorites');
 const over=(panel,origin,x,y)=>{vars.set('hariiro.drag.origin',origin);const a={Effect:1};panels.get(panel).on_drag_enter(a,x,y);panels.get(panel).on_drag_over(a,x,y);return a;};
 const drop=(panel,origin,x,y)=>{vars.set('hariiro.drag.origin',origin);const a={Effect:1};panels.get(panel).on_drag_drop(a,x,y);return a;};
 const status=()=>vm.runInContext('importStatus',glass);
@@ -86,8 +86,8 @@ let a=over('GlassPlaylist','',300,100);assert.equal(a.Effect,1,'external -> midd
 a=drop('GlassPlaylist','',300,100);assert.equal(a.Effect,1);assert.equal(a.Playlist,A);assert.equal(a.Base,records[A].items.length);
 
 // R14-2: external files onto Favorites / Artist view / Music Library view / search results -> warning, rejected
-for(const [nm,msg] of [['Hariiro - Favorites','chooseRegularPlaylist'],['Hariiro - Search Results','chooseRegularPlaylist'],
-  ['Hariiro - Sorted Library View','chooseRegularPlaylist'],['Hariiro - Artist View','artistHint']]){
+for(const [nm,msg] of [['Favorites','chooseRegularPlaylist'],['Search Results','chooseRegularPlaylist'],
+  ['Sorted Library View','chooseRegularPlaylist'],['Artist View','artistHint']]){
  let idx=plman.FindPlaylist(nm);if(idx<0)idx=plman.CreatePlaylist(records.length,nm);
  active=idx;
  a=over('GlassPlaylist','',300,100);assert.equal(a.Effect,0,nm);assert.equal(status(),tr(msg),nm);
@@ -123,7 +123,7 @@ a=over('Playlists','glass:'+A,80,rowY('User B'));assert.equal(a.Effect,1,'middle
 a=drop('Playlists','glass:'+A,80,rowY('User B'));assert.equal(a.Effect,1);assert.equal(a.Playlist,B);
 a=over('Playlists','glass:'+A,80,rowY('User A'));assert.equal(a.Effect,0,'middle -> its own playlist');
 // middle -> Music Library / Favorites / Search rows = rejected with the read-only warning
-for(const n of ['Music Library','Hariiro - Favorites','Hariiro - Search Result']){
+for(const n of ['Music Library','Favorites','Search Result']){
  a=over('Playlists','glass:'+A,80,rowY(n));assert.equal(a.Effect,0,n);
  assert.equal(vm.runInContext('trackDropNotice',sidebar),sidebar.HariiroI18n.t('listReadOnlyDrop'),n);
  a=drop('Playlists','glass:'+A,80,rowY(n));assert.equal(a.Effect,0,n);
@@ -134,7 +134,7 @@ a=over('Playlists','glass:'+A,80,440);assert.equal(a.Effect,0,'glass tracks over
 a=over('Playlists','sidebar:playlist:'+B,80,rowY('User A'));assert.equal(a.Effect,0);
 // external files: ordinary row accepted, pinned rows rejected + warning, blank area = new playlist
 a=over('Playlists','',80,rowY('User B'));assert.equal(a.Effect,1);
-for(const n of ['Music Library','Hariiro - Favorites','Hariiro - Search Result']){
+for(const n of ['Music Library','Favorites','Search Result']){
  a=over('Playlists','',80,rowY(n));assert.equal(a.Effect,0,n);
  assert.equal(vm.runInContext('trackDropNotice',sidebar),sidebar.HariiroI18n.t('listReadOnlyDrop'),n);
 }
@@ -149,7 +149,7 @@ function rowY0(){return 8+14}
 vars.set('hariiro.drag.origin','');
 let before=dragStarts;sourceTarget='HariiroQueue';sourceDropOn={x:25,y:110};
 // pinned row, diagonal down-right pull toward the queue
-const yl=yOf('Hariiro - Favorites');sidebar.on_mouse_lbtn_down(50,yl);sidebar.on_mouse_move(50+18,yl+40,1);
+const yl=yOf('Favorites');sidebar.on_mouse_lbtn_down(50,yl);sidebar.on_mouse_move(50+18,yl+40,1);
 assert.equal(dragStarts,before+1,'pinned row: diagonal pull starts export');
 // ordinary playlist, 40px right / 20px down still exports; mostly vertical still reorders
 before=dragStarts;const yu=yOf('User B');

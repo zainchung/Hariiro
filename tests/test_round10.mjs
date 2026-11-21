@@ -30,8 +30,8 @@ assert(source.includes("source.kind==='fixedFavorites'"));
 assert(source.includes("HariiroI18n.t('duplicatePlaylist')"));
 const rows=[
 {name:'Original',items:[{Path:'A.flac'}]},
-{name:'Hariiro - Favorites',items:[{Path:'Fav.flac'}]},
-{name:'Hariiro - Search Results',items:[{Path:'Found.flac'}]},
+{name:'Favorites',items:[{Path:'Fav.flac'}]},
+{name:'Search Results',items:[{Path:'Found.flac'}]},
 {name:'Mix',items:[{Path:'Mix.flac'}]}];
 let active=0,dragged=[],selfDrop=[];let popupAnswer=0;const info=[];
 const handles=arr=>({Count:arr.length,Item:i=>arr[i],Convert:()=>arr.slice(),Add:h=>arr.push(h)});
@@ -42,7 +42,7 @@ const plman={get PlaylistCount(){return rows.length},get ActivePlaylist(){return
 let sidebar;
 const fb={GetLibraryItems:()=>handles([{Path:'Library.flac'}]),CreateHandleList:()=>handles([]),TitleFormat:()=>({EvalWithMetadb:()=>''}),GetNowPlaying:()=>null,
  DoDragDrop(_id,list){dragged.push(list.Convert().map(x=>x.Path));const action={Effect:1};sidebar.on_drag_over(action,20,8+6*30);selfDrop.push(action.Effect);}};
-const variables=new Map([['hariiro.nav.mode','library'],['hariiro.search.results.name','Hariiro - Search Results'],['hariiro.search.results.owned','["Hariiro - Search Results"]']]);
+const variables=new Map([['hariiro.nav.mode','library'],['hariiro.search.results.name','Search Results'],['hariiro.search.results.owned','["Search Results"]']]);
 const ctx=vm.createContext({console:{log(){}},gdi:{Font:()=>({})},plman,fb,utils:{InputBox:()=>''},panelsui:{GetVariable:(k,d)=>variables.get(k)??d,SetVariable:(k,v)=>variables.set(k,v)},
  window:{ID:44,Width:196,Height:420,GetProperty:(_k,d)=>d,SetProperty(){},Repaint(){},SetTimeout(){return 0},ClearTimeout(){},CreatePopupMenu(){return{AppendMenuItem(){},AppendMenuSeparator(){},TrackPopupMenu(){return popupAnswer}}}}});
 sidebar=ctx;
@@ -51,7 +51,7 @@ vm.runInContext(source,ctx);
 const yFor=name=>{const i=ctx.entries().findIndex(row=>row.name===name);assert(i>=0,name);return 8+i*30+14;};
 let previousCount=0;
 // Pinned playlists export their entire track set, but self-drops remain rejected.
-for(const [name,track] of [['Music Library','Library.flac'],['Hariiro - Favorites','Fav.flac'],['Hariiro - Search Result','Found.flac']]){
+for(const [name,track] of [['Music Library','Library.flac'],['Favorites','Fav.flac'],['Search Result','Found.flac']]){
  ctx.on_mouse_lbtn_down(20,yFor(name));ctx.on_mouse_move(184,yFor(name),1);
  assert.equal(dragged.at(-1)?.[0],track,`${name} must export its tracks to Queue`);
  assert.equal(selfDrop.at(-1),0,'pinned source may not copy into a sidebar list');
