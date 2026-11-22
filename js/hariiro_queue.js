@@ -112,8 +112,29 @@ function reorder(from,to){
 }
 function moveOrRemove(index,delta){
     if(index<0||index>=rows.length)return false;
-    if(delta===null){plman.RemoveItemFromPlaybackQueue(index);refresh();return true;}
+    if(delta===null){
+        const h=plman.GetPlaybackQueueHandles().Convert()[index],title=rows[index].title;
+        plman.RemoveItemFromPlaybackQueue(index);refresh();
+        // Round 24: undoable (notice / Ctrl+Z); the track goes back to its old place.
+        if(h)queueUndo.offer(HariiroI18n.t('queueItemRemoved')+' '+title,()=>{
+            const next=plman.GetPlaybackQueueHandles().Convert();
+            next.splice(Math.min(index,next.length),0,h);
+            plman.FlushPlaybackQueue();
+            for(const x of next)plman.AddItemToPlaybackQueue(x);
+            refresh();
+        });
+        return true;
+    }
     return reorder(index,index+delta);
+}
+function on_key_down(key){
+    if(!HariiroUndo.isUndoKey(key))return false;
+    try{return queueUndo.keyUndo();}
+    catch(e){error=HariiroI18n.t('undoFailed')+': '+String(e);window.Repaint();return true;}
+}
+function on_notify_data(name,info){
+    try{queueUndo.notify(name,info);}
+    catch(e){error=HariiroI18n.t('undoFailed')+': '+String(e);window.Repaint();}
 }
 function on_paint(gr){
  gr=HariiroTheme.graphics(gr);

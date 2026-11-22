@@ -63,7 +63,7 @@ for (const f of fs.readdirSync(root + '/js').filter(n => n.endsWith('.js')).map(
     assert(!new RegExp(`['":]${esc(v)}['"]`).test(src), `${f} hard-codes '${v}': use HariiroShared.PVAR`);
   }
   // Helper modules whose panels include their dependencies first (used inside functions only).
-  if (/\bHariiroShared\./.test(src) && !['js/hariiro_drop_fix.js', 'js/hariiro_glass_drop.js', 'js/hariiro_scratch_views.js', 'js/hariiro_import_staging.js'].includes(f))
+  if (/\bHariiroShared\./.test(src) && !['js/hariiro_drop_fix.js', 'js/hariiro_undo.js', 'js/hariiro_glass_drop.js', 'js/hariiro_scratch_views.js', 'js/hariiro_import_staging.js'].includes(f))
     assert(src.includes("include('hariiro_shared.js');"), `${f} uses HariiroShared: include('hariiro_shared.js')`);
 }
 

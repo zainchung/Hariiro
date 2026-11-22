@@ -22,7 +22,9 @@ Rollback: restore the backed-up skin folder (and profile, if needed).
 
 Features
 - Glass playlist with album art and reflections; Artist / Library / Playlist sidebar.
-- Playback Queue panel; Undo for a deleted playlist or a cleared Queue (8 seconds).
+- Playback Queue panel; Undo for deleted playlists, removed tracks and Queue entries
+  (notice button for 8 seconds, Ctrl+Z in the sidebar, middle list or Queue).
+- Sidebar: Ctrl + click / Shift + click select several playlists; Delete removes them.
 - Lyrics from files saved by ESLyric or from tags; right-click the lyrics to move
   them 0.5 s earlier or later for the current track.
 - Menu ☰ → Accent colour: every folder in images\controls, by folder name (six

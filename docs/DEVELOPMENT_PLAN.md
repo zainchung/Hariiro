@@ -110,6 +110,8 @@ post-import sort, all of which read and write the panel's own state.
   one recolour rule, smooth power button (`docs/ROUND22_REVIEW.md`).
 - Round 23: project renamed to Hariiro (files, identifiers, saved keys, reserved playlists;
   no migration, owner's decision); second wallpaper upscaled to 2560×1440 (`docs/ROUND23_REVIEW.md`).
+- Round 24: external Queue drop with a locked list active; sidebar multi-select + Delete;
+  Ctrl+Z across sidebar / middle list / Queue (`docs/ROUND24_REVIEW.md`).
 
 ## 4. Working rules
 - Every round: failing test first, `npm test` green, review doc `docs/ROUNDnn_REVIEW.md`, short release note, ZIP via `npm run package` (`tools/package_skin.py`); bump `package.json` and the header of `docs/USER_README.txt` for a release.

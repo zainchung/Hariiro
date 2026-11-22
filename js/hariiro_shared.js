@@ -13,6 +13,8 @@ var HariiroShared=(function(){
   searchName:'hariiro.search.results.name',
   sidebarEditable:'hariiro.sidebar.editable.name',
   dropPending:'hariiro.drop.pending', // Round 15: external drop to redirect (HariiroDropFix)
+  undoOrder:'hariiro.undo.order', // Round 24: panels with undoable actions, newest last (HariiroUndo)
+  undoRestore:'hariiro.undo.restore', // Round 24: playlist an undo is refilling (not an import)
   // Owned by hariiro_theme.js / hariiro_i18n.js (they load standalone and keep the same value).
   themeHue:'hariiro.theme.hue',
   themeAccent:'hariiro.accent',

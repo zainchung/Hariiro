@@ -12,10 +12,17 @@
 // On "leave with the left button up" the plan is stored in a panel variable; the
 // first on_playlist_items_added for the active playlist then moves the newly
 // appended, selected entries to the plan's target (or just removes them).
+// Round 24, active playlist locked (the Music Library view carries the skin's own
+// AddItems lock): Windows check - foobar2000 refuses the drop, nothing is added. So the
+// lock is lifted on release (o.relock), the host appends as usual, and the lock comes
+// back as soon as the files have moved (or after RELOCK_MS when nothing arrives).
+// A lock that cannot be lifted (another component's): if foobar2000 puts the files in a
+// NEW playlist, the plan records all playlist names; the one playlist that appears on
+// top of them within NEW_LIST_MS is emptied into the target and removed again.
 'use strict';
 var HariiroDropFix=(function(){
  // Needs include('hariiro_shared.js') first; looked up on use so this file loads on its own too.
- const TTL_MS=15000, VK_LBUTTON=0x01;
+ const TTL_MS=15000, NEW_LIST_MS=3000, RELOCK_MS=3000, VK_LBUTTON=0x01;
  const key=()=>HariiroShared.PVAR.dropPending;
  let hooks={},last=null;
  function isExternal(){return HariiroShared.getOrigin()==='';}
@@ -25,21 +32,83 @@ var HariiroDropFix=(function(){
   try{
    const s=String(panelsui.GetVariable(key(),'')||'');if(!s)return null;
    const o=JSON.parse(s);
-   if(!o||!o.plan||!(Date.now()-o.at<TTL_MS)){clear();return null;}
+   if(!o||!o.plan)throw new Error('bad plan');
+   if(!(Date.now()-o.at<(Array.isArray(o.names)?NEW_LIST_MS:TTL_MS))){clear();relock(o);return null;}
    return o;
   }catch(e){clear();return null;}
  }
+ function names(){const out=[];for(let i=0;i<plman.PlaylistCount;i++)out.push(String(plman.GetPlaylistName(i)));return out;}
+ // Lifts a lock this component may change; returns the actions to restore, or null.
+ function unlock(p){
+  try{
+   if(typeof plman.GetPlaylistLockedActions!=='function')return null;
+   const acts=Array.from(plman.GetPlaylistLockedActions(p)||[],String);
+   if(!acts.length)return null;
+   plman.SetPlaylistLockedActions(p,[]); // throws for another component's lock
+   if(!plman.IsPlaylistLocked(p))return acts;
+   plman.SetPlaylistLockedActions(p,acts);
+  }catch(e){}
+  return null;
+ }
+ function relock(o){
+  if(!o||!Array.isArray(o.relock))return;
+  try{
+   const p=o.active<plman.PlaylistCount&&String(plman.GetPlaylistName(o.active))===o.name?o.active:plman.FindPlaylist(o.name);
+   if(p>=0&&!plman.IsPlaylistLocked(p))plman.SetPlaylistLockedActions(p,o.relock);
+  }catch(e){}
+ }
  function arm(plan){
   const a=plman.ActivePlaylist;
-  if(!plan||a<0||a>=plman.PlaylistCount||plman.IsPlaylistLocked(a))return false;
-  if(plan.kind==='playlist'&&plan.p===a)return false; // already lands in the right list
-  try{panelsui.SetVariable(key(),JSON.stringify({at:Date.now(),active:a,name:String(plman.GetPlaylistName(a)),
-   count:plman.PlaylistItemCount(a),plan}));}catch(e){return false;}
+  if(!plan||a<0||a>=plman.PlaylistCount)return false;
+  if(plan.kind==='playlist'&&plan.p===a)return false; // lands in the right list, or that list refuses files
+  const o={at:Date.now(),active:a,name:String(plman.GetPlaylistName(a)),count:plman.PlaylistItemCount(a),plan};
+  if(plman.IsPlaylistLocked(a)){
+   const acts=plan.kind==='reject'?null:unlock(a); // refused anyway: keep the lock
+   if(acts)o.relock=acts;
+   else o.names=names(); // the host may create a new playlist
+  }
+  try{panelsui.SetVariable(key(),JSON.stringify(o));}catch(e){relock(o);return false;}
+  if(o.relock){
+   try{window.SetTimeout(()=>{const s=String(panelsui.GetVariable(key(),'')||'');
+    try{if(s&&JSON.parse(s).at===o.at)clear();}catch(e){}
+    relock(o);},RELOCK_MS);}catch(e){}
+  }
+  return true;
+ }
+ // True when p is the only playlist added since o.names was recorded.
+ function isNewPlaylist(o,p){
+  const now=names();
+  if(now.length!==o.names.length+1||p<0||p>=now.length)return false;
+  now.splice(p,1);
+  return now.every((n,i)=>n===o.names[i]);
+ }
+ function removePlaylist(p){
+  const remove=typeof plman.RemovePlaylist==='function'?'RemovePlaylist':'RemovePlaylistSwitch';
+  return plman[remove](p)!==false;
+ }
+ function deliver(plan,moved){
+  if(plan.kind==='playlist'&&plan.p>=0&&plan.p<plman.PlaylistCount&&!plman.IsPlaylistLocked(plan.p)){
+   if(plan.activate){if(typeof hooks.activate==='function')hooks.activate(plan.p);else plman.ActivePlaylist=plan.p;}
+   plman.InsertPlaylistItems(plan.p,plman.PlaylistItemCount(plan.p),moved,plan.select!==false);
+  }else if(plan.kind==='queue'){
+   for(let i=0;i<moved.Count;i++)plman.AddItemToPlaybackQueue(moved.Item(i));
+  }
+ }
+ // The host's new playlist p holds only the dropped files: move them, remove p.
+ function applyCreated(o,p){
+  if(!isNewPlaylist(o,p)||plman.PlaylistItemCount(p)<=0)return false;
+  clear();
+  const moved=plman.GetPlaylistItems(p);
+  if(!removePlaylist(p))return false;
+  // Indices are those of the recorded names again: o.active and plan.p are valid.
+  if(o.active<plman.PlaylistCount&&String(plman.GetPlaylistName(o.active))===o.name)plman.ActivePlaylist=o.active;
+  deliver(o.plan,moved);
   return true;
  }
  // Returns true when p received the misrouted files and they were moved away.
  function apply(p){
   const o=pending();
+  if(o&&Array.isArray(o.names))return applyCreated(o,p);
   if(!o||p!==o.active||String(plman.GetPlaylistName(p))!==o.name)return false;
   const n=plman.PlaylistItemCount(p);
   if(n<=o.count)return false;
@@ -52,13 +121,8 @@ var HariiroDropFix=(function(){
   plman.ClearPlaylistSelection(p);
   plman.SetPlaylistSelection(p,indices,true);
   plman.RemovePlaylistSelection(p,false); // playlist entries only; files are never touched
-  const plan=o.plan;
-  if(plan.kind==='playlist'&&plan.p>=0&&plan.p<plman.PlaylistCount&&!plman.IsPlaylistLocked(plan.p)){
-   if(plan.activate){if(typeof hooks.activate==='function')hooks.activate(plan.p);else plman.ActivePlaylist=plan.p;}
-   plman.InsertPlaylistItems(plan.p,plman.PlaylistItemCount(plan.p),moved,plan.select!==false);
-  }else if(plan.kind==='queue'){
-   for(let i=0;i<moved.Count;i++)plman.AddItemToPlaybackQueue(moved.Item(i));
-  }
+  relock(o);
+  deliver(o.plan,moved);
   return true;
  }
  // Wrap the panel's callbacks; call before HariiroDpi.install() so x,y are layout units.

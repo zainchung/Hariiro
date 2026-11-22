@@ -40,6 +40,11 @@ let hover = -1;
 let picked = -1;
 let playlistDrag=null,playlistWasDragged=false,playlistReorder=null,playlistDropTarget=-1,dragPointerY=0;
 let pressedAt=null,pressedMoved=false;
+// Round 24: Ctrl / Shift + click selects several ordinary playlists (by name); Delete
+// removes them together. multiMode is off after a plain click: then the active
+// playlist is the selection, as before.
+let multi=new Set(),multiMode=false,multiAnchor='';
+const VK_DELETE=0x2e,MK_SHIFT=4,MK_CONTROL=8;
 // Classify direction BEFORE starting OLE: vertical -> playlist sort only;
 // horizontal -> source track list intended for Queue. The Panels UI host
 // must dispatch rejected drops (Effect=0), including self-returns.
@@ -290,6 +295,7 @@ function entries() {
  return out;
 }
 function selectedRow(item, i) {
+    if(mode==='playlists'&&multiMode)return editablePlaylistRow(item)&&multi.has(item.name);
     return i === picked || (mode === 'playlists' && item.index === plman.ActivePlaylist);
 }
 function playingRow(item) {
@@ -576,7 +582,7 @@ function on_mouse_lbtn_down(x,y){
   playlistDrag={x,y,index:row.index,kind:row.kind,name:row.name};
  }
 }
-function on_mouse_lbtn_up(x,y){
+function on_mouse_lbtn_up(x,y,mask){
  const notice=sidebarUndo.hit(x,y,HariiroDpi.width(),HariiroDpi.height());
  if(notice){
   pressedAt=null;pressedMoved=false;playlistDrag=null;playlistReorder=null;
@@ -600,7 +606,10 @@ function on_mouse_lbtn_up(x,y){
     error='';
    }catch(e){error=HariiroI18n.t('reorderFailed')+': '+String(e);}
   }
- }else if(!wasDrag&&!moved)choose(x,y,false);
+ }else if(!wasDrag&&!moved){
+  const i=y<TABS?-1:Math.floor((y-TABS+scroll)/ROW);
+  if(!(mode==='playlists'&&(mask&(MK_SHIFT|MK_CONTROL))&&extendSelection(i,mask))){clearMulti();choose(x,y,false);}
+ }
  playlistDropTarget=-1;window.Repaint();
 }
 function askPlaylistName(message,title,initial=''){
@@ -612,24 +621,87 @@ function guardedQueueReferences(p){
  const items=plman.GetPlaybackQueueContents();
  return Array.isArray(items)&&items.some(q=>q&&q.PlaylistIndex===p);
 }
+function deletable(item){
+ const p=item.index;
+ return !(p===plman.PlayingPlaylist||plman.IsPlaylistLocked(p)||guardedQueueReferences(p));
+}
 function confirmRemove(item,x=20,y=20){
  if(!editablePlaylistRow(item))return;
- const p=item.index;
- if(p===plman.PlayingPlaylist||plman.IsPlaylistLocked(p)||guardedQueueReferences(p))
-    throw new Error(HariiroI18n.t('cannotDeletePlaylist'));
+ if(!deletable(item))throw new Error(HariiroI18n.t('cannotDeletePlaylist'));
+ removePlaylists([item]);
+}
+// Round 24: removes the given ordinary playlists as ONE undoable action. Rows that
+// cannot go (playing, locked, referenced by the queue) stay; error says so.
+function removePlaylists(items){
  const remove=typeof plman.RemovePlaylist==='function'?'RemovePlaylist':
    typeof plman.RemovePlaylistSwitch==='function'?'RemovePlaylistSwitch':'';
  if(!remove)throw new Error(HariiroI18n.t('cannotDeleteApi'));
- // Round 17: keep what is needed to put the list back from the undo notice.
- const removed={name:item.name,index:p,items:plman.GetPlaylistItems(p)};
- const result=plman[remove](p);
- if(result===false)throw new Error(HariiroI18n.t('cannotDeleteRefused'));
- picked=-1;setEditable(-1);error='';
- sidebarUndo.offer(HariiroI18n.t('playlistDeleted')+' '+removed.name,()=>restorePlaylist(removed));
+ const ok=items.filter(e=>editablePlaylistRow(e)&&deletable(e)).sort((a,b)=>b.index-a.index);
+ const kept=items.length-ok.length;
+ // Round 17: keep what is needed to put the lists back from the undo notice.
+ const removed=[];
+ for(const item of ok){
+  const p=item.index,s={name:item.name,index:p,items:plman.GetPlaylistItems(p)};
+  if(plman[remove](p)===false)break;
+  removed.push(s);
+ }
+ picked=-1;setEditable(-1);clearMulti();
+ error=kept||removed.length<ok.length?HariiroI18n.t('cannotDeletePlaylist'):'';
+ if(!removed.length){if(ok.length)throw new Error(HariiroI18n.t('cannotDeleteRefused'));window.Repaint();return 0;}
+ const text=removed.length===1?HariiroI18n.t('playlistDeleted')+' '+removed[0].name:
+   HariiroI18n.t('playlistsDeleted')+' '+removed.length;
+ sidebarUndo.offer(text,()=>restorePlaylists(removed));
  window.Repaint();
+ return removed.length;
+}
+// Ascending old indices put every list back at its old place.
+function restorePlaylists(list){
+ const back=list.slice().sort((a,b)=>a.index-b.index).map(restorePlaylist);
+ if(back.length>1){multi=new Set(back);multiMode=true;}
+ window.Repaint();
+}
+// Delete key: the multi-selection, else the active ordinary playlist.
+function deleteSelectedPlaylists(){
+ if(mode!=='playlists')return false;
+ const rows=entries().filter(editablePlaylistRow);
+ const targets=multiMode?rows.filter(e=>multi.has(e.name)):rows.filter(e=>e.index===plman.ActivePlaylist);
+ if(!targets.length)return false;
+ removePlaylists(targets);
+ return true;
+}
+// Ctrl / Shift + click on an ordinary playlist row (does not change the active list).
+function extendSelection(i,mask){
+ const rows=entries(),row=rows[i];
+ if(!editablePlaylistRow(row))return false;
+ if(!multiMode){
+  multi=new Set();
+  const a=rows.find(e=>editablePlaylistRow(e)&&e.index===plman.ActivePlaylist);
+  if(a){multi.add(a.name);multiAnchor=a.name;}
+  multiMode=true;
+ }
+ if(mask&MK_SHIFT){
+  let from=rows.findIndex(e=>editablePlaylistRow(e)&&e.name===multiAnchor);
+  if(from<0)from=i;
+  if(!(mask&MK_CONTROL))multi.clear();
+  for(let k=Math.min(from,i);k<=Math.max(from,i);k++)if(editablePlaylistRow(rows[k]))multi.add(rows[k].name);
+ }else{
+  if(multi.has(row.name))multi.delete(row.name);else multi.add(row.name);
+  multiAnchor=row.name;
+ }
+ error='';window.Repaint();
+ return true;
+}
+function clearMulti(){multi.clear();multiMode=false;multiAnchor='';}
+function on_key_down(key){
+ try{
+  if(HariiroUndo.isUndoKey(key))return sidebarUndo.keyUndo();
+  if(key===VK_DELETE)return deleteSelectedPlaylists();
+ }catch(e){error=HariiroI18n.t('playlistFailed')+': '+String(e);console.log(error);window.Repaint();return true;}
+ return false;
 }
 // Recreates a deleted playlist at its old place (under a free name if it is taken now).
 function restorePlaylist(s){
+ setUndoRestore(s.name);
  let name=s.name,n=2;
  while(plman.FindPlaylist(name)>=0)name=s.name+' ('+(n++)+')';
  const p=plman.CreatePlaylist(Math.min(s.index,plman.PlaylistCount),name);
@@ -639,6 +711,16 @@ function restorePlaylist(s){
  plman.ActivePlaylist=p;setEditable(p);
  picked=entries().findIndex(e=>editablePlaylistRow(e)&&e.index===p);
  error='';window.Repaint();
+ return name;
+}
+// Round 24: an undo refilling a playlist (here or in GlassPlaylist) is not an import:
+// no dedup, no sort. The marker names the list for a few seconds.
+function setUndoRestore(name){try{panelsui.SetVariable(HariiroShared.PVAR.undoRestore,JSON.stringify({name:String(name),at:Date.now()}));}catch(e){}}
+function undoRestoring(p){
+ try{
+  const o=JSON.parse(String(panelsui.GetVariable(HariiroShared.PVAR.undoRestore,'')||'null'));
+  return !!o&&o.name===String(plman.GetPlaylistName(p))&&Date.now()-o.at<3000;
+ }catch(e){return false;}
 }
 function on_mouse_rbtn_up(x,y){
  try{
@@ -672,7 +754,9 @@ function on_mouse_rbtn_up(x,y){
     if(!plman.RenamePlaylist(row.index,name))throw new Error(HariiroI18n.t('playlistRenameFailed'));
     if(watchName===row.name)setEditable(row.index);
    }
-  }else if(cmd===3&&editablePlaylistRow(row))confirmRemove(row,x,y);
+  }else if(cmd===3&&editablePlaylistRow(row)){
+   if(multiMode&&multi.has(row.name))deleteSelectedPlaylists();else confirmRemove(row,x,y);
+  }
   else if(cmd===6&&editablePlaylistRow(row)){
    if(typeof plman.DuplicatePlaylist!=='function')throw new Error(HariiroI18n.t('playlistDuplicateUnsupported'));
    const base=row.name+' - Copy';let name=base,n=2;
@@ -739,6 +823,7 @@ function on_playlists_changed(){
 }
 function on_playlist_items_added(p){
  if(onStagingItemsAdded(p)){window.Repaint();return;}
+ if(undoRestoring(p)){dedup.refresh(p);if(p===watchIndex)knownTracks=keyCounts(p);updateFavoriteIndicator();window.Repaint();return;}
  try{dedup.dedupe(p);}catch(e){console.log('Hariiro ordinary playlist dedup: '+String(e));}
  collectImport(p);updateFavoriteIndicator();window.Repaint();
 }
@@ -762,8 +847,11 @@ refreshPlayingArtist();
 // Stage 2G: skin header messages. Keep local tab and list behaviour unchanged.
 function on_notify_data(name, info) {
     if(name==='Hariiro.ThemeChanged'){window.Repaint();return;}
+    try{if(sidebarUndo.notify(name,info))return;}
+    catch(e){error=HariiroI18n.t('undoFailed')+': '+String(e);window.Repaint();return;}
     if (name !== 'Playlists') return;
     const action = String(info || '').toLowerCase();
+    if (action !== 'syncactive' && action !== 'togglefavorite') clearMulti();
     if (action === 'artists' || action === 'playlists' || action==='library') {
         if(action==='library') {
             mode='playlists'; picked=0;setEditable(-1);

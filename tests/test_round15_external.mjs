@@ -14,14 +14,14 @@ installIncludeShim(vm);
 const mk = (a = []) => ({ get Count() { return a.length; }, Convert: () => [...a], Item: i => a[i],
   Add(h) { a.push(h); }, AddRange(o) { a.push(...o.Convert()); } });
 const H = p => ({ Path: p, RawPath: 'file://' + p, SubSong: 0 });
-let records, sel, active, queue, vars, now, lbutton;
+let records, sel, active, queue, vars, now, lbutton, locked, foreign, timers = [];
 function reset() {
   records = [
     { name: 'User A', items: [H('a.flac')] },
     { name: 'User B', items: [H('b.flac'), H('b2.flac')] },
     { name: 'Favorites', items: [H('fav.flac')] }];
   sel = records.map(() => new Set());
-  active = 0; queue = []; now = 1000; lbutton = false;
+  active = 0; queue = []; now = 1000; lbutton = false; locked = new Set(); foreign = new Set(); timers = [];
   vars = new Map([['hariiro.nav.mode', 'library'], ['hariiro.theme.hue', 'rose'], ['hariiro.drag.origin', '']]);
 }
 reset();
@@ -29,7 +29,9 @@ const plman = {
   get PlaylistCount() { return records.length; }, get ActivePlaylist() { return active; }, set ActivePlaylist(v) { active = v; },
   get PlayingPlaylist() { return -1; }, FindPlaylist: n => records.findIndex(r => r.name === n),
   GetPlaylistName: i => records[i]?.name || '', PlaylistItemCount: i => records[i]?.items.length || 0,
-  GetPlaylistItems: i => mk(records[i]?.items.slice() || []), IsPlaylistLocked: () => false,
+  GetPlaylistItems: i => mk(records[i]?.items.slice() || []), IsPlaylistLocked: i => locked.has(records[i]?.name) || foreign.has(records[i]?.name),
+  // locked: an AddItems lock of this component (liftable); foreign: another component's lock.
+  GetPlaylistLockedActions: i => locked.has(records[i]?.name) || foreign.has(records[i]?.name) ? ['AddItems'] : [],
   IsPlaylistItemSelected: (p, i) => sel[p].has(i), GetPlaylistSelectedItems: p => mk(records[p].items.filter((_, i) => sel[p].has(i))),
   ClearPlaylistSelection: p => sel[p].clear(), SetPlaylistSelection: (p, ids, v) => ids.forEach(i => v ? sel[p].add(i) : sel[p].delete(i)),
   SetPlaylistSelectionSingle: (p, i, v) => v ? sel[p].add(i) : sel[p].delete(i), SetPlaylistFocusItem() {}, EnsurePlaylistItemVisible() {},
@@ -39,15 +41,18 @@ const plman = {
     if (select) { sel[p].clear(); add.forEach((_, k) => sel[p].add(at + k)); } fire('on_playlist_items_added', p); },
   CreatePlaylist(_at, name) { records.push({ name, items: [] }); sel.push(new Set()); return records.length - 1; },
   FindOrCreatePlaylist(n) { const i = this.FindPlaylist(n); return i >= 0 ? i : this.CreatePlaylist(0, n); },
-  ClearPlaylist(p) { records[p].items = []; sel[p].clear(); }, SortByFormatV2: () => true, SetPlaylistLockedActions() {},
+  ClearPlaylist(p) { records[p].items = []; sel[p].clear(); }, SortByFormatV2: () => true,
+  SetPlaylistLockedActions(i, acts) { const n = records[i].name; if (foreign.has(n)) throw new Error('foreign lock');
+    if (acts.length) locked.add(n); else locked.delete(n); fire('on_playlists_changed'); },
   GetPlaybackQueueContents: () => [], AddItemToPlaybackQueue: h => queue.push(h.Path), GetPlayingItemLocation: () => ({ IsValid: false }),
-  MovePlaylist: () => true, RemovePlaylist: () => true,
+  MovePlaylist: () => true,
+  RemovePlaylist(i) { if (i < 0 || i >= records.length) return false; records.splice(i, 1); sel.splice(i, 1); if (active > i) active--; else if (active === i) active = -1; return true; },
 };
 const panels = [];
 function fire(name, p) { for (const c of panels) if (typeof c[name] === 'function') c[name](p); }
 function panel(name, file, width) {
   const win = { ID: name, Width: width, Height: 450, IsVisible: true, Repaint() {}, SetCursor() {},
-    GetProperty: (_k, d) => d, SetProperty() {}, SetTimeout: () => 1, ClearTimeout() {}, SetInterval: () => 1, ClearInterval() {},
+    GetProperty: (_k, d) => d, SetProperty() {}, SetTimeout: (fn, ms) => { timers.push({ fn, ms }); return timers.length; }, ClearTimeout() {}, SetInterval: () => 1, ClearInterval() {},
     CreatePopupMenu: () => ({ AppendMenuItem() {}, AppendMenuSeparator() {}, TrackPopupMenu: () => 0 }) };
   const ctx = vm.createContext({ console: { log() {} }, plman, window: win, Date: { now: () => now },
     fb: { TitleFormat: () => ({ EvalWithMetadb: () => '', EvalWithMetadbs: hs => hs.Convert().map(() => 'A') }),
@@ -161,5 +166,65 @@ reset();
 externalDropOn(sidebar, 80, rowY('User B'));
 records[0].items.push(H('script-add.flac')); fire('on_playlist_items_added', 0); // nothing selected
 assert.deepEqual(paths(0), ['a.flac', 'script-add.flac'], 'unselected additions are not the dropped files');
+
+// 10. Round 24: a locked list is active (Music Library working copy, a pinned row).
+// foobar2000 cannot append to it and puts the files in a NEW playlist instead.
+// Dropped on the Queue: queued, the stray playlist removed, the locked list active again.
+function hostNewPlaylistDrop(names) {
+  records.push({ name: 'New Playlist', items: names.map(H) }); sel.push(new Set(names.map((_, k) => k)));
+  active = records.length - 1;
+  fire('on_playlists_changed'); fire('on_playlist_items_added', active);
+}
+reset(); foreign.add('User B'); active = 1;
+externalDropOn(q, 50, 60);
+assert.notEqual(vars.get('hariiro.drop.pending') || '', '', 'armed although the active list is locked');
+hostNewPlaylistDrop(['l1.flac', 'l2.flac']);
+assert.deepEqual(queue, ['l1.flac', 'l2.flac'], 'queued');
+assert.deepEqual(records.map(r => r.name).filter(n => n !== 'Queue Buffer'), ['User A', 'User B', 'Favorites'], 'stray playlist removed');
+assert.equal(active, 1, 'the locked list stays on screen');
+assert.equal(vars.get('hariiro.drop.pending'), '', 'consumed');
+// Dropped on a sidebar row: moved there instead.
+reset(); foreign.add('Favorites'); active = 2;
+externalDropOn(sidebar, 80, rowY('User B'));
+hostNewPlaylistDrop(['s1.flac']);
+assert.deepEqual(paths(1), ['b.flac', 'b2.flac', 's1.flac']);
+assert.deepEqual(records.map(r => r.name).filter(n => n !== 'Queue Buffer'), ['User A', 'User B', 'Favorites']);
+// A playlist that is not the only new one is left alone.
+reset(); foreign.add('User B'); active = 1;
+externalDropOn(q, 50, 60);
+records.splice(0, 0, { name: 'Other', items: [] }); sel.splice(0, 0, new Set()); active = 2;
+hostNewPlaylistDrop(['z.flac']);
+assert.deepEqual(queue, [], 'unknown playlist changes: nothing moved');
+assert(records.some(r => r.name === 'New Playlist'));
+// The new-playlist plan is short-lived: a playlist made 4 s later is someone else's.
+reset(); foreign.add('User B'); active = 1;
+externalDropOn(q, 50, 60);
+now += 4000;
+hostNewPlaylistDrop(['view.flac']);
+assert.deepEqual(queue, [], 'late new playlist: not taken');
+assert(records.some(r => r.name === 'New Playlist'), 'late new playlist kept');
+
+// 11. Windows check (Round 24): with the skin's own AddItems lock (Music Library view) the host
+// does NOT create a playlist - it refuses the drop. The lock is lifted on release, the host
+// appends to the active list as usual, the files move on and the lock comes back.
+reset(); locked.add('User B'); active = 1;
+externalDropOn(q, 50, 60);
+assert(!locked.has('User B'), 'own lock lifted for the drop');
+hostFallbackDrop(['m1.flac', 'm2.flac']);
+assert.deepEqual(queue, ['m1.flac', 'm2.flac'], 'queued with the Music Library view active');
+assert.deepEqual(paths(1), ['b.flac', 'b2.flac'], 'view unchanged');
+assert(locked.has('User B'), 'lock restored');
+assert.equal(records.length, 4, 'no playlist added (Queue Buffer only)');
+// Cancelled / refused: nothing arrives, the timer restores the lock.
+reset(); locked.add('User B'); active = 1;
+externalDropOn(q, 50, 60);
+assert(!locked.has('User B'));
+for (const t of timers.splice(0)) t.fn();
+assert(locked.has('User B'), 'lock restored without a drop');
+assert.equal(vars.get('hariiro.drop.pending') || '', '', 'plan cleared');
+// Dropped on the locked list's own sidebar row: it refuses files, the lock stays.
+reset(); locked.add('User B'); active = 1;
+externalDropOn(sidebar, 80, rowY('User B'));
+assert(locked.has('User B'), 'target itself locked: not unlocked');
 
 console.log('PASS round15 external: Explorer drops on sidebar rows / blank / pinned, middle, Queue are redirected');

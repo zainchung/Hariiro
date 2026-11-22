@@ -11,9 +11,11 @@ include('hariiro_glass_drop.js');
 include('hariiro_dpi.js');
 include('hariiro_paint_cache.js');
 include('hariiro_drop_fix.js');
+include('hariiro_undo.js');
 const VK_UP=0x26, VK_DOWN=0x28, VK_RETURN=0x0D, VK_DELETE=0x2e, VK_HOME=0x24, VK_END=0x23;
 const VK_PRIOR=0x21, VK_NEXT=0x22, VK_A=0x41, VK_ESCAPE=0x1b;
 const MK_CONTROL=8, MK_SHIFT=4;
+const glassUndo=HariiroUndo.create(()=>window.Repaint()); // Round 24: undo a track removal
 const HEADER_H=132, ROW_H=39, GROUP_GAP=4, BORDER_X=6;
 const COVER_SIZE=90, REFLECTION_HEIGHT=21;
 const DT=0x8024; // single-line + vertical centre + ellipsis
@@ -390,6 +392,7 @@ function on_paint(gr){gr=HariiroTheme.graphics(gr);
             gr.GdiDrawText(n.title,FONT,TXT,26,ty+5,textW,boxH-10,0x10|0x8000);
         }
     }
+    glassUndo.paint(gr,HariiroDpi.width(),HariiroDpi.height(),SMALL,BOLD);
 }
 function selectTrack(i,mask){
     const p=current();if(p<0||i<0)return;
@@ -402,6 +405,7 @@ function reveal(i){let n=trackNodes[i];if(!n){build();n=trackNodes[i];}if(!n)ret
 function toggleGroup(k){cancelTip();if(groupCollapsed.has(k))groupCollapsed.delete(k);else groupCollapsed.add(k);hover=-1;build();}
 function on_mouse_lbtn_down(x,y,mask){
     cancelTip();
+    if(glassUndo.hit(x,y,HariiroDpi.width(),HariiroDpi.height())){downAt=null;return;}
     const bar=glassScrollbar();
     if(bar && x>=bar.x){
         scrollingThumb=true;
@@ -428,6 +432,12 @@ function on_mouse_lbtn_down(x,y,mask){
 }
 function on_mouse_lbtn_up(x,y,mask){
     if(scrollingThumb){scrollingThumb=false;window.Repaint();return;}
+    const notice=glassUndo.hit(x,y,HariiroDpi.width(),HariiroDpi.height());
+    if(notice){
+        downAt=null;
+        if(notice==='undo'){try{glassUndo.undo();}catch(e){console.log('Hariiro undo: '+String(e));}}
+        window.Repaint();return;
+    }
     const down=downAt;downAt=null;
     const n=nodeAt(y);
     if(down&&down.action&&n&&n.kind==='song'&&n.index===down.index&&
@@ -497,9 +507,31 @@ function removeFromCurrentPlaylist(){
     plman.IsPlaylistLocked(p))return false;
  const selected=plman.GetPlaylistSelectedItems(p);
  if(!selected||!selected.Count)return false;
+ // Round 24: keep the removed entries with their old indices for the undo notice / Ctrl+Z.
+ const all=plman.GetPlaylistItems(p),removed=[];
+ for(let i=0;i<all.Count;i++)if(plman.IsPlaylistItemSelected(p,i))removed.push({i,h:all.Item(i)});
  plman.UndoBackup(p);
  plman.RemovePlaylistSelection(p,false); // never delete the source audio.
+ glassUndo.offer(HariiroI18n.t('tracksRemoved')+' '+removed.length,()=>restoreTracks(name,removed));
  refreshAfterEdit();window.Repaint();return true;
+}
+// Puts removed entries back at their old indices (ascending) and selects them.
+// The sidebar sees the marker and does not treat it as an import (dedup / sort).
+function restoreTracks(name,removed){
+ const p=plman.FindPlaylist(name);
+ if(p<0||plman.IsPlaylistLocked(p))throw new Error(HariiroI18n.t('playlistLocked'));
+ try{panelsui.SetVariable(HariiroShared.PVAR.undoRestore,JSON.stringify({name:String(name),at:Date.now()}));}catch(e){}
+ plman.UndoBackup(p);
+ plman.ClearPlaylistSelection(p);
+ for(const r of removed){
+  const one=fb.CreateHandleList();one.Add(r.h);
+  plman.InsertPlaylistItems(p,Math.min(r.i,plman.PlaylistItemCount(p)),one,true);
+ }
+ const ids=removed.map(r=>r.i).filter(i=>i<plman.PlaylistItemCount(p));
+ plman.ClearPlaylistSelection(p);plman.SetPlaylistSelection(p,ids,true);
+ if(ids.length)plman.SetPlaylistFocusItem(p,ids[0]);
+ if(p!==plman.ActivePlaylist)plman.ActivePlaylist=p;
+ refreshAfterEdit();window.Repaint();
 }
 function on_mouse_rbtn_up(x,y){
     const n=nodeAt(y),p=current();
@@ -521,6 +553,9 @@ function on_mouse_rbtn_up(x,y){
     }catch(e){console.log('Hariiro context menu: '+e);return false;}
 }
 function on_key_down(key){
+    if(HariiroUndo.isUndoKey(key)){
+        try{return glassUndo.keyUndo();}catch(e){console.log('Hariiro undo: '+String(e));return true;}
+    }
     const p=current();if(p<0)return false;
     const focus=plman.GetPlaylistFocusItemIndex(p);
     if(key===VK_RETURN&&focus>=0){plman.ExecutePlaylistDefaultAction(p,focus);return true;}
@@ -551,6 +586,7 @@ function on_key_down(key){
     return false;
 }
 function on_notify_data(name,info){
+    try{if(glassUndo.notify(name,info))return;}catch(e){console.log('Hariiro undo: '+String(e));return;}
     if(name!=='GlassPlaylist')return;
  if(String(info)==='revealimported'){build();const i=plman.GetPlaylistFocusItemIndex(current());if(i>=0)reveal(i);window.Repaint();return;}
  if(String(info)!=='revealnowplaying')return;
