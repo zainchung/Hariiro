@@ -45,6 +45,72 @@ next to foobar2000.exe for a portable install, else %APPDATA%\foobar2000-v2.
 Rollback: delete <profile>\foo_ui_panels-skins\Hariiro and rename
 Hariiro.backup-<time> back to Hariiro (and restore the profile backup, if needed).
 
+Switching the language
+- Click the menu button ☰ (top right, next to the window buttons) > Skin language,
+  and pick English, Español, Português, 简体中文, 繁體中文, 日本語, Français, Deutsch
+  or Русский. "Follow system (default)" uses the Windows display language.
+- The change applies at once to all of Hariiro's labels, notices and menus and is
+  kept after a restart.
+- Menus that belong to foobar2000, Panels UI or ESLyric (the foobar2000 menu bar,
+  the track commands in the middle list's menu, Preferences) keep foobar2000's
+  own language.
+
+Using Hariiro
+Top bar
+- Artists / Playlists: switch the sidebar between artists of the Music Library and
+  your playlists. Now playing: jumps to the playing track.
+- Search box: type and press Enter to search the Music Library; the results go to
+  "Search Result" in the sidebar. Ctrl+A / Ctrl+C / Ctrl+V work in the box;
+  right-click for Search now, Paste from clipboard and Clear search.
+- ☰: Hariiro settings: show or hide the Windows title bar and the foobar2000 menu
+  bar, foobar2000 preferences, foobar2000 main menu, Skin language, Accent colour,
+  Wallpaper. Then minimise, maximise and the power button (closes foobar2000).
+Sidebar (left)
+- Click a row to show it in the middle list. Music Library, Favorites and Search
+  Result are pinned at the top; your playlists follow.
+- Ctrl + click adds or removes one playlist, Shift + click selects a range (the
+  list on screen does not change); Delete removes the selected playlists, or the
+  current one. A plain click ends the selection. Playing, locked and queued lists
+  are kept.
+- Right-click: Create new playlist, Rename, Duplicate, Remove, Import audio folder.
+- Drop files or folders from File Explorer on a playlist row to add them there, or
+  on the empty space below the rows to make a new playlist.
+Middle list (GLASS mode)
+- Click selects, Ctrl + click / Shift + click select more, double-click plays.
+- The heart on a row adds the track to Favorites or takes it out; "…" (or a
+  right-click) opens the menu: Switch to NATIVE playlist, Add selected tracks to
+  playback queue, Remove selected tracks from playlist (the files are kept), and
+  foobar2000's own track commands.
+- Delete removes the selected tracks from the playlist (never the files).
+- Drag tracks onto a sidebar playlist or onto the Queue; drop files from File
+  Explorer to add them. The mouse wheel scrolls.
+- The GLASS / NATIVE switch above the list changes to foobar2000's own list view.
+Right side
+- The card at the top shows the playing track: cover, title, artist, album.
+- Lyrics: the current line is highlighted. Drag the lyrics up or down and release
+  (or click a line) to jump there; the wheel scrolls unsynchronised lyrics.
+  Right-click: move the lyrics 0.5 s earlier or later for this track, reset the
+  offset, reload, open the lyric file's folder, choose where lyrics are read from
+  (tags, ESLyric's folder, the track's folder, a folder of your choice) and the
+  ESLyric commands.
+- QUEUE (bottom right) shows the playback Queue in place of the lyrics. Drag a row
+  onto another to reorder it, onto the bin to remove it; the button at the top
+  right of the Queue clears it; right-click for Move up / Move down / Remove from
+  queue / Clear playback queue. Drop tracks or files on it to queue them.
+- Desk (bottom right) turns ESLyric's desktop lyrics on or off (needs ESLyric);
+  right-click it to set the ESLyric command.
+Bottom bar
+- From left to right: playback order (Default, Repeat playlist / track, Random,
+  Shuffle tracks / albums), 5 s back, previous, play / pause, next, 5 s forward,
+  output device.
+- Seek bar and volume: click or drag; the mouse wheel moves 5 s / 2.5 dB.
+Undo and keyboard
+- Removing playlists, tracks or Queue entries shows an Undo notice for 8 seconds.
+- Ctrl+Z undoes the last removal (press again for older ones, up to 20 per panel),
+  with the focus in the sidebar,
+  the middle list or the Queue - not in the search box.
+- Delete: selected playlists (sidebar) or selected tracks (middle list).
+
 Features
 - Glass playlist with album art and reflections; Artist / Library / Playlist sidebar.
 - Playback Queue panel; Undo for deleted playlists, removed tracks and Queue entries
