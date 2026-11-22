@@ -1,4 +1,4 @@
-Hariiro — version 1.0.0 (Round 23, 2026-11-21)
+Hariiro — version 1.1.0 (Round 24, 2026-11-22)
 
 A transparent "glass" skin for foobar2000.
 
@@ -6,9 +6,9 @@ License: MIT License (see LICENSE in this package). Copyright (c) 2026 zainchung
 Covers the scripts, layout and all bundled images, including the wallpapers.
 
 Requirements
-- foobar2000 v2 (tested with 2.26.2)
+- foobar2000 v2 (tested with 2.26.3)
 - Panels UI (reborn)
-- foo_js_panel (tested with 1.9.0)
+- foo_js_panel (tested with 1.9.2)
 - Optional: ESLyric (x64) for downloading lyrics and the desktop lyrics overlay
 
 Install
@@ -43,6 +43,12 @@ Known limits
   between monitors with different scaling, Japanese IME pre-edit text in the
   search box.
 
+Updating from 1.0.0
+- Close foobar2000 and extract the ZIP over your Hariiro skin folder. Settings,
+  playlists and the skin's own lists are kept.
+- If you moved the foobar2000 folder, Panels UI shows its welcome page once:
+  choose the skin folder (foo_ui_panels-skins\Hariiro) again.
+
 Updating from a test build
 - 1.0.0 is the first release under the name Hariiro. Settings, window
   properties and the skin's own playlists of earlier test builds (which used
@@ -56,7 +62,16 @@ Updating from a test build
 - Install into a new, empty skin folder (for example foo_ui_panels-skins\Hariiro)
   and choose it in Panels UI, rather than over a test build.
 
-What is new since the previous builds (Rounds 20-23)
+What is new in 1.1.0
+- Files dragged from File Explorer onto the Queue are queued while Music Library
+  is selected too (they were dropped before).
+- Sidebar: Ctrl + click / Shift + click select several playlists; Delete removes
+  them, with one Undo for all.
+- Ctrl+Z undoes the last removal of playlists, tracks or Queue entries, with the
+  focus in the sidebar, the middle list or the Queue. The middle list now shows
+  an Undo notice after removing tracks, too.
+
+What is new in 1.0.0 (Rounds 20-23)
 - New name: Hariiro. Second bundled wallpaper now 2560 x 1440.
 - New installs start in GLASS mode.
 - Two new bundled wallpapers; every image in images\wallpapers is listed by name.

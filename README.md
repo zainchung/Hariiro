@@ -7,11 +7,11 @@ image-based transport controls, accent colours as folders in `images/controls/` 
 a wallpaper selector (`images/wallpapers/`) and nine UI languages
 (English, Español, Português, 简体中文, 繁體中文, 日本語, Français, Deutsch, Русский). New installs start in GLASS mode.
 
-Current release: **1.0.0** (Round 23, 2026-11-21: renamed to Hariiro). Tested with foobar2000 2.26.2,
-foo_js_panel 1.9.0 and Panels UI (reborn).
+Current release: **1.1.0** (Round 24, 2026-11-22: Queue drop with Music Library selected, sidebar
+multi-select, Ctrl+Z undo). Tested with foobar2000 2.26.3, foo_js_panel 1.9.2 and Panels UI (reborn).
 
 **Windows status.** The full acceptance matrix (`docs/WINDOWS_UI_ACCEPTANCE.md` plus the
-Round 14 drag matrix) last ran for Round 14. Rounds 15–22 each had a focused Windows check
+Round 14 drag matrix) last ran for Round 14. Rounds 15–24 each had a focused Windows check
 (see the round reviews and `docs/PHASE_E_REVIEW.md`). Covered offline only: display scaling
 other than the test machine's (125 % / 150 %, moving between monitors, the 2x icons and the
 seek bar / lyrics card child windows at those scales), Japanese IME pre-edit, NATIVE

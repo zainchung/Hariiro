@@ -36,7 +36,7 @@ assert.deepEqual(badText.slice(0, 20), [], `text still uses the old name (${badT
 
 const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
 assert.equal(pkg.name, 'hariiro');
-assert.equal(pkg.version, '1.0.0');
+assert.match(pkg.version, /^1\.\d+\.\d+$/,'release version (package_skin.py checks the user README)');
 
 // Reserved playlists carry no product prefix (owner, after the rename): "Favorites", not
 // "Hariiro - Favorites". No script, layout or test names one with the prefix.
