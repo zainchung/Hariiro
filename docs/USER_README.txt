@@ -1,4 +1,4 @@
-Hariiro — version 1.1.0 (Round 24, 2026-11-22)
+Hariiro — version 1.0.0 (2026-11-22)
 
 A transparent "glass" skin for foobar2000.
 
@@ -112,19 +112,38 @@ Undo and keyboard
 - Delete: selected playlists (sidebar) or selected tracks (middle list).
 
 Features
-- Glass playlist with album art and reflections; Artist / Library / Playlist sidebar.
-- Playback Queue panel; Undo for deleted playlists, removed tracks and Queue entries
-  (notice button for 8 seconds, Ctrl+Z in the sidebar, middle list or Queue).
-- Sidebar: Ctrl + click / Shift + click select several playlists; Delete removes them.
-- Lyrics from files saved by ESLyric or from tags; right-click the lyrics to move
-  them 0.5 s earlier or later for the current track.
+- GLASS mode: a transparent playlist grouped by album, with cover art, reflections
+  and a heart per track; NATIVE mode switches to foobar2000's own list view.
+- Sidebar: Artists (grouped from the Music Library) or Playlists with Music
+  Library, Favorites and Search Result pinned on top. Create, rename, duplicate
+  and remove playlists, import a folder, select several playlists at once.
+- Drag and drop everywhere: tracks to playlists or the Queue, files and folders
+  from File Explorer to a playlist, the middle list, the Queue or a new playlist.
+  Imported tracks are sorted and duplicates are skipped.
+- Library search from the top bar; results go to Search Result.
+- Favorites: the heart on a track or on the now-playing card.
+- Playback Queue panel: reorder by dragging, remove with the bin, clear, queue
+  tracks or files by dropping them.
+- Now-playing card with cover, title, artist, album, year, genre and format.
+- Lyrics: synchronised or plain, from files saved by ESLyric, the track's folder,
+  a folder of your choice or the tags; drag to jump to a line; move them 0.5 s
+  earlier or later per track; ESLyric desktop lyrics on / off (Desk).
+- Bottom bar: playback order, 5 s back / forward, previous, play / pause, next,
+  output device, seek bar and volume.
+- Undo for removed playlists, tracks and Queue entries: an 8-second notice and
+  Ctrl+Z.
 - Menu ☰ → Accent colour: every folder in images\controls, by folder name (six
-  bundled). Copy a folder, change its pictures and theme.json, and it appears.
+  bundled: amber, blue, mint, pink, teal, violet). Copy a folder, change its
+  pictures and theme.json, and it appears. Corners, frames, buttons and texts
+  follow the colour in GLASS and NATIVE mode.
 - Menu ☰ → Wallpaper: every .jpg / .png / .bmp file in images\wallpapers in the
-  skin folder, listed by file name (two Hariiro_UI pictures are bundled). Delete a file
-  and it leaves the menu; if it was in use, another one is chosen.
-- Languages: English, Español, Português, 简体中文, 繁體中文, 日本語, Français,
-  Deutsch, Русский (menu ☰ → Skin language; "Auto" follows Windows).
+  skin folder, listed by file name (two Hariiro_UI pictures are bundled). Delete a
+  file and it leaves the menu; if it was in use, another one is chosen.
+- Nine languages: English, Español, Português, 简体中文, 繁體中文, 日本語,
+  Français, Deutsch, Русский (menu ☰ → Skin language).
+- Show or hide the Windows title bar and the foobar2000 menu bar (menu ☰).
+- Low CPU and memory use while music plays.
+- Installer with Panels UI (reborn) and JS Panel included.
 
 Known limits
 - ESLyric's own panel cannot be embedded; the skin shows lyrics ESLyric has
@@ -134,9 +153,9 @@ Known limits
   between monitors with different scaling, Japanese IME pre-edit text in the
   search box.
 
-Updating from 1.0.0
-- Run Install-Hariiro.cmd (or copy the Hariiro folder over your skin folder with
-  foobar2000 closed). Settings, playlists and the skin's own lists are kept.
+Updating
+- Run Install-Hariiro.cmd again (or copy the Hariiro folder over your skin folder
+  with foobar2000 closed). Settings, playlists and the skin's own lists are kept.
 - If your Hariiro skin lives in another folder than <profile>\foo_ui_panels-skins,
   choose the new one once in View > Panels UI > Skins.
 - If you moved the foobar2000 folder, Panels UI shows its welcome page once:
@@ -154,24 +173,3 @@ Updating from a test build
   "Favorites", then delete the old playlists you no longer need.
 - Install into a new, empty skin folder (for example foo_ui_panels-skins\Hariiro)
   and choose it in Panels UI, rather than over a test build.
-
-What is new in 1.1.0
-- Installer: Install-Hariiro.cmd sets up Panels UI (reborn), JS Panel and the
-  skin in one step; screenshots in preview\.
-- Files dragged from File Explorer onto the Queue are queued while Music Library
-  is selected too (they were dropped before).
-- Sidebar: Ctrl + click / Shift + click select several playlists; Delete removes
-  them, with one Undo for all.
-- Ctrl+Z undoes the last removal of playlists, tracks or Queue entries, with the
-  focus in the sidebar, the middle list or the Queue. The middle list now shows
-  an Undo notice after removing tracks, too.
-
-What is new in 1.0.0 (Rounds 20-23)
-- New name: Hariiro. Second bundled wallpaper now 2560 x 1440.
-- New installs start in GLASS mode.
-- Two new bundled wallpapers; every image in images\wallpapers is listed by name.
-- Accent colours are folders in images\controls; corners, frames, buttons and
-  now-playing texts all follow the chosen colour, in GLASS and NATIVE mode.
-- Five more languages: Español, Português, Français, Deutsch, Русский.
-- Much lower CPU and memory while music plays; moving the window hitches less.
-- Smoother power button in the title bar.

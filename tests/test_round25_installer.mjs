@@ -74,4 +74,9 @@ assert.match(ps, /portable_mode_enabled/, 'portable and installed foobar2000');
 assert.match(ps, /Panels UI \(reborn\)/, 'first-start guidance');
 assert.match(read('tools/installer/Install-Hariiro.cmd'), /Install-Hariiro\.ps1/);
 
+// User-facing texts (README, the shipped user README, installer, notices) name no development rounds.
+for (const rel of ['README.md', 'docs/USER_README.txt', 'tools/installer/Install-Hariiro.ps1',
+  'tools/installer/Install-Hariiro.cmd', 'third_party/THIRD-PARTY-NOTICES.txt'])
+  assert(!/\bround/i.test(read(rel)), `${rel} mentions a development round`);
+
 console.log('PASS round25 installer: package layout, components + licences, screenshots, installer limits');

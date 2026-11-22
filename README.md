@@ -11,12 +11,10 @@ a wallpaper selector (`images/wallpapers/`) and nine UI languages
 ![Hariiro — pink accent, night wallpaper](docs/preview/hariiro-glass-pink-night.png)
 ![Hariiro — blue accent, sakura wallpaper](docs/preview/hariiro-glass-blue-sakura.png)
 
-Current release: **1.1.0** (Round 24, 2026-11-22: Queue drop with Music Library selected, sidebar
-multi-select, Ctrl+Z undo). Tested with foobar2000 2.26.3, foo_js_panel 1.9.2 and Panels UI (reborn).
+Current release: **1.0.0** (2026-11-22), the first release in this repository. Tested with foobar2000 2.26.3, foo_js_panel 1.9.2 and Panels UI (reborn).
 
-**Windows status.** The full acceptance matrix (`docs/WINDOWS_UI_ACCEPTANCE.md` plus the
-Round 14 drag matrix) last ran for Round 14. Rounds 15–24 each had a focused Windows check
-(see the round reviews and `docs/PHASE_E_REVIEW.md`). Covered offline only: display scaling
+**Windows status.** Every change is checked in a real foobar2000 on Windows; the full
+acceptance matrix is `docs/WINDOWS_UI_ACCEPTANCE.md`. Covered offline only: display scaling
 other than the test machine's (125 % / 150 %, moving between monitors, the 2x icons and the
 seek bar / lyrics card child windows at those scales), Japanese IME pre-edit, NATIVE
 middle-list behaviour, the undo notice's 8-second expiry, and the GLASS default on a first
@@ -60,9 +58,9 @@ MIT (`third_party/`).
 | `main.txt`, `foo_ui_panels.ini` | Panels UI skin layout and panel registration |
 | `js/` | One JS Panel per file (`hariiro_*.js`) plus `playlist_browser.js` (sidebar). Shared modules: `hariiro_i18n.js`, `hariiro_theme.js` (accents, shared colours, pill switch), `hariiro_shared.js` (pvar keys, reserved playlist names, drag-origin markers), `hariiro_paint_cache.js` (reused row/icon/frame bitmaps), `hariiro_playlist_dedup.js`, `hariiro_dpi.js`, `hariiro_drop_fix.js`. Logic split out of the two lists: `hariiro_glass_drop.js`, `hariiro_sidebar_drop.js`, `hariiro_scratch_views.js`, `hariiro_dedup_tracker.js`, `hariiro_import_staging.js` |
 | `images/` | Wallpapers (`images/wallpapers/`) and one folder per accent colour with its control and corner PNGs and `theme.json` (`images/controls/README.md`) |
-| `tests/` | Offline regression tests, one file per round (`test_roundNN*.mjs`), `test_shared.mjs`, helpers in `tests/helpers/` (`js_panel.mjs` include shim, `fake_host.mjs` fake foobar2000 host) |
+| `tests/` | Offline regression tests (`test_*.mjs`), helpers in `tests/helpers/` (`js_panel.mjs` include shim, `fake_host.mjs` fake foobar2000 host) |
 | `tools/` | `run_tests.mjs`, `package_skin.py`, `fb_test.ps1` (Windows checks), `generate_controls.py`, `make_accent_palette.py`, `audit_playlist_databases.py` |
-| `docs/` | Review per round (`ROUNDnn_REVIEW.md`), acceptance matrix, `DEVELOPMENT_PLAN.md`, `NATIVE_VS_GLASS.md`, `USER_README.txt` (packaged as `Hariiro-README.txt`), `release_notes/` |
+| `docs/` | Review notes of each change, acceptance matrix, `DEVELOPMENT_PLAN.md`, `NATIVE_VS_GLASS.md`, `USER_README.txt` (packaged as `Hariiro-README.txt`), `release_notes/` |
 
 ## Development
 
@@ -82,7 +80,7 @@ line of `docs/USER_README.txt` does not name the version in `package.json`.
 
 ## Conventions
 
-- Each round: failing test first, then the fix, `npm test` green, `docs/ROUNDnn_REVIEW.md`,
+- Each change: failing test first, then the fix, `npm test` green, a review note in `docs/`
   and a short note in `docs/release_notes/`.
 - Images and Markdown are tracked. Only ZIPs, checksums, `dist/` and OS files are ignored.
 - The 16:9 DLL experiment (branch `experiment/16x9-freeze`, last commit `815cb3f`) was dropped

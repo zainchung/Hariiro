@@ -1,5 +1,5 @@
 <#
-Hariiro installer (Round 25). Shipped at the top of the Hariiro ZIP, next to the Hariiro\ skin folder.
+Hariiro installer. Shipped at the top of the Hariiro ZIP, next to the Hariiro\ skin folder.
 Double-click Install-Hariiro.cmd, or run:
   powershell -NoProfile -ExecutionPolicy Bypass -File Install-Hariiro.ps1 [-FoobarDir <folder with foobar2000.exe>] [-Yes] [-NoStart]
 
