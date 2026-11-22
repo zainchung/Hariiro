@@ -150,6 +150,10 @@ Known limits
 - ESLyric's own panel cannot be embedded; the skin shows lyrics ESLyric has
   saved (or lyrics in tags). Online search stays in ESLyric.
 - In NATIVE mode the middle list follows foobar2000's own rules, not the Glass ones.
+- The foobar2000 folder path must use only characters of your Windows code page
+  (letters, digits and spaces are always safe, e.g. D:\Program\foobar2000).
+  Otherwise JS Panel cannot read the skin's scripts and the skin stays blank,
+  for example a Simplified Chinese folder name on a Japanese Windows.
 - Not yet tested on Windows: 125 % / 150 % display scaling and moving the window
   between monitors with different scaling, Japanese IME pre-edit text in the
   search box.
