@@ -13,6 +13,7 @@ Archive layout (Round 25):
                              images/** (png/jpg, and theme.json of each colour)
     Install-Hariiro.cmd/.ps1 installer (tools/installer): components + skin into foobar2000
     Hariiro-README.txt       docs/USER_README.txt (end-user notes); LICENSE (MIT)
+    Hariiro-README.zh-CN.txt, Hariiro-README.ja.txt   the same notes in Chinese / Japanese
     preview/*.png            screenshots (docs/preview)
     components/<name>/       <name>.dll from --components + third_party/<name>/LICENSE.txt,
                              for every component in third_party/components.json
@@ -38,6 +39,8 @@ PNG = b"\x89PNG\r\n\x1a\n"
 JPG = b"\xff\xd8\xff"
 TOP_LEVEL = ("main.txt", "foo_ui_panels.ini", "LICENSE")
 USER_README = ("Hariiro-README.txt", "docs/USER_README.txt")  # (zip path, source)
+USER_README_TRANSLATIONS = (("Hariiro-README.zh-CN.txt", "docs/USER_README.zh-CN.txt"),
+                            ("Hariiro-README.ja.txt", "docs/USER_README.ja.txt"))
 SKIN_DIR = "Hariiro"
 INSTALLER = ("tools/installer/Install-Hariiro.cmd", "tools/installer/Install-Hariiro.ps1")
 PREVIEW_DIR = "docs/preview"
@@ -95,6 +98,12 @@ def verify(files: list[str]) -> None:
         problems.append(f"missing {USER_README[1]}")
     elif f"version {version}" not in readme.read_text(encoding="utf-8").splitlines()[0]:
         problems.append(f"{USER_README[1]}: first line does not name version {version}")
+    for _, rel in USER_README_TRANSLATIONS:
+        path = ROOT / rel
+        if not path.is_file():
+            problems.append(f"missing {rel}")
+        elif f"version {version}" not in path.read_text(encoding="utf-8").splitlines()[0]:
+            problems.append(f"{rel}: first line does not name version {version}")
     if problems:
         raise SystemExit("Package verification failed:\n  " + "\n  ".join(sorted(set(problems))))
 
@@ -107,8 +116,9 @@ def windows_text(path: Path) -> bytes:
 
 def extras(components: Path | None) -> list[tuple[str, bytes]]:
     """Everything beside the skin folder: (zip path, data)."""
-    out: list[tuple[str, bytes]] = [(USER_README[0], windows_text(ROOT / USER_README[1])),
-                                    ("LICENSE", (ROOT / "LICENSE").read_bytes())]
+    out: list[tuple[str, bytes]] = [(USER_README[0], windows_text(ROOT / USER_README[1]))]
+    out += [(name, windows_text(ROOT / rel)) for name, rel in USER_README_TRANSLATIONS]
+    out.append(("LICENSE", (ROOT / "LICENSE").read_bytes()))
     problems: list[str] = []
     for rel in INSTALLER:
         path = ROOT / rel

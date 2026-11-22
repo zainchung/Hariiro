@@ -1,5 +1,7 @@
 # Hariiro
 
+English | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
+
 A transparent "glass" skin for foobar2000 built on **Panels UI (reborn)** and JS Panels:
 Glass playlist with album art and reflections, Artist/Library/Playlist navigation,
 playback Queue with undo, local lyrics (ESLyric-saved files and tags, per-track offset),
@@ -41,7 +43,9 @@ installed separately under their own licences.
 3. First start, two clicks: choose **Panels UI (reborn)** in "New user interface module(s) found",
    then **View → Panels UI → Skins → Hariiro** (Panels UI opens its layout wizard first).
 
-Details, manual install and rollback: `docs/USER_README.txt` (shipped as `Hariiro-README.txt`).
+Details, manual install and rollback: `docs/USER_README.txt` (shipped as `Hariiro-README.txt`);
+Simplified Chinese and Japanese: `docs/USER_README.zh-CN.txt`, `docs/USER_README.ja.txt`
+(shipped as `Hariiro-README.zh-CN.txt`, `Hariiro-README.ja.txt`).
 
 Building the release ZIP (needs the two components, e.g. from an installed foobar2000):
 ```

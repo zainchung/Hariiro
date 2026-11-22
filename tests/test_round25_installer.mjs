@@ -39,7 +39,8 @@ try {
   assert.match(build(full, ['--components', comps]), /with components/);
   const n = names(full);
   for (const f of ['Hariiro/main.txt', 'Hariiro/foo_ui_panels.ini', 'Hariiro/LICENSE', 'Hariiro/js/playlist_browser.js',
-    'Install-Hariiro.cmd', 'Install-Hariiro.ps1', 'Hariiro-README.txt', 'LICENSE', 'THIRD-PARTY-NOTICES.txt'])
+    'Install-Hariiro.cmd', 'Install-Hariiro.ps1', 'Hariiro-README.txt', 'Hariiro-README.zh-CN.txt',
+    'Hariiro-README.ja.txt', 'LICENSE', 'THIRD-PARTY-NOTICES.txt'])
     assert(n.includes(f), `zip has ${f}`);
   for (const c of listed) {
     assert(n.includes(`components/${c.name}/${c.name}.dll`), `zip has ${c.name}.dll`);
@@ -75,7 +76,22 @@ assert.match(ps, /Panels UI \(reborn\)/, 'first-start guidance');
 assert.match(read('tools/installer/Install-Hariiro.cmd'), /Install-Hariiro\.ps1/);
 
 // User-facing texts (README, the shipped user README, installer, notices) name no development rounds.
-for (const rel of ['README.md', 'docs/USER_README.txt', 'tools/installer/Install-Hariiro.ps1',
+// Chinese and Japanese user notes and READMEs: same version, same sections as the English ones.
+const version = JSON.parse(read('package.json')).version;
+const sections = { 'docs/USER_README.zh-CN.txt': ['安装', '切换语言', '操作说明', '功能', '已知限制', '更新'],
+  'docs/USER_README.ja.txt': ['インストール', '言語の切り替え', '使い方', '機能', '既知の制限', 'アップデート'] };
+for (const [rel, heads] of Object.entries(sections)) {
+  const lines = read(rel).split(/\r?\n/);
+  assert(lines[0].includes(`version ${version}`), `${rel} names version ${version}`);
+  for (const h of heads) assert(lines.includes(h), `${rel} has the section ${h}`);
+}
+for (const rel of ['README.zh-CN.md', 'README.ja.md']) {
+  assert(read(rel).includes(`**${version}**`), `${rel} names version ${version}`);
+  assert(read('README.md').includes(`](${rel})`), `README.md links ${rel}`);
+}
+
+for (const rel of ['README.md', 'README.zh-CN.md', 'README.ja.md', 'docs/USER_README.txt',
+  'docs/USER_README.zh-CN.txt', 'docs/USER_README.ja.txt', 'tools/installer/Install-Hariiro.ps1',
   'tools/installer/Install-Hariiro.cmd', 'third_party/THIRD-PARTY-NOTICES.txt'])
   assert(!/\bround/i.test(read(rel)), `${rel} mentions a development round`);
 
