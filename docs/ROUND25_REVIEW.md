@@ -52,8 +52,9 @@ The owner's own foobar2000 was not used for the clean run.
    and opens the layout wizard, although `Hariiro` is already in the skins root. Closing the
    wizard and choosing View → Panels UI → Skins → Hariiro loads it.
 4. Restart: `loading skin …\Hariiro` - the choice is kept. No JS warnings or errors.
-5. A fictional sample album added with `foobar2000.exe /add` and two screenshots taken
-   (`docs/preview`: pink accent + night wallpaper, blue accent + sakura wallpaper).
+5. A fictional sample album added with `foobar2000.exe /add` and three screenshots taken
+   (`docs/preview`: now playing with lyrics, pink accent + night wallpaper, blue accent +
+   sakura wallpaper). Playback used the silent sample tracks (`/play`).
 
 Remaining manual steps for a new user: install foobar2000, run the installer, two clicks on the
 first start. Not checked: a standard (non-portable) foobar2000 install, a profile where the
@@ -61,7 +62,7 @@ components are already installed in another version.
 
 Screenshots: no real music is shown. `tools/make_preview_album.py` writes the sample album
 "Glass Garden" by "Hariiro Ensemble" (16 silent MP3s, invented titles, a drawn cover embedded
-in the ID3 tags); the first version with a commercial album was replaced at the owner's request.
+in the ID3 tags, invented lyrics for track 1 as `.lrc`); the first version with a commercial album was replaced at the owner's request.
 
 ## Tests
 

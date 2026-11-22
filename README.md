@@ -7,6 +7,7 @@ image-based transport controls, accent colours as folders in `images/controls/` 
 a wallpaper selector (`images/wallpapers/`) and nine UI languages
 (English, Español, Português, 简体中文, 繁體中文, 日本語, Français, Deutsch, Русский). New installs start in GLASS mode.
 
+![Hariiro — now playing, with lyrics](docs/preview/hariiro-glass-now-playing.png)
 ![Hariiro — pink accent, night wallpaper](docs/preview/hariiro-glass-pink-night.png)
 ![Hariiro — blue accent, sakura wallpaper](docs/preview/hariiro-glass-blue-sakura.png)
 

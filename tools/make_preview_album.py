@@ -64,4 +64,12 @@ for i, (title, secs) in enumerate(TRACKS, 1):
     tag = b"ID3\x03\x00\x00" + syncsafe(len(frames)) + frames
     audio = FRAME * math.ceil(secs * 44100 / 1152)
     (OUT / f"{i:02d} {title}.mp3").write_bytes(tag + audio)
+# Invented lyrics for track 1, read by the skin from "<track>.lrc" next to the file.
+LYRICS = ["Morning light on paper doors", "Petals drifting to the floor", "Tea is warm and the kettle sings",
+          "Soft wind brushing silver strings", "Every color starts anew", "Pink and gold and glassy blue",
+          "Hold the moment, let it stay", "Morning petals, light the way", "Footsteps quiet on the stone",
+          "Spring has found its way back home", "Hold the moment, let it stay", "Morning petals, light the way"]
+lrc = [f"[ti:{TRACKS[0][0]}]", f"[ar:{ARTIST}]", f"[al:{ALBUM}]"]
+lrc += [f"[{(6 + 7 * k) // 60:02d}:{(6 + 7 * k) % 60:02d}.00]{line}" for k, line in enumerate(LYRICS)]
+(OUT / f"01 {TRACKS[0][0]}.lrc").write_text("\n".join(lrc) + "\n", encoding="utf-8")
 print(f"{len(TRACKS)} tracks in {OUT}")

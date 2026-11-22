@@ -45,7 +45,8 @@ try {
     assert(n.includes(`components/${c.name}/${c.name}.dll`), `zip has ${c.name}.dll`);
     assert(n.includes(`components/${c.name}/LICENSE.txt`), `zip has the ${c.name} licence`);
   }
-  assert(n.filter(f => /^preview\/.+\.png$/.test(f)).length >= 2, 'at least two screenshots');
+  assert(n.filter(f => /^preview\/.+\.png$/.test(f)).length >= 3, 'at least three screenshots (now playing, two themes)');
+  assert(n.includes('preview/hariiro-glass-now-playing.png'), 'now-playing screenshot');
   assert(!n.some(f => !f.startsWith('Hariiro/') && /^(main\.txt|js\/|images\/)/.test(f)), 'skin files only inside Hariiro/');
 
   const plain = join(tmp, 'plain.zip');
