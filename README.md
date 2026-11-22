@@ -23,6 +23,8 @@ middle-list behaviour, the undo notice's 8-second expiry, and the GLASS default 
 run. Known limits: ESLyric cannot be embedded in a Panels UI panel (the skin reads saved
 lyrics only), and NATIVE list rules are decided by the host (`docs/NATIVE_VS_GLASS.md`).
 
+Questions and ideas: [Discussions](https://github.com/zainchung/Hariiro/discussions); bugs: [Issues](https://github.com/zainchung/Hariiro/issues).
+
 ## License
 
 Released under the [MIT License](LICENSE), Copyright (c) 2026 zainchung. This covers the
@@ -36,7 +38,8 @@ installed separately under their own licences.
 
 1. Install [foobar2000](https://www.foobar2000.org/) v2 (64-bit) and start it once. Not bundled:
    its licence allows sharing only the unmodified installer.
-2. Extract the release ZIP and double-click **`Install-Hariiro.cmd`**. It finds foobar2000, asks
+2. Download `Hariiro.zip` from the [latest release](https://github.com/zainchung/Hariiro/releases/latest),
+   extract it and double-click **`Install-Hariiro.cmd`**. It finds foobar2000, asks
    before closing it, adds Panels UI (reborn) and JS Panel from `components\` when missing
    (installed ones are kept), copies `Hariiro\` to `<profile>\foo_ui_panels-skins\Hariiro`
    (an existing one is backed up first) and starts foobar2000. No settings or playlists are edited.

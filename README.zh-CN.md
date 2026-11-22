@@ -19,7 +19,7 @@ Panels UI (reborn) 1.27.1 上测试。效果图使用的是虚构的示例专辑
 
 1. 安装 [foobar2000](https://www.foobar2000.org/) v2（64 位）并启动一次。foobar2000 不随包提供：
    其许可只允许分发未经修改的安装程序。
-2. 下载 Release 中的 `Hariiro.zip`，解压后双击 **`Install-Hariiro.cmd`**。它会找到 foobar2000，关闭前先征求同意，
+2. 从[最新 Release](https://github.com/zainchung/Hariiro/releases/latest) 下载 `Hariiro.zip`，解压后双击 **`Install-Hariiro.cmd`**。它会找到 foobar2000，关闭前先征求同意，
    缺少时从 `components\` 添加 Panels UI (reborn) 和 JS Panel（已安装的不会被替换），把 `Hariiro\` 复制到
    `<profile>\foo_ui_panels-skins\Hariiro`（已有的会先备份），然后启动 foobar2000。不会修改任何设置和播放列表。
 3. 首次启动点两下：在 “New user interface module(s) found” 中选择 **Panels UI (reborn)**，
@@ -37,6 +37,8 @@ Panels UI (reborn) 1.27.1 上测试。效果图使用的是虚构的示例专辑
 - **歌词**：带时间轴或纯文本，拖动跳转，按曲目提前 / 延后 0.5 秒，开关 ESLyric 桌面歌词。
 - **撤销**：被删除的播放列表、曲目和队列项可通过 8 秒提示或 **Ctrl+Z** 恢复。
 - **主题色调**和**壁纸**可通过放入文件夹 / 图片自行扩展；**九种语言**（菜单 ☰ → 皮肤语言）。
+
+提问和建议请到 [讨论区](https://github.com/zainchung/Hariiro/discussions)；问题反馈请提 [Issue](https://github.com/zainchung/Hariiro/issues)。
 
 ## 许可
 

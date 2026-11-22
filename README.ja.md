@@ -21,7 +21,7 @@ foo_js_panel 1.9.2、Panels UI (reborn) 1.27.1 で確認しています。スク
 
 1. [foobar2000](https://www.foobar2000.org/) v2（64 ビット）をインストールして一度起動します。foobar2000 は
    同梱していません（ライセンス上、再配布できるのは改変していないインストーラーだけです）。
-2. Release の `Hariiro.zip` をダウンロードして展開し、**`Install-Hariiro.cmd`** をダブルクリックします。
+2. [最新の Release](https://github.com/zainchung/Hariiro/releases/latest) から `Hariiro.zip` をダウンロードして展開し、**`Install-Hariiro.cmd`** をダブルクリックします。
    foobar2000 を見つけ、終了する前に確認し、足りなければ `components\` から Panels UI (reborn) と JS Panel を
    追加し（インストール済みのものは置き換えません）、`Hariiro\` を `<profile>\foo_ui_panels-skins\Hariiro` に
    コピーして（既存のものは先にバックアップ）、foobar2000 を起動します。設定やプレイリストは変更しません。
@@ -46,6 +46,8 @@ foo_js_panel 1.9.2、Panels UI (reborn) 1.27.1 で確認しています。スク
 - **元に戻す**：削除したプレイリスト、曲、キューの項目を 8 秒の通知または **Ctrl+Z** で復元。
 - **アクセントカラー**と**壁紙**はフォルダー / 画像を置くだけで追加でき、**9 言語**に対応（メニュー ☰ →
   スキンの言語）。
+
+質問やアイデアは [Discussions](https://github.com/zainchung/Hariiro/discussions) へ、不具合の報告は [Issues](https://github.com/zainchung/Hariiro/issues) へどうぞ。
 
 ## ライセンス
 

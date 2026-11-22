@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/zainchung/Hariiro/discussions
+    about: Ask how to install or use Hariiro, or share your accent colours and wallpapers.
+  - name: Download the latest release
+    url: https://github.com/zainchung/Hariiro/releases/latest
+    about: Hariiro.zip with the installer.
