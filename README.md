@@ -7,6 +7,9 @@ image-based transport controls, accent colours as folders in `images/controls/` 
 a wallpaper selector (`images/wallpapers/`) and nine UI languages
 (English, Español, Português, 简体中文, 繁體中文, 日本語, Français, Deutsch, Русский). New installs start in GLASS mode.
 
+![Hariiro — pink accent, night wallpaper](docs/preview/hariiro-glass-pink-night.png)
+![Hariiro — blue accent, sakura wallpaper](docs/preview/hariiro-glass-blue-sakura.png)
+
 Current release: **1.1.0** (Round 24, 2026-11-22: Queue drop with Music Library selected, sidebar
 multi-select, Ctrl+Z undo). Tested with foobar2000 2.26.3, foo_js_panel 1.9.2 and Panels UI (reborn).
 
@@ -24,21 +27,30 @@ lyrics only), and NATIVE list rules are decided by the host (`docs/NATIVE_VS_GLA
 Released under the [MIT License](LICENSE), Copyright (c) 2026 zainchung. This covers the
 scripts, layout, documentation and all bundled images (controls, corners and the two
 wallpapers). The licence grants no right to the name "Hariiro" for modified versions.
-Third-party components are not included: foobar2000, Panels UI (reborn) and foo_js_panel
-(both MIT) and ESLyric are installed separately under their own licences.
+The release ZIP bundles Panels UI (reborn) and foo_js_panel unmodified under their own MIT
+licences (`components\`, `THIRD-PARTY-NOTICES.txt`). Not included: foobar2000 and ESLyric,
+installed separately under their own licences.
 
 ## Install
 
-1. **Back up** your foobar2000 profile (especially `playlists-v2.0`) and your current skin folder.
-2. Build the package (or take a release ZIP):
-   ```
-   npm run package        # -> dist/Hariiro.zip
-   ```
-3. Extract it over a backed-up copy of the skin folder, then restart foobar2000.
-   New installs start in **GLASS** mode; an existing install keeps its mode (switch above
-   the middle list). The ZIP also holds `Hariiro-README.txt` for end users.
+1. Install [foobar2000](https://www.foobar2000.org/) v2 (64-bit) and start it once. Not bundled:
+   its licence allows sharing only the unmodified installer.
+2. Extract the release ZIP and double-click **`Install-Hariiro.cmd`**. It finds foobar2000, asks
+   before closing it, adds Panels UI (reborn) and JS Panel from `components\` when missing
+   (installed ones are kept), copies `Hariiro\` to `<profile>\foo_ui_panels-skins\Hariiro`
+   (an existing one is backed up first) and starts foobar2000. No settings or playlists are edited.
+3. First start, two clicks: choose **Panels UI (reborn)** in "New user interface module(s) found",
+   then **View → Panels UI → Skins → Hariiro** (Panels UI opens its layout wizard first).
 
-Rollback: restore the backed-up skin folder (and profile if you tested playlist features).
+Details, manual install and rollback: `docs/USER_README.txt` (shipped as `Hariiro-README.txt`).
+
+Building the release ZIP (needs the two components, e.g. from an installed foobar2000):
+```
+$env:HARIIRO_COMPONENTS_DIR='<foobar2000 profile>\user-components-x64'; npm run package   # -> dist/Hariiro.zip
+```
+Without the components the ZIP is built for testing only (the script says so).
+Bundled components: Panels UI (reborn) 1.27.1 and foo_js_panel 1.9.2 by Santiago Rodriguez,
+MIT (`third_party/`).
 
 ## Repository layout
 

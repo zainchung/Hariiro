@@ -6,19 +6,44 @@ License: MIT License (see LICENSE in this package). Copyright (c) 2026 zainchung
 Covers the scripts, layout and all bundled images, including the wallpapers.
 
 Requirements
-- foobar2000 v2 (tested with 2.26.3)
-- Panels UI (reborn)
-- foo_js_panel (tested with 1.9.2)
+- foobar2000 v2, 64-bit (tested with 2.26.3), standard or portable install:
+  https://www.foobar2000.org/ (not included: its licence allows sharing only the
+  unmodified installer)
+- Panels UI (reborn) 1.27.1 and JS Panel (foo_js_panel) 1.9.2: included in
+  components\ (MIT, see THIRD-PARTY-NOTICES.txt); the installer adds them
 - Optional: ESLyric (x64) for downloading lyrics and the desktop lyrics overlay
 
-Install
-1. Back up your foobar2000 profile (especially the playlists-v2.0 folder) and your
-   current skin folder.
-2. Close foobar2000 and extract this whole ZIP over the skin folder.
-3. Start foobar2000. New installs start in GLASS mode; an existing install keeps
-   its mode. The GLASS / NATIVE switch is above the middle list.
+What is in this ZIP
+- Hariiro\                 the skin folder
+- Install-Hariiro.cmd      the installer (Install-Hariiro.ps1 does the work)
+- components\              Panels UI (reborn) and JS Panel, with their licences
+- preview\                 screenshots
 
-Rollback: restore the backed-up skin folder (and profile, if needed).
+Install
+1. Install foobar2000 and start it once. (Back up your profile first if you
+   already use foobar2000, especially the playlists-v2.0 folder.)
+2. Extract the whole ZIP to any folder and double-click Install-Hariiro.cmd.
+   It finds foobar2000, asks before closing it, adds Panels UI (reborn) and
+   JS Panel if foobar2000 does not have them yet (installed ones are kept),
+   copies Hariiro\ to <profile>\foo_ui_panels-skins\Hariiro (an existing
+   Hariiro folder is first copied to Hariiro.backup-<time>) and starts
+   foobar2000. It changes no foobar2000 settings and no playlists.
+   foobar2000 in an unusual folder: start it before running the installer, or
+   run: powershell -ExecutionPolicy Bypass -File Install-Hariiro.ps1 -FoobarDir "<folder>"
+3. First start after adding the components, two clicks:
+   a. "New user interface module(s) found": choose "Panels UI (reborn)", OK.
+   b. Panels UI opens its own layout wizard. Use the menu
+      View > Panels UI > Skins (last entry) > Hariiro. foobar2000 keeps it.
+   Hariiro starts in GLASS mode; the GLASS / NATIVE switch is above the middle list.
+
+Manual install (without the installer): install the two components (copy
+components\<name>\<name>.dll to <profile>\user-components-x64\<name>\, or use the
+official .fb2k-component files), copy the Hariiro folder into
+<profile>\foo_ui_panels-skins\, then step 3. <profile> is the "profile" folder
+next to foobar2000.exe for a portable install, else %APPDATA%\foobar2000-v2.
+
+Rollback: delete <profile>\foo_ui_panels-skins\Hariiro and rename
+Hariiro.backup-<time> back to Hariiro (and restore the profile backup, if needed).
 
 Features
 - Glass playlist with album art and reflections; Artist / Library / Playlist sidebar.
@@ -44,8 +69,10 @@ Known limits
   search box.
 
 Updating from 1.0.0
-- Close foobar2000 and extract the ZIP over your Hariiro skin folder. Settings,
-  playlists and the skin's own lists are kept.
+- Run Install-Hariiro.cmd (or copy the Hariiro folder over your skin folder with
+  foobar2000 closed). Settings, playlists and the skin's own lists are kept.
+- If your Hariiro skin lives in another folder than <profile>\foo_ui_panels-skins,
+  choose the new one once in View > Panels UI > Skins.
 - If you moved the foobar2000 folder, Panels UI shows its welcome page once:
   choose the skin folder (foo_ui_panels-skins\Hariiro) again.
 
@@ -63,6 +90,8 @@ Updating from a test build
   and choose it in Panels UI, rather than over a test build.
 
 What is new in 1.1.0
+- Installer: Install-Hariiro.cmd sets up Panels UI (reborn), JS Panel and the
+  skin in one step; screenshots in preview\.
 - Files dragged from File Explorer onto the Queue are queued while Music Library
   is selected too (they were dropped before).
 - Sidebar: Ctrl + click / Shift + click select several playlists; Delete removes

@@ -1,0 +1,17 @@
+Hariiro — third-party components bundled in components\
+
+The Hariiro release ZIP includes two foobar2000 components so that the installer can set up a
+fresh foobar2000 in one step. They are unmodified binaries (64-bit) of the versions below, each
+under its own MIT License (components\<name>\LICENSE.txt). The installer copies a component
+only when foobar2000 does not have it yet; an installed copy is never replaced.
+
+Panels UI (reborn) — foo_ui_panels 1.27.1
+  Copyright (c) 2026 Santiago Rodriguez — MIT License
+  https://github.com/santiagorod92/foo_ui_panels
+
+JS Panel — foo_js_panel 1.9.2
+  Copyright (c) 2026 Santiago Rodriguez — MIT License
+  https://github.com/santiagorod92/foo_js_panel
+
+Not included: foobar2000 itself (its licence allows redistributing only the unmodified
+installer: get it from https://www.foobar2000.org/) and ESLyric (optional).

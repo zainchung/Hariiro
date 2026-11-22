@@ -1,0 +1,7 @@
+{
+  "comment": "Components bundled into dist/Hariiro.zip by tools/package_skin.py (from --components / HARIIRO_COMPONENTS_DIR).",
+  "components": [
+    { "name": "foo_ui_panels", "version": "1.27.1", "source": "https://github.com/santiagorod92/foo_ui_panels" },
+    { "name": "foo_js_panel", "version": "1.9.2", "source": "https://github.com/santiagorod92/foo_js_panel" }
+  ]
+}
