@@ -6,7 +6,7 @@ A transparent "glass" skin for foobar2000 built on **Panels UI (reborn)** and JS
 Glass playlist with album art and reflections, Artist/Library/Playlist navigation,
 playback Queue with undo, local lyrics (ESLyric-saved files and tags, per-track offset),
 image-based transport controls, accent colours as folders in `images/controls/` (six bundled; add your own),
-a wallpaper selector (`images/wallpapers/`) and nine UI languages
+a wallpaper selector (`images/wallpapers/`) with a light or dark interface to match it, and nine UI languages
 (English, Español, Português, 简体中文, 繁體中文, 日本語, Français, Deutsch, Русский). New installs start in GLASS mode.
 
 ![Hariiro — now playing, with lyrics](docs/preview/hariiro-glass-now-playing.png)
@@ -18,10 +18,9 @@ Current release: **1.0.0** (2026-11-22), the first release in this repository. T
 **Windows status.** Every change is checked in a real foobar2000 on Windows; the full
 acceptance matrix is `docs/WINDOWS_UI_ACCEPTANCE.md`. Covered offline only: display scaling
 other than the test machine's (125 % / 150 %, moving between monitors, the 2x icons and the
-seek bar / lyrics card child windows at those scales), Japanese IME pre-edit, NATIVE
-middle-list behaviour, the undo notice's 8-second expiry, and the GLASS default on a first
-run. Known limits: ESLyric cannot be embedded in a Panels UI panel (the skin reads saved
-lyrics only), and NATIVE list rules are decided by the host (`docs/NATIVE_VS_GLASS.md`).
+seek bar / lyrics card child windows at those scales), Japanese IME pre-edit, the mini
+player at display scaling other than 100 %, and the undo notice's 8-second expiry. Known
+limit: ESLyric cannot be embedded in a Panels UI panel (the skin reads saved lyrics only).
 
 Questions and ideas: [Discussions](https://github.com/zainchung/Hariiro/discussions); bugs: [Issues](https://github.com/zainchung/Hariiro/issues).
 
@@ -67,7 +66,7 @@ MIT (`third_party/`).
 | `images/` | Wallpapers (`images/wallpapers/`) and one folder per accent colour with its control and corner PNGs and `theme.json` (`images/controls/README.md`) |
 | `tests/` | Offline regression tests (`test_*.mjs`), helpers in `tests/helpers/` (`js_panel.mjs` include shim, `fake_host.mjs` fake foobar2000 host) |
 | `tools/` | `run_tests.mjs`, `package_skin.py`, `fb_test.ps1` (Windows checks), `generate_controls.py`, `make_accent_palette.py`, `audit_playlist_databases.py` |
-| `docs/` | Review notes of each change, acceptance matrix, `DEVELOPMENT_PLAN.md`, `NATIVE_VS_GLASS.md`, `USER_README.txt` (packaged as `Hariiro-README.txt`), `release_notes/` |
+| `docs/` | Review notes of each change, acceptance matrix, `DEVELOPMENT_PLAN.md`, `USER_README.txt` (packaged as `Hariiro-README.txt`), `release_notes/` |
 
 ## Development
 

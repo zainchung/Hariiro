@@ -5,7 +5,8 @@ import fs from 'node:fs';
 import { root, read } from './helpers/js_panel.mjs';
 
 const ini = read('foo_ui_panels.ini'), main = read('main.txt');
-assert.match(ini, /^pvar\.once\.hariiro\.playlist\.experimental = 1\s*$/m, 'GLASS by default for new installs');
+// Round 28: GLASS is the only list (NATIVE removed), so no default is needed (test_round28_mini).
+assert(!ini.includes('hariiro.playlist.experimental'));
 
 // Files: one place for wallpapers (Round 21 renamed the bundled one to Hariiro_UI_2560x1440.png; the menu
 // and saved-choice rules are in test_round21_perf).

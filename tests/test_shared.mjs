@@ -49,9 +49,9 @@ for (const f of ['js/hariiro_glass_playlist.js', 'js/playlist_browser.js']) {
 
 // D2: every panel-variable key is defined once, in HariiroShared.PVAR. hariiro_theme.js and
 // hariiro_i18n.js own their variable (they load standalone) and must use the same value.
-for (const k of ['themeHue', 'themeAccent', 'language', 'queueOpen', 'chromeHidden', 'favoriteCurrent', 'playlistExperimental'])
+for (const k of ['themeHue', 'themeAccent', 'language', 'queueOpen', 'chromeHidden', 'favoriteCurrent'])
   assert(typeof S.PVAR[k] === 'string' && S.PVAR[k].startsWith('hariiro.'), `HariiroShared.PVAR.${k}`);
-const OWNED = { 'js/hariiro_theme.js': [S.PVAR.themeHue, S.PVAR.themeAccent, S.PVAR.themeDegree], 'js/hariiro_i18n.js': [S.PVAR.language] };
+const OWNED = { 'js/hariiro_theme.js': [S.PVAR.themeHue, S.PVAR.themeAccent, S.PVAR.themeDegree, S.PVAR.tone, S.PVAR.controlsLight], 'js/hariiro_i18n.js': [S.PVAR.language] };
 for (const [f, keys] of Object.entries(OWNED)) for (const v of keys) assert(read(f).includes(`'${v}'`), `${f} must use '${v}'`);
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 for (const f of fs.readdirSync(root + '/js').filter(n => n.endsWith('.js')).map(n => 'js/' + n)) {

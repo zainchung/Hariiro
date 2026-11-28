@@ -80,7 +80,7 @@ function on_mouse_lbtn_up(x,y){
  catch(e){console.log('Hariiro nav: '+String(e));}
  window.Repaint();
 }
-function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue){window.Repaint();return;}
+function on_panelsui_variable_changed(name){if(HariiroTheme.isLookVariable(name)){window.Repaint();return;}
 
  if(name===HariiroShared.PVAR.language){window.Repaint();return;}
  if(name!==HariiroShared.PVAR.navMode)return;

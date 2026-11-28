@@ -35,8 +35,8 @@ menuChoice=105;tctx.on_mouse_rbtn_up(25,35);assert.equal(order,4,'right click us
 const shapes=[];const gr=new Proxy({}, {get:(_,key)=>(...args)=>{shapes.push({key,args});}});
 for(let i=0;i<7;i++){order=i;shapes.length=0;tctx.on_paint(gr);assert(shapes.filter(x=>x.key==='DrawImage').length>=7,`mode ${i} has PNG assets`);}
 // Shared visual palette for QUEUE, DESK and mode switch.
-const queue=read('js/hariiro_queue_toggle.js'),desk=read('js/hariiro_desktop_lyrics.js'),toggle=read('js/hariiro_mode_switch.js');
-for(const src of [queue,desk,toggle])assert(src.includes('HariiroTheme.paintSwitch(gr,w,h,'),'active switches share QUEUE highlight'); // Phase D2
+const queue=read('js/hariiro_queue_toggle.js'),desk=read('js/hariiro_desktop_lyrics.js'); // Round 28: NATIVE removed (test_round28_mini)
+for(const src of [queue,desk])assert(src.includes('HariiroTheme.paintSwitch(gr,w,h,'),'active switches share QUEUE highlight'); // Phase D2
 assert(read('js/hariiro_theme.js').includes('0xff93547d'));
 // Mock foobar playlists as actual editable entities, not scratch views.
 let rows=[
@@ -85,7 +85,8 @@ assert.equal(plman.ActivePlaylist,2,'Selecting regular playlist should select or
 assert.equal(ctx.editableDestination(),2);
 // File or folder payload is added by host, then sidebar callback sorts after its 260ms import burst.
 rows[2].items.push({Path:'add-last.flac',SubSong:0,album:'Z',disc:1,track:12},{Path:'add-first.m4a',SubSong:0,album:'A',disc:1,track:1});
-ctx.on_playlist_items_added(2);assert.equal(clock.size,1);
+const pendingBefore=clock.size; // Round 28: the sidebar's settle repaint may be pending
+ctx.on_playlist_items_added(2);assert.equal(clock.size,pendingBefore+1);
 for(const [id,fn]of [...clock]){clock.delete(id);fn();}
 assert.equal(rows[2].items[0].Path,'add-first.m4a');assert.equal(focus,0);
 assert(actions.some(x=>x.includes('revealimported')));

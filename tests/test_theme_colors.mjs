@@ -41,6 +41,6 @@ for (const f of fs.readdirSync(root + '/js').filter(n => n.endsWith('.js') && n 
   for (const hex of shared) assert(!src.includes(hex), `js/${f} hard-codes ${hex}: use HariiroTheme.COLORS`);
   assert(!/function\s+paintswitch\b/.test(src), `js/${f}: use HariiroTheme.paintSwitch`);
 }
-for (const f of ['hariiro_mode_switch.js', 'hariiro_queue_toggle.js', 'hariiro_desktop_lyrics.js'])
+for (const f of ['hariiro_queue_toggle.js', 'hariiro_desktop_lyrics.js']) // Round 28: NATIVE removed (test_round28_mini)
   assert(read('js/' + f).includes('HariiroTheme.paintSwitch(gr,w,h,'), f);
 console.log('test_theme_colors: ok');

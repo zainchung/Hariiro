@@ -29,7 +29,7 @@ assert(!/function mainControl|function fiveSeconds|function outputDeviceIcon|fun
 assert(transport.includes("gdi.Image(folder+name+'.png')"));
 assert(slider.includes("gdi.Image(folder+'butterfly.png')"));
 assert(slider.includes("gdi.Image(folder+'volume_thumb.png')"));
-assert(footer.includes('/speaker.png)')) /* Round 22: colour folder */;
+assert(footer.includes('/$getpvar(hariiro.controls.light)speaker.png)')) /* Round 22: colour folder; Round 27: light/ */;
 assert(footer.includes('$eval(%_width% * 23 / 100 - 48)'),'elapsed time label shifted closer');
 // DrawImage actually paints each asset: no vector-only placeholder fallback.
 const paths=[],drawCalls=[];let orderIndex=0;
@@ -49,7 +49,7 @@ const seekContext=vm.createContext({gdi:{Image:p=>({Width:192,Height:192,path:p}
 vm.runInContext(slider,seekContext);drawCalls.length=0;seekContext.on_paint(gr);
 assert(drawCalls.some(x=>x.k==='DrawImage'&&x.args[0].path.includes('butterfly')));
 // All three switch scripts share exactly the same active, inactive and knob palette.
-for(const f of ['js/hariiro_mode_switch.js','js/hariiro_queue_toggle.js','js/hariiro_desktop_lyrics.js']){
+for(const f of ['js/hariiro_queue_toggle.js','js/hariiro_desktop_lyrics.js']){ // Round 28: NATIVE removed (test_round28_mini)
  // Phase D2: one HariiroTheme.paintSwitch and HariiroTheme.COLORS, no local copies.
  const s=read(f),theme=read('js/hariiro_theme.js');
  for(const value of ['0xff93547d','0xff43334f','0xffffc8e7','0xffd9b2d2',

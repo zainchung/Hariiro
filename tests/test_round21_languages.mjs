@@ -76,7 +76,7 @@ for (const [locale, want] of [['es-ES', 'es'], ['es-MX', 'es'], ['pt-BR', 'pt'],
   const main = read('main.txt');
   assert(!main.includes('$getpvar(hariiro.language)'), 'main.txt uses the shown language, not the setting');
   const lines = main.split(/\r?\n/).filter(l => l.includes('$getpvar(hariiro.language.shown)'));
-  assert.equal(lines.length, 4, 'sidebar title, album header, queue header, stopped');
+  assert.equal(lines.length, 5, 'sidebar title, album header, queue header, stopped (full window and mini player, Round 28)');
   for (const line of lines) for (const l of LANGS.filter(x => x !== 'ja'))
     assert(line.includes(`$strcmp($getpvar(hariiro.language.shown),${l})`), `${l} in: ${line.slice(0, 60)}`);
 }

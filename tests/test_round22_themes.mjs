@@ -33,8 +33,10 @@ for (const [id, hue] of Object.entries(BUNDLED)) {
 // main.txt takes corners and the volume icon from the chosen colour's folder.
 assert(!main.includes('images/ornaments/'));
 const FOLDER = '$if($strcmp($getpvar(hariiro.theme.hue),rose),pink,$if2($getpvar(hariiro.theme.hue),pink))';
-for (const c of ['tl', 'tr', 'bl', 'br']) assert(main.includes(`images/controls/${FOLDER}/corner_${c}.png`), c);
-assert(main.includes(`images/controls/${FOLDER}/speaker.png`));
+// Round 27: + hariiro.controls.light ('light/' in the light tone).
+const SUB = '$getpvar(hariiro.controls.light)';
+for (const c of ['tl', 'tr', 'bl', 'br']) assert(main.includes(`images/controls/${FOLDER}/${SUB}corner_${c}.png`), c);
+assert(main.includes(`images/controls/${FOLDER}/${SUB}speaker.png`));
 assert(!/\$strcmp\(\$getpvar\(hariiro\.theme\.hue\),violet\)/.test(main), 'no per-colour branches left');
 assert(ini.includes('pvar.once.hariiro.theme.hue = pink'));
 
@@ -110,7 +112,7 @@ function host(vars, extra = {}) {
 // ---- 5. panels load images from the colour's folder -------------------------------------------------
 for (const f of ['js/hariiro_transport.js', 'js/hariiro_footer_slider.js']) {
   const src = read(f);
-  assert(src.includes('HariiroTheme.folder()'), f);
+  assert(src.includes('HariiroTheme.controlsFolder()'), f); // Round 27: light/ in the light tone
   assert(!src.includes("'pink/'"), f + ': no rose/pink mapping of its own');
 }
 console.log('test_round22_themes: ok');

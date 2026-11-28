@@ -226,7 +226,7 @@ blinkTimer=window.SetInterval(function(){
 },500);
 function on_script_unload(){if(blinkTimer)window.ClearInterval(blinkTimer);}
 
-function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue){window.Repaint();return;}
+function on_panelsui_variable_changed(name){if(HariiroTheme.isLookVariable(name)){window.Repaint();return;}
 if(name===HariiroShared.PVAR.language)window.Repaint();}
 
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).

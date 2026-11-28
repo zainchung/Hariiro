@@ -101,12 +101,71 @@ function currentWallpaper(){
 // Only a file from wallpaperChoices() is accepted.
 function setWallpaper(file){
  if(!wallpaperChoices().some(w=>w.file===file))return false;
- try{panelsui.SetVariable(HariiroShared.PVAR.wallpaper,file);return true;}catch(e){return false;}
+ try{panelsui.SetVariable(HariiroShared.PVAR.wallpaper,file);}catch(e){return false;}
+ applyTone();return true;
+}
+// Round 27: interface tone. The owner picks Automatic (default), Dark or Light in the ☰ menu;
+// Automatic reads the wallpaper's brightness once per file (cached in hariiro.tone.auto).
+// The tone shown is published as hariiro.tone, with hariiro.controls.light for main.txt and the
+// control images, and the recoloured main.txt colours.
+const TONE_MODES=['auto','dark','light'];
+function toneMode(){try{const m=String(panelsui.GetVariable(HariiroShared.PVAR.toneMode,'auto'));return TONE_MODES.includes(m)?m:'auto';}catch(e){return 'auto';}}
+function autoTone(){
+ const file=currentWallpaper();
+ try{
+  const cached=String(panelsui.GetVariable(HariiroShared.PVAR.toneAuto,'')||'');
+  const bar=cached.lastIndexOf('|');
+  if(bar>0&&cached.slice(0,bar)===file&&/^(light|dark)$/.test(cached.slice(bar+1)))return cached.slice(bar+1);
+ }catch(e){}
+ const skin=skinFolder();if(!skin)return 'dark';
+ let img=null,t=null;
+ try{img=gdi.Image(skin+'images'+BS+file.replace(/\//g,BS));t=HariiroTheme.wallpaperTone(img);}
+ catch(e){console.log('Hariiro wallpaper tone: '+String(e));}
+ finally{try{if(img&&typeof img.Dispose==='function')img.Dispose();}catch(e){}}
+ if(!t)return 'dark';
+ try{panelsui.SetVariable(HariiroShared.PVAR.toneAuto,file+'|'+t);}catch(e){}
+ return t;
+}
+function hasLightImages(){
+ const skin=skinFolder();if(!skin)return false;
+ try{return !!utils.IsFile(skin+'images'+BS+'controls'+BS+HariiroTheme.folder()+BS+'light'+BS+'play.png');}catch(e){return false;}
+}
+function applyTone(){
+ const mode=toneMode(),t=mode==='auto'?autoTone():mode;
+ let changed=false;
+ try{
+  const sub=t==='light'&&hasLightImages()?'light/':'';
+  // The icon folder first: panels repaint on the tone and must then find both values.
+  if(String(panelsui.GetVariable(HariiroShared.PVAR.controlsLight,''))!==sub){panelsui.SetVariable(HariiroShared.PVAR.controlsLight,sub);changed=true;}
+  if(String(panelsui.GetVariable(HariiroShared.PVAR.tone,''))!==t){panelsui.SetVariable(HariiroShared.PVAR.tone,t);changed=true;}
+ }catch(e){console.log('Hariiro tone: '+String(e));}
+ publishLayoutColors();
+ if(changed){try{window.NotifyOthers('Hariiro.ThemeChanged',HariiroTheme.key());}catch(e){}}
+ return t;
+}
+function setToneMode(mode){
+ if(!TONE_MODES.includes(mode))return false;
+ try{panelsui.SetVariable(HariiroShared.PVAR.toneMode,mode);}catch(e){return false;}
+ applyTone();return true;
+}
+applyTone();
+// Round 26: the last menu entry opens the project's public releases in the default browser.
+// A fixed address only; utils.Run (JS Panel 1.9.2) goes through ShellExecute.
+const RELEASES_URL='https://github.com/zainchung/Hariiro/releases';
+function openReleases(){
+ try{
+  if(typeof utils.Run==='function'&&utils.Run(RELEASES_URL)!==false)return true;
+  if(typeof ActiveXObject==='function'){new ActiveXObject('WScript.Shell').Run(RELEASES_URL,1,false);return true;}
+ }catch(e){console.log('Hariiro releases: '+String(e));}
+ try{fb.ShowPopupMessage(RELEASES_URL,'Hariiro');}catch(e){}
+ return false;
 }
 function chromeFlag(key){try{return String(panelsui.GetVariable(key,'0'))==='1';}catch(e){return false;}}
 function settingsMenu(x,y){
  const menu=window.CreatePopupMenu(),language=window.CreatePopupMenu(),colors=window.CreatePopupMenu(),walls=window.CreatePopupMenu();
  const hidden=chromeFlag(HariiroShared.PVAR.chromeHidden),mb=chromeFlag('menubar');
+ menu.AppendMenuItem(0,16,T('miniPlayer')); // Round 28: Panels UI mini mode (mini.size in the ini)
+ menu.AppendMenuSeparator();
  menu.AppendMenuItem(0,11,T(hidden?'showtitle':'hidetitle'));
  menu.AppendMenuItem(0,12,T(mb?'hidemenu':'showmenu'));
  menu.AppendMenuSeparator();
@@ -135,16 +194,24 @@ function settingsMenu(x,y){
  if(wallpapers.length)walls.AppendMenuSeparator();
  walls.AppendMenuItem(1,299,T('wallpaperHint')); // MF_GRAYED: a hint, not a command
  walls.AppendTo(menu,0,T('wallpaper'));
+ const tones=window.CreatePopupMenu(),mode=toneMode(),toneKeys={auto:'toneAuto',dark:'toneDark',light:'toneLight'};
+ for(let i=0;i<TONE_MODES.length;i++)tones.AppendMenuItem(0,400+i,(mode===TONE_MODES[i]?'✓ ':'   ')+T(toneKeys[TONE_MODES[i]]));
+ tones.AppendTo(menu,0,T('tone'));
+ menu.AppendMenuSeparator();
+ menu.AppendMenuItem(0,15,T('githubReleases'));
  const cmd=menu.TrackPopupMenu(x,y);
  if(cmd===11)runAction('PVAR:TOGGLE:'+HariiroShared.PVAR.chromeHidden);
  else if(cmd===12)runAction('MENUBAR:toggle');
  else if(cmd===13)runAction('PREFERENCES');
  else if(cmd===14)runAction('MENU');
+ else if(cmd===15)openReleases();
+ else if(cmd===16)runAction('MINIMODE:TOGGLE');
  else if(cmd>=200&&cmd<200+langs.length){HariiroI18n.change(langs[cmd-200]);publishLanguage();}
- else if(cmd>=300&&cmd<300+wallpapers.length)setWallpaper(wallpapers[cmd-300].file);
+ else if(cmd>=400&&cmd<400+TONE_MODES.length)setToneMode(TONE_MODES[cmd-400]); // after the 60 wallpaper ids
+ else if(cmd>=300&&cmd<300+Math.min(60,wallpapers.length))setWallpaper(wallpapers[cmd-300].file);
  else if(cmd>=230&&cmd<230+Math.min(60,colours.length)){
   if(HariiroTheme.set(colours[cmd-230])){
-   publishLayoutColors();
+   applyTone(); // the new colour may have no light/ images; also publishes the colours
    try{window.NotifyOthers('Hariiro.ThemeChanged',HariiroTheme.selected());}catch(e){}
   }
  }
@@ -211,4 +278,4 @@ function select(x,y){const i=hit(x);
 function on_mouse_lbtn_up(x,y){return select(x,y);}
 function on_mouse_rbtn_up(x,y){return hit(x)===0?settingsMenu(x,y):true;}
 function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.language)publishLanguage();
- if([HariiroShared.PVAR.language,HariiroShared.PVAR.chromeHidden,'menubar',HariiroShared.PVAR.themeHue].includes(name))window.Repaint();}
+ if(HariiroTheme.isLookVariable(name)||[HariiroShared.PVAR.language,HariiroShared.PVAR.chromeHidden,'menubar'].includes(name))window.Repaint();}

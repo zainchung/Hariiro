@@ -11,16 +11,15 @@ import {installIncludeShim} from './helpers/js_panel.mjs';
 const originalVmRun=installIncludeShim(vm);
 for(const file of readdirSync(root+'js').filter(x=>x.endsWith('.js'))){new vm.Script(readFileSync(root+'js/'+file,'utf8'),{filename:file});}
 const main=readFileSync(root+'main.txt','utf8');const ini=readFileSync(root+'foo_ui_panels.ini','utf8');
-const pack=['NavTabs','TopChrome','NativeScroll','FooterQueueToggle','FooterVolume','FooterTransport','NowDetails','HariiroLyrics','DesktopLyrics','HariiroQueue','SwitchGlass','SwitchNative'];
+const pack=['NavTabs','TopChrome','FooterQueueToggle','FooterVolume','FooterTransport','NowDetails','HariiroLyrics','DesktopLyrics','HariiroQueue']; // Round 28: NATIVE removed (test_round28_mini)
 for(const name of pack){assert.match(main,new RegExp(`\\$panel\\(${name},`));assert.match(ini,new RegExp(`panel\\.${name}\\.script = js/`));}
 assert(!main.includes('FooterVolumePct'));assert(!ini.includes('FooterVolumePct'));assert(!readFileSync(root+'js/hariiro_footer_slider.js','utf8').includes('PERCENT_LABEL'));
 assert(!main.includes('images/controls/play_ring.png'));
 assert.match(main,/\$panel\(Cover,Album Art,/);assert(!ini.includes('panel.Cover.script'));
 assert(!ini.includes('window.aspect_lock'));assert(!ini.includes('window.size = 1280 720'));
 assert(!main.includes('ROTATEFLIP-'));
-for(const c of ['tl','tr','bl','br'])assert(main.includes('/corner_'+c+'.png)')); // Round 22: in the colour folder
-assert.match(main,/SwitchGlass,JS Panel/);assert.match(main,/SwitchNative,JS Panel/);
-assert(main.includes('/speaker.png)'));
+for(const c of ['tl','tr','bl','br'])assert(main.includes('/$getpvar(hariiro.controls.light)corner_'+c+'.png)')); // Round 22: in the colour folder; Round 27: light/
+assert(main.includes('/$getpvar(hariiro.controls.light)speaker.png)'));
 const widths=[960,1280,1536,1920];
 for(const w of widths){const h=Math.round(w*9/16);const navEnd=16+350,searchStart=w-522,searchEnd=searchStart+304,chromeStart=w-199,chromeEnd=chromeStart+183;
  assert(navEnd+10<searchStart);assert.equal(searchEnd+19,chromeStart);assert.equal(chromeEnd,w-16);
@@ -47,11 +46,6 @@ assert(lyrics.includes("HariiroI18n.t('lyricSearch')"));
 assert(lyrics.includes("new ActiveXObject('ESLyric')"));
 assert(lyrics.includes('esl.RequestLyric(title,artist)'));assert(lyrics.includes('View/ESLyric/Search...'));
 assert(lyrics.includes('fb.RunMainMenuCommand(path)'));
-const toggle=readFileSync(root+'js/hariiro_mode_switch.js','utf8');
-assert(toggle.includes("panelsui.PanelName==='SwitchGlass'"));
-// D2: the key lives in HariiroShared.PVAR; main.txt still reads it by this name.
-assert(toggle.includes("'PVAR:TOGGLE:'+HariiroShared.PVAR.playlistExperimental"));
-assert(readFileSync(root+'js/hariiro_shared.js','utf8').includes("playlistExperimental:'hariiro.playlist.experimental'"));
 assert(!readFileSync(root+'js/hariiro_top_chrome.js','utf8').includes('cy+6,cx+7,cy+6'));
 function graphics(){return new Proxy({}, {get(target,key){return (...args)=>{calls.push({method:key,args});};}});}let calls=[];
 function runScript(file,extra={}){

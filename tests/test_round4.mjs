@@ -12,10 +12,8 @@ const originalVmRun=installIncludeShim(vm);
 const read=path=>readFileSync(root+'/'+path,'utf8');
 const main=read('main.txt'),tabsCode=read('js/hariiro_nav_tabs.js');
 const lyricsCode=read('js/hariiro_lyrics.js'),deskCode=read('js/hariiro_desktop_lyrics.js');
-assert.match(main,/72 \/ 100 - 115\),61,74,24/);
 assert.match(main,/\$eval\(%_width% - 209\),\$eval\(%_height% - 94\),84,24/);
 assert(!main.includes('72 / 100 - 152),59,111,28'));
-assert.match(read('js/hariiro_mode_switch.js'),/gdi.Font\('Segoe UI',9,1\)/);
 const artwork=read('js/hariiro_transport.js');
 assert(artwork.includes('transport graphics are transparent PNGs')); // intentionally unchanged in round 4
 const modes=[];let selectedMode='artists',clock=1_000;

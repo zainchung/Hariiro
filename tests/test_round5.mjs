@@ -12,17 +12,13 @@ const originalVmRun=installIncludeShim(vm);
 const read=f=>readFileSync(root+'/'+f,'utf8');
 const main=read('main.txt'), ini=read('foo_ui_panels.ini');
 const lyrics=read('js/hariiro_lyrics.js'),chrome=read('js/hariiro_top_chrome.js');
-const native=read('js/hariiro_native_scroll.js');
 assert.match(lyrics,/PLAYED_NEAR = 0xffec85bb, PLAYED_FAR = 0xffb869a6/);
 assert.match(lyrics,/played\?PLAYED_NEAR/);
 const active=0xffffedf6, played=0xffec85bb;
 assert(Math.abs((active&255)-(played&255))+Math.abs((active>>8&255)-(played>>8&255))+Math.abs((active>>16&255)-(played>>16&255))>110);
 assert(main.includes('アーティスト/ライブラリ'));
 assert(main.includes('ALBUMS / TRACKS'));
-assert(main.includes('$panel(NativeScroll,JS Panel,'));
-assert.match(ini,/panel.NativeScroll.script = js\/hariiro_native_scroll.js/);
-assert.match(native,/EnsurePlaylistItemVisible\(active\(\),estimated\)/);
-assert.match(ini,/panel.NativeScroll.windowless = 0/);
+// Round 28: the NATIVE scroll strip was removed with NATIVE (test_round28_mini).
 // Round 22: no highlight colour; the native playlist uses the accent (test_round22_native_colours).
 assert(!ini.includes('color.playlist.highlight = 205 145 92'));
 assert(main.includes('$panel(TopChrome,JS Panel'));
@@ -50,12 +46,6 @@ function chromeFor(name){
 }
 const c=chromeFor('TopChrome');drawings.length=0;c.on_mouse_move(161,16);c.on_paint(gr);
 assert(drawings.some(x=>x.method==='DrawRoundRect'&&x.args.includes(0xffff859a)),'power hover should warn red');
-const revealed=[];
-const nativeWindow={Width:15,Height:500,Repaint(){}};
-const nctx=vm.createContext({window:nativeWindow,plman:{ActivePlaylist:0,PlaylistItemCount:()=>90,EnsurePlaylistItemVisible(p,i){revealed.push([p,i]);}},console:{log(){}}});
-vm.runInContext(native,nctx);
-nctx.on_paint(gr);nctx.on_mouse_lbtn_down(12,18);nctx.on_mouse_move(12,420,1);nctx.on_mouse_lbtn_up(12,420);
-assert(revealed.length>=2&&revealed.at(-1)[1]>40);
 // Verify the option reveals the actual loaded LRC and does not pretend tags are files.
 const popup=[],runs=[];
 const lyricCtx=vm.createContext({

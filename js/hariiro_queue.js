@@ -316,7 +316,7 @@ function on_mouse_rbtn_up(x,y){
 function on_size(){refresh();}
 refresh();
 
-function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(HariiroTheme.isLookVariable(name)||name===HariiroShared.PVAR.language)window.Repaint();}
 
 HariiroDropFix.install({plan:externalDropPlan});
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).

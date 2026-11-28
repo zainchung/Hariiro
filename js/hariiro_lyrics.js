@@ -742,7 +742,7 @@ function on_script_unload(){
 
 function on_panelsui_variable_changed(name){
  if(name===HariiroShared.PVAR.language){reloadLyrics();return;}
- if(name===HariiroShared.PVAR.themeHue)window.Repaint();
+ if(HariiroTheme.isLookVariable(name))window.Repaint();
 }
 
 // Lyrics are display-only. Explicitly reject OLE data so dragged playlist

@@ -55,3 +55,17 @@ and transparency) and edit `theme.json`. `python tools/make_accent_palette.py <n
 builds a full set from `pink/` by the same hue rule. The illustrated wallpaper and the native
 foobar2000/ESLyric menus are not recoloured. If the chosen folder is deleted, the skin
 switches to `pink` (or the first folder).
+
+## Light interface (Round 27)
+
+On a light wallpaper (☰ → Interface colours → Automatic, or Light) the skin mirrors the
+lightness of every colour it draws: pale text turns dark, the dark glass turns pale and a
+little more opaque; hue, saturation and transparency stay. The pictures come from the
+colour's `light/` subfolder, made from the folder's own PNGs by the same rule:
+
+```
+python tools/make_light_controls.py <folder>   (or no argument: every colour folder)
+```
+
+Run it again after replacing a colour's pictures. A colour without `light/` keeps its
+normal pictures in the light interface.

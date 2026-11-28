@@ -49,7 +49,7 @@ assert(side.includes('plman[remove](p)'));
 const glass=read('js/hariiro_glass_playlist.js');
 assert(glass.includes("HariiroI18n.t('removeSelected')"));
 assert(glass.includes('plman.RemovePlaylistSelection(p,false)'));
-for(const path of ['hariiro_mode_switch.js','hariiro_desktop_lyrics.js','hariiro_queue_toggle.js']){
+for(const path of ['hariiro_desktop_lyrics.js','hariiro_queue_toggle.js']){ // Round 28: NATIVE removed (test_round28_mini)
  const s=read('js/'+path)+read('js/hariiro_theme.js'); // Phase D2: shared palette lives in HariiroTheme
  for(const color of ['0xff93547d','0xff43334f','0xffffc8e7','0xffd9b2d2','0xffffe9f5','0xffd8cbdf'])
  assert(s.includes(color),`${path} missing ${color}`);

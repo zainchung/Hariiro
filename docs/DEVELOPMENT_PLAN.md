@@ -116,6 +116,12 @@ post-import sort, all of which read and write the panel's own state.
   repository and its first release there is 1.0.0 (same content, full feature list).
 - Round 25: installer (`tools/installer`), bundled Panels UI + JS Panel with licences
   (`third_party/`), screenshots (`docs/preview`), new ZIP layout (`docs/ROUND25_REVIEW.md`).
+- Round 26: lyrics card backing matches the other cards; ☰ menu links to the GitHub releases
+  (`docs/ROUND26_REVIEW.md`).
+- Round 27: light interface for light wallpapers (automatic / dark / light), one tone rule in
+  HariiroTheme, light control images (`docs/ROUND27_REVIEW.md`).
+- Round 28: NATIVE removed; mini player (Panels UI mini mode, ☰ → Mini player), shared
+  favourites helper, sidebar repaint after it is shown again (`docs/ROUND28_REVIEW.md`).
 
 ## 4. Working rules
 - Every round: failing test first, `npm test` green, review doc `docs/ROUNDnn_REVIEW.md`, short release note, ZIP via `npm run package` (`tools/package_skin.py`); bump `package.json` and the header of `docs/USER_README.txt` for a release.

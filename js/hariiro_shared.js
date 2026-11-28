@@ -20,6 +20,10 @@ var HariiroShared=(function(){
   themeAccent:'hariiro.accent',
   themeDegree:'hariiro.theme.degree', // Round 22: hue of the chosen colour folder
   themeColorPrefix:'hariiro.tc.', // Round 22: + base 'r-g-b' of a main.txt colour = recoloured value
+  tone:'hariiro.tone', // Round 27: 'light' | 'dark' as shown (written by the title-bar panel)
+  controlsLight:'hariiro.controls.light', // Round 27: 'light/' when the colour's light images are used
+  toneMode:'hariiro.tone.mode', // Round 27: owner's choice 'auto' | 'dark' | 'light'
+  toneAuto:'hariiro.tone.auto', // Round 27: cache '<wallpaper>|<tone>' of the last analysis
   language:'hariiro.language',
   // Round 21: the language actually shown ("auto" resolved); written by the title-bar
   // panel, read by main.txt.
@@ -28,7 +32,6 @@ var HariiroShared=(function(){
   queueOpen:'hariiro.queue.open',
   chromeHidden:'hariiro.chrome.hidden',
   favoriteCurrent:'hariiro.favorite.current',
-  playlistExperimental:'hariiro.playlist.experimental',
   wallpaper:'hariiro.wallpaper' // Round 19; also background.image_pvar in the ini
  });
  // Playlists created and owned by the skin. Users never drop into these.

@@ -28,7 +28,19 @@ var HariiroTheme=(function(){
   if(variable('hariiro.theme.degree','')!==''&&isFinite(d))return ((Math.round(d)%360)+360)%360;
   const p=byId[selected()];return p?p.hue:BASE_HUE;
  }
- function key(){return selected()+'@'+hue();}
+ // Round 27: interface tone. 'light' (published by the title-bar panel for light wallpapers,
+ // or chosen in the ☰ menu) mirrors every colour's lightness; 'dark' is the original palette.
+ function tone(){return variable('hariiro.tone','dark')==='light'?'light':'dark';}
+ // Round 28: Panels UI variables after which every themed panel repaints (hue, tone, light icons).
+ const LOOK_VARIABLES=Object.freeze(['hariiro.theme.hue','hariiro.theme.degree','hariiro.tone','hariiro.controls.light']);
+ function isLookVariable(name){return LOOK_VARIABLES.includes(String(name));}
+ function key(){return selected()+'@'+hue()+'@'+tone();}
+ // Folder the panels load control images from: <colour>/light/ while the title-bar panel says
+ // the colour has light images and the tone is light (hariiro.controls.light, also main.txt).
+ function controlsFolder(){
+  const sub=tone()==='light'&&variable('hariiro.controls.light','')==='light/'?'light/':'';
+  return '../images/controls/'+folder()+'/'+sub;
+ }
  // theme: {id, hue, accent} from scan(), or the id of a bundled folder.
  function set(theme){
   const t=typeof theme==='string'?byId[theme]:theme;
@@ -91,16 +103,64 @@ var HariiroTheme=(function(){
  // the panel variable hariiro.tc.<r-g-b>, which TopChrome publishes (layoutColor).
  const LAYOUT_COLORS=Object.freeze(['234-172-197','236-184-177','239-170-200','245-190-213','249-183-211',
   '249-220-217','249-220-235','250-181-211','251-173-207','252-146-204','253-216-227','253-228-240',
-  '255-160-211','255-232-246','220-165-187','226-173-197','58-20-59','229-214-231']);
+  '255-160-211','255-232-246','220-165-187','226-173-197','58-20-59','229-214-231',
+  // Round 27: the glass fills and grey text, unchanged by the accent but mirrored by the light tone.
+  '24-25-30','9-14-28','15-24-49','18-26-49','10-20-42','20-25-50','198-198-220']);
  function layoutColor(c){
   const p=String(c).split('-').map(Number);if(p.length!==3||p.some(n=>!(n>=0&&n<=255)))return String(c);
   const out=recolor((0xff000000|(p[0]<<16)|(p[1]<<8)|p[2])>>>0);
   return ((out>>>16)&255)+'-'+((out>>>8)&255)+'-'+(out&255);
  }
  let cachedHue=-1,cached=new Map();
- function recolor(argb){const target=hue();if(target===BASE_HUE||typeof argb!=='number')return argb;
-  if(target!==cachedHue){cachedHue=target;cached.clear();}if(cached.has(argb))return cached.get(argb);
-  const out=shift(argb,target);cached.set(argb,out);return out;
+ function recolor(argb){const target=hue(),light=tone()==='light';
+  if((target===BASE_HUE&&!light)||typeof argb!=='number')return argb;
+  const k=target+(light?'L':'D');
+  if(k!==cachedHue){cachedHue=k;cached.clear();}if(cached.has(argb))return cached.get(argb);
+  let out=target===BASE_HUE?argb:shift(argb,target);
+  if(light)out=frost(lighten(out));
+  cached.set(argb,out);return out;
+ }
+ // Round 27: translucent glass that turned pale is made LIGHT_FROST times as opaque, so a busy
+ // light wallpaper does not show through rows and cards as much (dark text on it). Images
+ // (tools/make_light_controls.py) keep their alpha.
+ const LIGHT_FROST=1.5;
+ function frost(argb){
+  const a=(argb>>>24)&255;if(a===0||a===255)return argb;
+  const r=(argb>>>16)&255,g=(argb>>>8)&255,b=argb&255;
+  if((Math.max(r,g,b)+Math.min(r,g,b))/510<0.6)return argb;
+  return ((Math.min(255,Math.round(a*LIGHT_FROST))<<24)|(argb&0xffffff))>>>0;
+ }
+ // Round 27: the light tone (also tools/make_light_controls.py, so the icons match). HSL
+ // lightness is mirrored (pale text turns dark, dark glass turns pale) and kept between
+ // LIGHT_MIN and LIGHT_MAX; hue, saturation and alpha stay.
+ const LIGHT_MIN=0.12,LIGHT_MAX=0.96;
+ function lighten(argb){
+  const a=(argb>>>24)&255,r=((argb>>>16)&255)/255,g=((argb>>>8)&255)/255,b=(argb&255)/255;
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,d=mx-mn;
+  let h=0,s=0;
+  if(d>0){s=d/(1-Math.abs(2*l-1));h=mx===r?((g-b)/d+6)%6:mx===g?(b-r)/d+2:(r-g)/d+4;}
+  const L=Math.min(LIGHT_MAX,Math.max(LIGHT_MIN,1-l)),C=(1-Math.abs(2*L-1))*Math.min(1,s),X=C*(1-Math.abs(h%2-1)),m=L-C/2;
+  const t=h<1?[C,X,0]:h<2?[X,C,0]:h<3?[0,C,X]:h<4?[0,X,C]:h<5?[X,0,C]:[C,0,X];
+  return ((a<<24)|(Math.round((t[0]+m)*255)<<16)|(Math.round((t[1]+m)*255)<<8)|Math.round((t[2]+m)*255))>>>0;
+ }
+ // Round 27: 'light' or 'dark' for a wallpaper image (gdi.Image): the frequency-weighted luma of
+ // its colour scheme, from a small copy when the host can resize. null when it cannot be read.
+ const LIGHT_WALLPAPER=0.5;
+ function wallpaperTone(img){
+  if(!img)return null;
+  let small=null;
+  try{
+   try{small=typeof img.Resize==='function'?img.Resize(64,36):null;}catch(e){small=null;}
+   const list=JSON.parse((small||img).GetColourSchemeJSON(24))||[];
+   let sum=0,weight=0;
+   for(const c of list){
+    const col=Number(c.col)>>>0,w=Number(c.freq)||0;
+    sum+=w*(0.2126*((col>>>16)&255)+0.7152*((col>>>8)&255)+0.0722*(col&255))/255;weight+=w;
+   }
+   if(!(weight>0))return null;
+   return sum/weight>=LIGHT_WALLPAPER?'light':'dark';
+  }catch(e){console.log('Hariiro wallpaper tone: '+String(e));return null;}
+  finally{try{if(small&&small!==img&&typeof small.Dispose==='function')small.Dispose();}catch(e){}}
  }
  // The one recolouring rule (also tools/make_accent_palette.py, so pictures match):
  //  - any pink / rose / violet / purple tint (hue 255-360, spread >= 6) - dark, pale or vivid -
@@ -119,11 +179,11 @@ var HariiroTheme=(function(){
   return argb;
  }
  const colorIndex={FillSolidRect:4,FillRoundRect:6,DrawRoundRect:7,DrawRect:5,DrawLine:5,FillEllipse:4,DrawEllipse:5,GdiDrawText:2,DrawString:2,FillPolygon:0,DrawPolygon:0};
- function graphics(gr){if(hue()===BASE_HUE)return gr;return new Proxy(gr,{get(target,key){const v=target[key];if(typeof v!=='function')return v;const index=colorIndex[key];if(index===undefined)return (...args)=>v.apply(target,args);return (...args)=>{if(typeof args[index]==='number')args[index]=recolor(args[index]);return v.apply(target,args);};}});}
+ function graphics(gr){if(hue()===BASE_HUE&&tone()!=='light')return gr;return new Proxy(gr,{get(target,key){const v=target[key];if(typeof v!=='function')return v;const index=colorIndex[key];if(index===undefined)return (...args)=>v.apply(target,args);return (...args)=>{if(typeof args[index]==='number')args[index]=recolor(args[index]);return v.apply(target,args);};}});}
  // Colours used by more than one panel, in the pink base palette (graphics() recolours
  // them for the other accents like every other colour). Panels must not keep copies.
  const COLORS=Object.freeze({
-  // GLASS/NATIVE, QUEUE and DESK pills.
+  // QUEUE and DESK pills (Round 28: the GLASS/NATIVE switch was removed).
   switchActiveBg:0xff93547d,switchIdleBg:0xff43334f,
   switchActiveFrame:0xffffc8e7,switchIdleFrame:0xffd9b2d2,
   switchActiveKnob:0xffffe9f5,switchIdleKnob:0xffd8cbdf,
@@ -140,5 +200,5 @@ var HariiroTheme=(function(){
   gr.FillEllipse(cx-8,cy-8,16,16,active?C.switchActiveHalo:C.switchIdleHalo);
   gr.FillEllipse(cx-7,cy-7,14,14,active?C.switchActiveKnob:C.switchIdleKnob);
  }
- return {PRESETS,BASE,LAYOUT_COLORS,selected,folder,hue,key,set,scan,recolor,layoutColor,graphics,COLORS,paintSwitch};
+ return {PRESETS,BASE,LAYOUT_COLORS,selected,folder,hue,key,tone,isLookVariable,controlsFolder,set,scan,recolor,lighten,wallpaperTone,layoutColor,graphics,COLORS,paintSwitch};
 })();

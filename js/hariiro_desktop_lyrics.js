@@ -147,4 +147,4 @@ refreshTimer=window.SetInterval(function(){
 },1500);
 function on_script_unload(){if(refreshTimer)window.ClearInterval(refreshTimer);}
 
-function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(HariiroTheme.isLookVariable(name)||name===HariiroShared.PVAR.language)window.Repaint();}

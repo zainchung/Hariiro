@@ -1,5 +1,7 @@
 # NATIVE and GLASS mode — who decides what (Phase E4, 2026-11-21)
 
+> **Historical.** NATIVE was removed in Round 28 (`docs/ROUND28_REVIEW.md`); the middle list is always the Glass list.
+
 The switch above the middle list (GLASS / NATIVE) chooses what fills the middle of the
 window. It sets the Panels UI variable `hariiro.playlist.experimental` (`1` = GLASS), and
 `main.txt` then loads one of two panels:

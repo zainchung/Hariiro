@@ -14,9 +14,9 @@ const KNOB = 0xffffe0e8;
 // Image-backed seek butterfly and volume grip. Glass rails are still painted dynamically.
 let BUTTERFLY=null,VOLUME_THUMB=null,loadedTheme='';
 function loadAssets(){
- const id=HariiroTheme.folder();if(id===loadedTheme)return;
- loadedTheme=id;
- const folder='../images/controls/'+id+'/'; // Round 22: the colour's own folder
+ // Round 22: the colour's own folder; Round 27: its light/ images in the light tone.
+ const folder=HariiroTheme.controlsFolder();if(folder===loadedTheme)return;
+ loadedTheme=folder;
  try{BUTTERFLY=gdi.Image(folder+'butterfly.png');}catch(e){BUTTERFLY=null;}
  try{VOLUME_THUMB=gdi.Image(folder+'volume_thumb.png');}catch(e){VOLUME_THUMB=null;}
 }
@@ -164,7 +164,7 @@ function on_script_unload(){if(breathTimer)window.ClearInterval(breathTimer);}
 
 function on_mouse_rbtn_up(){return true;}
 
-function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(HariiroTheme.isLookVariable(name)||name===HariiroShared.PVAR.language)window.Repaint();}
 
 // Child-window DPI adapter (FooterSeek): must stay the last statement (wraps the callbacks above).
 HariiroDpi.install();

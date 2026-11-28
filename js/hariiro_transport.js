@@ -15,9 +15,9 @@ const IMG_NAMES=[...ORDER_IMAGES,'seek_backward_5','seek_forward_5','previous','
 const PNG={};
 let loadedTheme='';
 function loadIcons(){
- const id=HariiroTheme.folder();if(id===loadedTheme)return;
- loadedTheme=id;
- const folder='../images/controls/'+id+'/'; // Round 22: the colour's own folder
+ // Round 22: the colour's own folder; Round 27: its light/ images in the light tone.
+ const folder=HariiroTheme.controlsFolder();if(folder===loadedTheme)return;
+ loadedTheme=folder;
  for(const key of Object.keys(PNG))delete PNG[key];
  for(const name of IMG_NAMES){
   try{PNG[name]=gdi.Image(folder+name+'.png');}
@@ -33,8 +33,17 @@ function icon(gr,key,cx,cy,size,alpha=255){
  const img=PNG[key];if(!img)return;
  HariiroPaintCache.drawIcon(gr,img,Math.round(cx-size/2),Math.round(cy-size/2),size,size,alpha,ICON_FACTOR);
 }
-function nearest(x){let found=-1,dist=22;for(let i=0;i<POS.length;i++){
- const d=Math.abs(POS[i]-x);if(d<dist){dist=d;found=i;}}return found;}
+// Round 28: the mini player gives this panel less than COMPACT_BELOW px: playback order,
+// previous, play / pause, next and output device, evenly spread, with smaller icons.
+const COMPACT_BELOW=400,COMPACT=[0,2,3,4,6];
+function compact(){return (Number(window.Width)||0)<COMPACT_BELOW;}
+function slots(){
+ if(!compact())return POS.map((x,i)=>({i,x}));
+ const w=Number(window.Width)||0;
+ return COMPACT.map((i,k)=>({i,x:Math.round((k+0.5)*w/COMPACT.length)}));
+}
+function nearest(x){let found=-1,dist=compact()?26:22;for(const s of slots()){
+ const d=Math.abs(s.x-x);if(d<dist){dist=d;found=s.i;}}return found;}
 function seekBy(delta){
  if(fb.IsPlaying&&fb.PlaybackLength>0)
    fb.PlaybackTime=Math.max(0,Math.min(fb.PlaybackLength,fb.PlaybackTime+delta));
@@ -83,14 +92,16 @@ function on_paint(gr){
  gr=HariiroTheme.graphics(gr);
  loadIcons();
  const y=Math.floor(window.Height/2);
- for(let i=0;i<POS.length;i++){
-  const x=POS[i],hover=hot===i;
+ const small=compact();
+ for(const s of slots()){
+  const i=s.i,x=s.x,hover=hot===i;
   const key=i===0?(Number(plman.PlaybackOrder)===6?'order_random':ORDER_IMAGES[Math.max(0,Math.min(5,Number(plman.PlaybackOrder)||0))]):
    i===1?'seek_backward_5':i===2?'previous':i===3?(fb.IsPlaying&&!fb.IsPaused?'pause':'play'):
    i===4?'next':i===5?'seek_forward_5':'headphones';
   // Hover reuses the same artwork, never an extra drawn control glyph.
-  if(hover)icon(gr,key,x,y,i===3?69:45,68);
-  icon(gr,key,x,y,i===3?65:39,255);
+  const big=small?52:65,size=small?32:39;
+  if(hover)icon(gr,key,x,y,i===3?big+4:size+6,68);
+  icon(gr,key,x,y,i===3?big:size,255);
  }
 }
 function on_mouse_move(x){const i=nearest(x);if(i!==hot){hot=i;window.Repaint();}}
@@ -114,4 +125,4 @@ function on_playback_starting(){window.Repaint();}
 function on_playback_stop(){window.Repaint();}
 function on_playback_order_changed(){window.Repaint();}
 
-function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(HariiroTheme.isLookVariable(name)||name===HariiroShared.PVAR.language)window.Repaint();}

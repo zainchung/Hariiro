@@ -30,7 +30,7 @@ function chrome(saved, names) {
   const c = panelContext(h);
   runScript(c, 'js/hariiro_top_chrome.js');
   const wall = () => h.state.vars.get('hariiro.wallpaper');
-  const menuItems = () => { appended.length = 0; c.settingsMenu(1, 1); return appended.filter(([id]) => id >= 300).map(([, t]) => t.trim()); };
+  const menuItems = () => { appended.length = 0; c.settingsMenu(1, 1); return appended.filter(([id]) => id >= 300 && id < 360).map(([, t]) => t.trim()); };
   return { c, h, wall, menuItems };
 }
 { // Hariiro_UI_2560x1440.png is listed like any other image, by its file name.

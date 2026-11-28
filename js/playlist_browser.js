@@ -7,6 +7,7 @@ include('hariiro_i18n.js');
 include('hariiro_theme.js');
 include('hariiro_playlist_dedup.js');
 include('hariiro_shared.js');
+include('hariiro_favorites.js');
 include('hariiro_scratch_views.js');
 include('hariiro_dedup_tracker.js');
 include('hariiro_import_staging.js');
@@ -186,46 +187,10 @@ let error = '';
 let playingArtistKey = '';
 const TF_PLAYING_ARTIST = fb.TitleFormat('$if2(%album artist%,$if2(%artist%,Unknown Artist))');
 function nameKey(s) { return String(s || '').trim().toLocaleLowerCase(); }
-function findFavoriteIndex(list, handle) {
-    if(!handle)return -1;
-    try {return list.Find(handle);}catch(e){}
-    const items=list.Convert();
-    return items.findIndex(h=>h && h.Path===handle.Path && h.SubSong===handle.SubSong);
-}
-function updateFavoriteIndicator() {
-    try {
-        const h=fb.GetNowPlaying(),p=plman.FindPlaylist(FAVORITES);
-        const active=h && p>=0 && findFavoriteIndex(plman.GetPlaylistItems(p),h)>=0;
-        if(typeof panelsui!=='undefined'){
-            const val=active?'1':'0';
-            if(panelsui.GetVariable(HariiroShared.PVAR.favoriteCurrent,'0')!==val)
-                panelsui.SetVariable(HariiroShared.PVAR.favoriteCurrent,val);
-        }
-    } catch(e){console.log('Hariiro favorite state: '+String(e));}
-}
+// Round 28: the Favorites logic lives in hariiro_favorites.js (shared with the mini player).
+function updateFavoriteIndicator() { HariiroFavorites.publish(); }
 function toggleCurrentFavorite() {
-    const h=fb.GetNowPlaying();
-    if(!h){error=HariiroI18n.t('noPlayingToFavorite');window.Repaint();return;}
-    try {
-        const existing=plman.FindPlaylist(FAVORITES);
-        const p=existing>=0?existing:plman.FindOrCreatePlaylist(FAVORITES,true);
-        if(p<0 || plman.IsPlaylistLocked(p))throw new Error('Favorites playlist is locked');
-        const index=findFavoriteIndex(plman.GetPlaylistItems(p),h);
-        if(index>=0){
-            if(p===plman.PlayingPlaylist)throw new Error('Cannot remove an item from the playing Favorites playlist');
-            plman.UndoBackup(p);
-            plman.ClearPlaylistSelection(p);
-            plman.SetPlaylistSelectionSingle(p,index,true);
-            plman.RemovePlaylistSelection(p,false);
-        } else {
-            const tracks=fb.CreateHandleList();
-            tracks.Add(h);
-            plman.UndoBackup(p);
-            plman.InsertPlaylistItems(p,plman.PlaylistItemCount(p),tracks);
-        }
-        error='';
-        updateFavoriteIndicator();
-    }catch(e){error=HariiroI18n.t('favoritesFailed')+': '+String(e);console.log(error);}
+    error=HariiroFavorites.toggleCurrent();
     window.Repaint();
 }
 function refreshPlayingArtist() {
@@ -838,8 +803,29 @@ function on_playback_edited(){refreshPlayingArtist();}
 function on_library_items_added(){loadArtists();}
 function on_library_items_removed(){loadArtists();}
 function on_library_items_changed(){loadArtists();}
-function on_size(){window.Repaint();}
-function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}
+// Round 28: back from the mini player Panels UI shows this child window again without an
+// on_size, and its first paint comes before the background is drawn: black below the rows
+// until something repaints it. So it repaints after SETTLE_MS[0] and again after [1] when it
+// becomes visible again (checked every VISIBLE_POLL_MS) and after a resize (maximise).
+const SETTLE_MS=[300,1000],VISIBLE_POLL_MS=500;
+let sizeRepaint=0,visibleTimer=0,wasVisible=true;
+function settleRepaint(stage=0){
+    if(sizeRepaint)window.ClearTimeout(sizeRepaint);
+    sizeRepaint=window.SetTimeout(()=>{sizeRepaint=0;window.Repaint();if(stage+1<SETTLE_MS.length)settleRepaint(stage+1);},SETTLE_MS[stage]);
+}
+function watchVisible(){
+    const visible=window.IsVisible!==false;
+    if(visible&&!wasVisible)settleRepaint();
+    wasVisible=visible;
+    visibleTimer=window.SetTimeout(watchVisible,VISIBLE_POLL_MS);
+}
+function on_script_unload(){
+    if(sizeRepaint)window.ClearTimeout(sizeRepaint);
+    if(visibleTimer)window.ClearTimeout(visibleTimer);
+    sizeRepaint=visibleTimer=0;
+}
+function on_size(){window.Repaint();settleRepaint();}
+function on_panelsui_variable_changed(name){if(HariiroTheme.isLookVariable(name)||name===HariiroShared.PVAR.language)window.Repaint();}
 loadArtists();
 dedup.sync();
 refreshPlayingArtist();
@@ -910,4 +896,5 @@ function on_notify_data(name, info) {
 
 HariiroDropFix.install({plan:externalDropPlan,activate:activateDropTarget});
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).
+watchVisible();
 HariiroDpi.install();

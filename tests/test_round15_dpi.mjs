@@ -21,9 +21,9 @@ for (const name of Object.keys(PANELS)) {
 // them go through HariiroDpi - the three drop targets plus the search box and the
 // NATIVE-mode scroll strip, which were child windows already.
 // Round 21: the lyrics card and the seek bar animate; as child windows their repaints stay local.
-const CHILD = { ...PANELS, GlassSearch: 'js/hariiro_search.js', NativeScroll: 'js/hariiro_native_scroll.js',
+const CHILD = { ...PANELS, GlassSearch: 'js/hariiro_search.js', MiniSide: 'js/hariiro_mini.js', // Round 28: no NativeScroll; mini player
   HariiroLyrics: 'js/hariiro_lyrics.js', FooterSeek: 'js/hariiro_footer_slider.js' };
-for (const name of ['GlassSearch', 'NativeScroll']) assert(ini.includes(`panel.${name}.windowless = 0`), name);
+for (const name of ['GlassSearch']) assert(ini.includes(`panel.${name}.windowless = 0`), name);
 for (const m of ini.matchAll(/^panel\.(\w+)\.windowless = 0$/gm))
   assert(CHILD[m[1]], `${m[1]} is a child window but is not covered by HariiroDpi`);
 for (const [name, file] of Object.entries(CHILD)) {

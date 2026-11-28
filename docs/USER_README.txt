@@ -35,7 +35,6 @@ Install
    a. "New user interface module(s) found": choose "Panels UI (reborn)", OK.
    b. Panels UI opens its own layout wizard. Use the menu
       View > Panels UI > Skins (last entry) > Hariiro. foobar2000 keeps it.
-   Hariiro starts in GLASS mode; the GLASS / NATIVE switch is above the middle list.
 
 Manual install (without the installer): install the two components (copy
 components\<name>\<name>.dll to <profile>\user-components-x64\<name>\, or use the
@@ -63,9 +62,17 @@ Top bar
 - Search box: type and press Enter to search the Music Library; the results go to
   "Search Result" in the sidebar. Ctrl+A / Ctrl+C / Ctrl+V work in the box;
   right-click for Search now, Paste from clipboard and Clear search.
-- ☰: Hariiro settings: show or hide the Windows title bar and the foobar2000 menu
-  bar, foobar2000 preferences, foobar2000 main menu, Skin language, Accent colour,
-  Wallpaper. Then minimise, maximise and the power button (closes foobar2000).
+- ☰: Hariiro settings: Mini player (see below), show or hide the Windows title bar
+  and the foobar2000 menu bar, foobar2000 preferences, foobar2000 main menu, Skin language, Accent colour,
+  Wallpaper, Interface colours, and last Hariiro on GitHub (releases), which opens
+  the project's public releases page in your browser. Then minimise, maximise and
+  the power button (closes foobar2000).
+Mini player
+- Menu ☰ → Mini player shrinks the window to a small player at the top right of the
+  screen: cover, title, artist, playback order, previous, play / pause, next,
+  output device and the seek bar. Drag it by the title; the heart adds the track
+  to Favorites. The button at the top right (or a double-click on the title) goes
+  back to the full window at its old size. It follows the light / dark interface.
 Sidebar (left)
 - Click a row to show it in the middle list. Music Library, Favorites and Search
   Result are pinned at the top; your playlists follow.
@@ -79,13 +86,11 @@ Sidebar (left)
 Middle list (GLASS mode)
 - Click selects, Ctrl + click / Shift + click select more, double-click plays.
 - The heart on a row adds the track to Favorites or takes it out; "…" (or a
-  right-click) opens the menu: Switch to NATIVE playlist, Add selected tracks to
-  playback queue, Remove selected tracks from playlist (the files are kept), and
+  right-click) opens the menu: Add selected tracks to playback queue, Remove selected tracks from playlist (the files are kept), and
   foobar2000's own track commands.
 - Delete removes the selected tracks from the playlist (never the files).
 - Drag tracks onto a sidebar playlist or onto the Queue; drop files from File
   Explorer to add them. The mouse wheel scrolls.
-- The GLASS / NATIVE switch above the list changes to foobar2000's own list view.
 Right side
 - The card at the top shows the playing track: cover, title, artist, album.
 - Lyrics: the current line is highlighted. Drag the lyrics up or down and release
@@ -113,8 +118,9 @@ Undo and keyboard
 - Delete: selected playlists (sidebar) or selected tracks (middle list).
 
 Features
-- GLASS mode: a transparent playlist grouped by album, with cover art, reflections
-  and a heart per track; NATIVE mode switches to foobar2000's own list view.
+- GLASS list: a transparent playlist grouped by album, with cover art, reflections
+  and a heart per track.
+- Mini player: a small window with cover, track, controls and seek bar (menu ☰).
 - Sidebar: Artists (grouped from the Music Library) or Playlists with Music
   Library, Favorites and Search Result pinned on top. Create, rename, duplicate
   and remove playlists, import a folder, select several playlists at once.
@@ -136,10 +142,14 @@ Features
 - Menu ☰ → Accent colour: every folder in images\controls, by folder name (six
   bundled: amber, blue, mint, pink, teal, violet). Copy a folder, change its
   pictures and theme.json, and it appears. Corners, frames, buttons and texts
-  follow the colour in GLASS and NATIVE mode.
+  follow the colour.
 - Menu ☰ → Wallpaper: every .jpg / .png / .bmp file in images\wallpapers in the
   skin folder, listed by file name (two Hariiro_UI pictures are bundled). Delete a
   file and it leaves the menu; if it was in use, another one is chosen.
+- Menu ☰ → Interface colours: Automatic (default) reads the wallpaper's brightness
+  when you choose it: a light wallpaper gets the light interface (pale frosted
+  glass, dark text and icons), a dark one the original dark glass. Dark and Light
+  keep one look whatever the wallpaper.
 - Nine languages: English, Español, Português, 简体中文, 繁體中文, 日本語,
   Français, Deutsch, Русский (menu ☰ → Skin language).
 - Show or hide the Windows title bar and the foobar2000 menu bar (menu ☰).
@@ -149,7 +159,9 @@ Features
 Known limits
 - ESLyric's own panel cannot be embedded; the skin shows lyrics ESLyric has
   saved (or lyrics in tags). Online search stays in ESLyric.
-- In NATIVE mode the middle list follows foobar2000's own rules, not the Glass ones.
+- The light interface needs a colour folder with a light\ subfolder (all bundled
+  colours have one; tools/make_light_controls.py makes it). Without it the
+  controls keep their normal images.
 - The foobar2000 folder path must use only characters of your Windows code page
   (letters, digits and spaces are always safe, e.g. D:\Program\foobar2000).
   Otherwise JS Panel cannot read the skin's scripts and the skin stays blank,

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT - Copyright (c) 2026 zainchung - see LICENSE
 // Source interaction model: official foo_js_panel Playlist sample, adapted to grouped rows.
 // This file NEVER changes/overwrites user's native playlist or saved playlists.
-// MODE: GLASS is the current-mode label; click to toggle back to MODE: NATIVE.
 'use strict';
 include('hariiro_i18n.js');
 include('hariiro_theme.js');
@@ -538,15 +537,14 @@ function on_mouse_rbtn_up(x,y){
     if(p<0)return false;
     if(n&&n.kind==='song'&&!plman.IsPlaylistItemSelected(p,n.index))selectTrack(n.index,0);
     try{
-        const m=window.CreatePopupMenu();m.AppendMenuItem(0,1,HariiroI18n.t('switchNative'));
+        const m=window.CreatePopupMenu(); // Round 28: no "Switch to NATIVE" (removed)
         m.AppendMenuItem(0,2,HariiroI18n.t('queueSelected'));
         if(String(panelsui.GetVariable(HariiroShared.PVAR.sidebarEditable,''))===String(plman.GetPlaylistName(p)))
            m.AppendMenuItem(0,3,HariiroI18n.t('removeSelected'));
         m.AppendMenuSeparator();
         const cm=fb.CreateContextMenuManager();cm.InitContextPlaylist();cm.BuildMenu(m,100,1000);
         const cmd=HariiroDpi.popup(m,x,y);
-        if(cmd===1){panelsui.RunAction('PVAR:TOGGLE:'+HariiroShared.PVAR.playlistExperimental);}
-        else if(cmd===2){queueSelected();}
+        if(cmd===2){queueSelected();}
         else if(cmd===3){removeFromCurrentPlaylist();}
         else if(cmd>=100)cm.ExecuteByID(cmd-100);
         return true;
@@ -637,7 +635,7 @@ miniEqTimer=window.SetInterval(function(){
 },160);
 function on_script_unload(){if(miniEqTimer)window.ClearInterval(miniEqTimer);if(importMessageTimer)window.ClearTimeout(importMessageTimer);if(clearGlassOriginTimer)window.ClearTimeout(clearGlassOriginTimer);}
 
-function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue||name===HariiroShared.PVAR.language)window.Repaint();}
+function on_panelsui_variable_changed(name){if(HariiroTheme.isLookVariable(name)||name===HariiroShared.PVAR.language)window.Repaint();}
 
 HariiroDropFix.install({plan:externalDropPlan});
 // Child-window DPI adapter: must stay the last statement (wraps the callbacks above).

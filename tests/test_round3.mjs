@@ -19,7 +19,7 @@ assert.match(main,/\$panel\(Cover,Album Art,/);
 assert(!main.includes('play_ring.png'));
 assert(!transport.includes('FillPolygon(C.line,0,[x-7'));
 assert.match(transport,/transport graphics are transparent PNGs/);
-assert.match(main,/72 \/ 100 - 115\),61,74,24/);
+// Round 28: the GLASS/NATIVE switch was removed (test_round28_mini).
 assert.match(main,/\$panel\(DesktopLyrics,JS Panel,\$eval\(%_width% - 209\),\$eval\(%_height% - 94\),84,24/);
 assert.match(read('js/hariiro_desktop_lyrics.js'),/Desk ON/);
 assert.match(read('js/hariiro_desktop_lyrics.js'),/Desk OFF/);

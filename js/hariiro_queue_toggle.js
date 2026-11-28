@@ -18,7 +18,7 @@ function on_paint(gr){
 function on_mouse_move(){if(!over){over=true;window.Repaint();}}
 function on_mouse_leave(){over=false;window.Repaint();}
 function on_mouse_lbtn_up(){panelsui.RunAction('PVAR:TOGGLE:'+HariiroShared.PVAR.queueOpen);window.Repaint();}
-function on_panelsui_variable_changed(name){if(name===HariiroShared.PVAR.themeHue){window.Repaint();return;}
+function on_panelsui_variable_changed(name){if(HariiroTheme.isLookVariable(name)){window.Repaint();return;}
 if(name===HariiroShared.PVAR.queueOpen)window.Repaint();}
 
 function on_mouse_rbtn_up(){return true;}
