@@ -10,8 +10,8 @@
 新規インストールでは GLASS モードで起動します。
 
 ![Hariiro — 再生中（歌詞付き）](docs/preview/hariiro-glass-now-playing.png)
-![Hariiro — ピンク、夜景の壁紙](docs/preview/hariiro-glass-pink-night.png)
-![Hariiro — ブルー、桜の壁紙](docs/preview/hariiro-glass-blue-sakura.png)
+![Hariiro — 明るい壁紙でのライトな画面、ブルー](docs/preview/hariiro-light-sakura.png)
+![Hariiro — ミニプレーヤー（ライト / ダーク）](docs/preview/hariiro-mini-player.png)
 
 現在のバージョン：**1.0.1**（2026-11-28）：明るい壁紙用のライトな画面、ミニプレーヤー、NATIVE 表示の削除。foobar2000 2.26.3、
 foo_js_panel 1.9.2、Panels UI (reborn) 1.27.1 で確認しています。スクリーンショットは架空のサンプル

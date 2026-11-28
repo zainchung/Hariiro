@@ -10,8 +10,8 @@ a wallpaper selector (`images/wallpapers/`) with a light or dark interface to ma
 (English, Español, Português, 简体中文, 繁體中文, 日本語, Français, Deutsch, Русский). New installs start in GLASS mode.
 
 ![Hariiro — now playing, with lyrics](docs/preview/hariiro-glass-now-playing.png)
-![Hariiro — pink accent, night wallpaper](docs/preview/hariiro-glass-pink-night.png)
-![Hariiro — blue accent, sakura wallpaper](docs/preview/hariiro-glass-blue-sakura.png)
+![Hariiro — light interface on a light wallpaper, blue accent](docs/preview/hariiro-light-sakura.png)
+![Hariiro — mini player, light and dark](docs/preview/hariiro-mini-player.png)
 
 Current release: **1.0.1** (2026-11-28): light interface for light wallpapers, mini player, NATIVE view removed. Tested with foobar2000 2.26.3, foo_js_panel 1.9.2 and Panels UI (reborn).
 

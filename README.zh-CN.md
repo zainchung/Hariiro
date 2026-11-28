@@ -9,8 +9,8 @@
 新安装默认使用 GLASS 模式。
 
 ![Hariiro — 正在播放（含歌词）](docs/preview/hariiro-glass-now-playing.png)
-![Hariiro — 粉色主题，夜景壁纸](docs/preview/hariiro-glass-pink-night.png)
-![Hariiro — 蓝色主题，樱花壁纸](docs/preview/hariiro-glass-blue-sakura.png)
+![Hariiro — 浅色壁纸下的浅色界面，蓝色主题](docs/preview/hariiro-light-sakura.png)
+![Hariiro — 迷你播放器（浅色 / 深色）](docs/preview/hariiro-mini-player.png)
 
 当前版本：**1.0.1**（2026-11-28）：浅色壁纸的浅色界面、迷你播放器，移除了 NATIVE 视图。已在 foobar2000 2.26.3、foo_js_panel 1.9.2 和
 Panels UI (reborn) 1.27.1 上测试。效果图使用的是虚构的示例专辑。
