@@ -12,7 +12,7 @@
 ![Hariiro — 粉色主题，夜景壁纸](docs/preview/hariiro-glass-pink-night.png)
 ![Hariiro — 蓝色主题，樱花壁纸](docs/preview/hariiro-glass-blue-sakura.png)
 
-当前版本：**1.0.0**（2026-11-22），本仓库的第一个正式版。已在 foobar2000 2.26.3、foo_js_panel 1.9.2 和
+当前版本：**1.0.1**（2026-11-28）：浅色壁纸的浅色界面、迷你播放器，移除了 NATIVE 视图。已在 foobar2000 2.26.3、foo_js_panel 1.9.2 和
 Panels UI (reborn) 1.27.1 上测试。效果图使用的是虚构的示例专辑。
 
 ## 安装

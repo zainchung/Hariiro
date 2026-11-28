@@ -13,7 +13,7 @@ a wallpaper selector (`images/wallpapers/`) with a light or dark interface to ma
 ![Hariiro — pink accent, night wallpaper](docs/preview/hariiro-glass-pink-night.png)
 ![Hariiro — blue accent, sakura wallpaper](docs/preview/hariiro-glass-blue-sakura.png)
 
-Current release: **1.0.0** (2026-11-22), the first release in this repository. Tested with foobar2000 2.26.3, foo_js_panel 1.9.2 and Panels UI (reborn).
+Current release: **1.0.1** (2026-11-28): light interface for light wallpapers, mini player, NATIVE view removed. Tested with foobar2000 2.26.3, foo_js_panel 1.9.2 and Panels UI (reborn).
 
 **Windows status.** Every change is checked in a real foobar2000 on Windows; the full
 acceptance matrix is `docs/WINDOWS_UI_ACCEPTANCE.md`. Covered offline only: display scaling

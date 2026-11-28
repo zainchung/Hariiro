@@ -122,6 +122,7 @@ post-import sort, all of which read and write the panel's own state.
   HariiroTheme, light control images (`docs/ROUND27_REVIEW.md`).
 - Round 28: NATIVE removed; mini player (Panels UI mini mode, ☰ → Mini player), shared
   favourites helper, sidebar repaint after it is shown again (`docs/ROUND28_REVIEW.md`).
+- Release 1.0.1 (2026-11-28): rounds 26-28.
 
 ## 4. Working rules
 - Every round: failing test first, `npm test` green, review doc `docs/ROUNDnn_REVIEW.md`, short release note, ZIP via `npm run package` (`tools/package_skin.py`); bump `package.json` and the header of `docs/USER_README.txt` for a release.

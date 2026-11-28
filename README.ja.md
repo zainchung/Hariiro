@@ -13,7 +13,7 @@
 ![Hariiro — ピンク、夜景の壁紙](docs/preview/hariiro-glass-pink-night.png)
 ![Hariiro — ブルー、桜の壁紙](docs/preview/hariiro-glass-blue-sakura.png)
 
-現在のバージョン：**1.0.0**（2026-11-22）。このリポジトリでの最初の正式版です。foobar2000 2.26.3、
+現在のバージョン：**1.0.1**（2026-11-28）：明るい壁紙用のライトな画面、ミニプレーヤー、NATIVE 表示の削除。foobar2000 2.26.3、
 foo_js_panel 1.9.2、Panels UI (reborn) 1.27.1 で確認しています。スクリーンショットは架空のサンプル
 アルバムです。
 

@@ -1,4 +1,4 @@
-Hariiro — version 1.0.0 (2026-11-22)
+Hariiro — version 1.0.1 (2026-11-28)
 
 A transparent "glass" skin for foobar2000.
 简体中文说明：Hariiro-README.zh-CN.txt　日本語の説明：Hariiro-README.ja.txt
